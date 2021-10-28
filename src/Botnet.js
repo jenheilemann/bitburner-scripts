@@ -1,10 +1,13 @@
 import { networkMap } from 'Network.js'
 import { groupBy } from 'groupBy.js'
 import { BestHack } from 'BestHack.js'
+import { Rooter } from 'Rooter.js'
+
+const crackers = [0, "BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "sqlinject.exe"]
 
 export async function main(ns) {
   let nMap = networkMap(ns)
-  let crackers = [0, "BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "sqlinject.exe"]
+  ns.disableLog('sleep')
 
   const serversByPortsRequired = groupBy(Object.values(nMap.serverData), (s) => s.portsRequired)
   const searcher = new BestHack(nMap.serverData)
@@ -12,12 +15,13 @@ export async function main(ns) {
 
   for (let i = 0; i < crackers.length; i++) {
     if (i > 0) {
+      ns.print("Waiting for the next cracking tool...")
       do {
         await ns.sleep(10000)
       } while (!ns.fileExists(crackers[i], 'home'));
     }
 
-    target = searcher.findBestPerLevel(ns.getHackingLevel())
+    target = searcher.findBestPerLevel(ns.getHackingLevel(), Rooter.count(ns))
     ns.tprint("Zombifying level " + i + " servers, targeting " + target.name)
     for (let server of serversByPortsRequired[i]) {
       if (server.name !== 'home') {
@@ -28,7 +32,7 @@ export async function main(ns) {
   }
 
   ns.tprint("Botnet.ns completed running.")
-  target = searcher.findBestPerLevel(ns.getHackingLevel())
+  target = searcher.findBestPerLevel(ns.getHackingLevel(), Rooter.count(ns))
   ns.tprint("Running purchase-server.script, targeting " + target.name)
   ns.run('purchase-server.script', 1, target.name, 6)
   ns.tprint("Spawning HackNet.js")

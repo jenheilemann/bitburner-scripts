@@ -22,9 +22,8 @@ export function BestHack(serverData) {
   this.calcsRun = false
 }
 
-BestHack.prototype.findBestPerLevel = function (level) {
+BestHack.prototype.findBestPerLevel = function (level, maxPorts) {
   let scores = this.calcServerScores()
-  let maxPorts = Rooter.count()
   let perLevel = Object.values(scores).filter((server) => server.hackingLvl <= level && server.portsRequired <= maxPorts )
   return perLevel.reduce((prev, current) => (prev.score > current.score) ? prev : current)
 }
@@ -43,5 +42,5 @@ BestHack.prototype.calcServerScores = function () {
 
 export function main(ns) {
   let searcher = new BestHack(networkMap(ns).serverData)
-  ns.tprint(searcher.findBestPerLevel(ns.getHackingLevel()))
+  ns.tprint(searcher.findBestPerLevel(ns.getHackingLevel(), Rooter.count(ns)))
 }
