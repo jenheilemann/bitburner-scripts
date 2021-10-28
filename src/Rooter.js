@@ -43,15 +43,13 @@ export class Rooter {
     var ret = this.ns.nuke(target)
     this.logger.say("Sudo aquired: " + ret)
   }
-
-  static count(ns) {
-    let count = 0
-    rootFiles.forEach((fileName) => { if (ns.fileExists(fileName)) { count++ } }, ns)
-    return count
-  }
 }
 
-
+export function toolsCount(ns) {
+  let count = 0
+  rootFiles.forEach((fileName) => { if (ns.fileExists(fileName)) { count++ } }, ns)
+  return count
+}
 
 export function main(ns) {
   var target = ns.args[0]
@@ -65,6 +63,6 @@ export function main(ns) {
 
   const whisperer = new Whisperer(ns, loud)
   const rooter = new Rooter(ns, whisperer)
-  ns.tprint(Rooter.count(ns))
+  ns.tprint(toolsCount(ns))
   rooter.root(target)
 }

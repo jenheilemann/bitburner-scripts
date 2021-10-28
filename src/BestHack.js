@@ -1,4 +1,4 @@
-import { Rooter } from 'Rooter.js'
+import { toolsCount } from 'Rooter.js'
 import { networkMap } from 'Network.ns'
 
 const maxMoneyCoefficient = 1.25
@@ -42,5 +42,5 @@ BestHack.prototype.calcServerScores = function () {
 
 export function main(ns) {
   let searcher = new BestHack(networkMap(ns).serverData)
-  ns.tprint(searcher.findBestPerLevel(ns.getHackingLevel(), Rooter.count(ns)))
+  ns.tprint(searcher.findBestPerLevel(ns.getHackingLevel(), toolsCount(ns)))
 }
