@@ -12,6 +12,9 @@ var script = "get-money.script"
 var ramRequired = getScriptRam(script);
 var threads = Math.floor(ram/ramRequired)
 
+disablelog('getServerMoneyAvailable')
+disablelog('sleep')
+
 while (i < limit) {
   if (getServerMoneyAvailable("home") > cost) {
     hostname = purchaseServer("pserv-" + i, ram);
