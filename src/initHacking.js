@@ -1,6 +1,14 @@
 const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src/'
 const filesToDownload = [
-
+  'BestHack.js',
+  'Botnet.js',
+  'Find.js',
+  'groupBy.js',
+  'initHacking.js',
+  'Network.js',
+  'Rooter.js',
+  'Whisperer.js',
+  'Zombifier.js',
 ]
 const valuesToRemove = []
 
