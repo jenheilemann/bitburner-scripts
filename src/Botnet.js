@@ -27,6 +27,11 @@ export async function main(ns) {
     }
   }
   ns.tprint("Botnet.ns completed running.")
+  let target = searcher.findBestPerLevel(ns.getHackingLevel())
+  ns.tprint("Running purchase-server.script, targeting " + target.name)
+  ns.run('purchase-server.script', 1, target.name, 6)
+  ns.tprint("Spawning HackNet.js")
+  ns.spawn("HackNet.js", 1)
 }
 
 function zombify(ns, serv, target) {

@@ -80,8 +80,6 @@ export class Hacknet {
   }
 }
 
-
-
 export async function main(ns) {
   ns.disableLog("getServerMoneyAvailable")
   ns.disableLog("sleep")
