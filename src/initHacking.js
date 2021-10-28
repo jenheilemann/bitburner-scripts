@@ -41,6 +41,8 @@ export async function main(ns) {
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
+  ns.tprint(`[${localeHHMMSS()}] Starting Hacknet.js`)
+  ns.run('Hacknet.js')
   ns.tprint(`[${localeHHMMSS()}] Spawning Botnet.js`)
   ns.spawn('Botnet.js', 1,)
 }
