@@ -5,11 +5,10 @@ import { BestHack } from 'BestHack.js'
 export async function main(ns) {
   let nMap = networkMap(ns)
   let crackers = [0, "BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "sqlinject.exe"]
-  let targets = ["n00dles", "foodnstuff", "sigma-cosmetics", "hong-fang-tea", "harakiri-sushi", "iron-gym"]
 
   const serversByPortsRequired = groupBy(Object.values(nMap.serverData), (s) => s.portsRequired)
   const searcher = new BestHack(nMap.serverData)
-  ns.tprint(searcher.findBestPerLevel(ns.getHackingLevel()))
+  let target;
 
   for (let i = 0; i < crackers.length; i++) {
     if (i > 0) {
@@ -18,10 +17,11 @@ export async function main(ns) {
       } while (!ns.fileExists(crackers[i], 'home'));
     }
 
-    ns.tprint("Zombifying level " + i + " servers, targeting " + targets[i])
+    let target = searcher.findBestPerLevel(ns.getHackingLevel())
+    ns.tprint("Zombifying level " + i + " servers, targeting " + target)
     for (const server of serversByPortsRequired[i]) {
       if (server.name !== 'home') {
-        zombify(ns, server, targets[i])
+        zombify(ns, server, target)
         await ns.sleep(400)
       }
     }
