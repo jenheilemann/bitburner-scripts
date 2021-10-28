@@ -1,0 +1,25 @@
+var target = args[0]
+var moneyThreshhold = getServerMaxMoney(target) * 0.8
+var securityThreshhold = getServerMinSecurityLevel(target) + 3
+var money = 1
+
+while(true) {
+  if (getServerSecurityLevel(target) > securityThreshhold) {
+    print("Target security: " + securityThreshhold)
+    weaken(target)
+    continue
+  }
+
+  money = getServerMoneyAvailable(target)
+  if ( money == 0 ) {
+    tprint("Server " + target + " ran out of money. Ooops!")
+    exit()
+  }
+  if (money < moneyThreshhold ) {
+    print("Target money: " + moneyThreshhold)
+    grow(target);
+    continue
+  }
+
+  hack(target)
+}

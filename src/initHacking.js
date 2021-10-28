@@ -2,7 +2,7 @@ const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master
 const filesToDownload = [
 
 ]
-const valuesToRemove = [']
+const valuesToRemove = []
 
 function localeHHMMSS(ms = 0) {
   if (!ms) {
@@ -13,7 +13,7 @@ function localeHHMMSS(ms = 0) {
 }
 
 export async function main(ns) {
-  ns.tprint(`[${localeHHMMSS()}] Starting initHacking.ns`)
+  ns.tprint(`[${localeHHMMSS()}] Starting initHacking.js`)
 
   let hostname = ns.getHostname()
 
@@ -33,6 +33,6 @@ export async function main(ns) {
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
-  // ns.tprint(`[${localeHHMMSS()}] Spawning killAll.ns`)
-  // ns.spawn('killAll.ns', 1, 'runHacking.ns')
+  // ns.tprint(`[${localeHHMMSS()}] Spawning killAll.js`)
+  // ns.spawn('killAll.js', 1, 'runHacking.js')
 }

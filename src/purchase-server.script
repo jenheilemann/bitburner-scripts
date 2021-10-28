@@ -1,0 +1,23 @@
+var target = args[0]
+var ram = Math.pow(2, args[1]);
+tprint("Targeting " + target + " with " + ram + "GB ram servers")
+
+var i = getPurchasedServers().length;
+var limit = getPurchasedServerLimit();
+var cost = getPurchasedServerCost(ram);
+tprint("Buying " + limit + " servers for $" + cost + " each")
+var hostname = "pserv-" + i;
+
+var script = "get-money.script"
+var ramRequired = getScriptRam(script);
+var threads = Math.floor(ram/ramRequired)
+
+while (i < limit) {
+  if (getServerMoneyAvailable("home") > cost) {
+    hostname = purchaseServer("pserv-" + i, ram);
+    scp(script, hostname);
+    exec(script, hostname, threads, target);
+    ++i;
+  }
+  sleep(4000);
+}
