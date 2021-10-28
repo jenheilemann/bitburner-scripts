@@ -40,6 +40,6 @@ export async function main(ns) {
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
-  // ns.tprint(`[${localeHHMMSS()}] Spawning killAll.js`)
-  // ns.spawn('killAll.js', 1, 'runHacking.js')
+  ns.tprint(`[${localeHHMMSS()}] Spawning botnet.js`)
+  ns.spawn('botnet.js', 1,)
 }
