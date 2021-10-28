@@ -4,7 +4,6 @@ const filesToDownload = [
   'Botnet.js',
   'Find.js',
   'groupBy.js',
-  'initHacking.js',
   'Network.js',
   'Rooter.js',
   'Whisperer.js',
