@@ -12,13 +12,13 @@ export function Rooter(ns, logger) {
   this.logger = logger
 }
 
-Rooter.count = function(ns) {
+Rooter.count = function (ns) {
   let count = 0
-  rootFiles.forEach( (fileName ) => if (ns.fileExists(fileName)) { count++ } )
+  rootFiles.forEach((fileName) => { if (ns.fileExists(fileName)) { count++ } }, ns)
   return count
 }
 
-Rooter.prototype.root = function(target) {
+Rooter.prototype.root = function (target) {
   if (this.ns.hasRootAccess(target)) {
     this.logger.say("Have root access already");
     return;
@@ -52,6 +52,13 @@ Rooter.prototype.root = function(target) {
 export function main(ns) {
   var target = ns.args[0]
   var loud = ns.args[1] === undefined ? 1 : ns.args[1]
+
+  if ( target === undefined ) {
+    ns.tprint("Must choose a target to root, `run Rooter.js n00dles`")
+    ns.exit()
+    return;
+  }
+
   const whisperer = new Whisperer(ns, loud)
   const rooter = new Rooter(ns, whisperer)
   rooter.root(target)

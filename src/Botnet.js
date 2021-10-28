@@ -17,17 +17,18 @@ export async function main(ns) {
       } while (!ns.fileExists(crackers[i], 'home'));
     }
 
-    let target = searcher.findBestPerLevel(ns.getHackingLevel())
-    ns.tprint("Zombifying level " + i + " servers, targeting " + target)
-    for (const server of serversByPortsRequired[i]) {
+    target = searcher.findBestPerLevel(ns.getHackingLevel())
+    ns.tprint("Zombifying level " + i + " servers, targeting " + target.name)
+    for (let server of serversByPortsRequired[i]) {
       if (server.name !== 'home') {
-        zombify(ns, server, target)
+        zombify(ns, server, target.name)
         await ns.sleep(400)
       }
     }
   }
+
   ns.tprint("Botnet.ns completed running.")
-  let target = searcher.findBestPerLevel(ns.getHackingLevel())
+  target = searcher.findBestPerLevel(ns.getHackingLevel())
   ns.tprint("Running purchase-server.script, targeting " + target.name)
   ns.run('purchase-server.script', 1, target.name, 6)
   ns.tprint("Spawning HackNet.js")
