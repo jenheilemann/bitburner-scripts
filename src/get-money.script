@@ -16,7 +16,8 @@ while(true) {
     exit()
   }
   if (money < moneyThreshhold ) {
-    print("Target money: " + moneyThreshhold)
+    print("Current money: " + nFormat(money, "$0.000a") +
+      "  ---  Target money: " + nFormat(moneyThreshhold, "$0.000a"))
     grow(target);
     continue
   }

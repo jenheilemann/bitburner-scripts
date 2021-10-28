@@ -5,7 +5,7 @@ tprint("Targeting " + target + " with " + ram + "GB ram servers")
 var i = getPurchasedServers().length;
 var limit = getPurchasedServerLimit();
 var cost = getPurchasedServerCost(ram);
-tprint("Buying " + limit + " servers for $" + cost + " each")
+tprint("Buying " + limit + " servers for $" + nFormat(cost, "$0.000a") + " each")
 var hostname = "pserv-" + i;
 
 var script = "get-money.script"
