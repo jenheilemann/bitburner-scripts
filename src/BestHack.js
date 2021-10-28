@@ -1,3 +1,6 @@
+import { Rooter } from 'Rooter.js'
+import { networkMap } from 'Network.ns'
+
 const maxMoneyCoefficient = 1.25
 const growthCoefficient = 1.1
 const minSecurityCoefficient = 2
@@ -21,7 +24,8 @@ export function BestHack(serverData) {
 
 BestHack.prototype.findBestPerLevel = function (level) {
   let scores = this.calcServerScores()
-  let perLevel = Object.values(scores).filter((server) => server.hackingLvl <= level)
+  let maxPorts = Rooter.count()
+  let perLevel = Object.values(scores).filter((server) => server.hackingLvl <= level && server.portsRequired <= maxPorts )
   return perLevel.reduce((prev, current) => (prev.score > current.score) ? prev : current)
 }
 
@@ -37,7 +41,6 @@ BestHack.prototype.calcServerScores = function () {
   return this.serverData
 }
 
-import { networkMap } from 'Network.ns'
 export function main(ns) {
   let searcher = new BestHack(networkMap(ns).serverData)
   ns.tprint(searcher.findBestPerLevel(ns.getHackingLevel()))

@@ -1,8 +1,21 @@
 import { Whisperer } from 'Whisperer.js'
+const rootFiles = [
+  "BruteSSH.exe",
+  "FTPCrack.exe",
+  "HTTPWorm.exe",
+  "relaySMTP.exe",
+  "sqlinject.exe",
+]
 
 export function Rooter(ns, logger) {
   this.ns = ns
   this.logger = logger
+}
+
+Rooter.count = function(ns) {
+  let count = 0
+  rootFiles.forEach( (fileName ) => if (ns.fileExists(fileName)) { count++ } )
+  return count
 }
 
 Rooter.prototype.root = function(target) {
