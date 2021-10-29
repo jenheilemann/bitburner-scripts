@@ -32,10 +32,11 @@ export async function main(ns) {
         await ns.sleep(400)
       }
     }
-    // wait a sec for us to level up at least once
-    hackTime = ns.getHackTime(target.name)
-    ns.tprint(`Waiting ${hackTime} seconds until the first hack has run, ${hackTime * 1000} milliseconds`)
-    await ns.sleep(hackTime * 1000)
+
+    // wait a sec for us to level up a little
+    waitTime = ns.getWeakenTime(target.name)
+    ns.tprint(`Waiting ${ns.tFormat(waitTime)} seconds until the first weaken has run`)
+    await ns.sleep(waitTime * 1000)
   }
 
   ns.tprint("Botnet.ns completed running. You have taken over the world! Mwahaha")
