@@ -20,7 +20,7 @@ export async function main(ns) {
 
   const limit = ns.getPurchasedServerLimit();
   const cost = ns.getPurchasedServerCost(ram);
-  ns.tprint("Buying " + limit + " servers for $" + ns.nFormat(cost, "$0.000a") + " each")
+  ns.tprint("Buying " + limit + " servers for " + ns.nFormat(cost, "$0.000a") + " each")
 
   const ramRequired = ns.getScriptRam(script);
   const threads = Math.floor(ram / ramRequired)
