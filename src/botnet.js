@@ -30,7 +30,7 @@ export async function main(ns) {
       }
     }
     // wait a sec for us to level up at least once
-    hackTime = ns.getHackTime(target)
+    hackTime = ns.getHackTime(target.name)
     ns.tprint(`Waiting ${hackTime} seconds until the first hack has run, ${hackTime * 1000} milliseconds`)
     await ns.sleep(hackTime * 1000)
   }
