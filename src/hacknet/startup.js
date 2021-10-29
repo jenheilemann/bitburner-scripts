@@ -1,5 +1,5 @@
 import { waitForCash } from "hacknet/helpers.js"
-const hacknetGoal = 10
+const hacknetGoal = 5
 
 async function buyNodes(ns, goal) {
   let nodeId, cost;
