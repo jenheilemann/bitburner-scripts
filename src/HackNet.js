@@ -13,7 +13,7 @@ export class Hacknet {
   }
 
   async waitForCash(cost) {
-    this.ns.print("Waiting for " + ns.nFormat(cost, "$0.000a"))
+    this.ns.print("Waiting for " + this.ns.nFormat(cost, "$0.000a"))
     while (myMoney(this.ns) < cost) {
       await this.ns.sleep(3000)
     }
@@ -23,7 +23,7 @@ export class Hacknet {
     let nodeId, cost;
     while (this.ns.hacknet.numNodes() < goal) {
       cost = this.ns.hacknet.getPurchaseNodeCost()
-      this.ns.print('Buying next server, costs ' + ns.nFormat(cost, "$0.000a"))
+      this.ns.print('Buying next server, costs ' + this.ns.nFormat(cost, "$0.000a"))
       await this.waitForCash(cost)
       nodeId = this.ns.hacknet.purchaseNode()
       this.ns.print("Purchased node with id of " + nodeId)
@@ -35,7 +35,7 @@ export class Hacknet {
       return;
     }
     let cost = this.ns.hacknet.getLevelUpgradeCost(num, 2)
-    this.ns.print('Upgrading level, costs ' + ns.nFormat(cost, "$0.000a"))
+    this.ns.print('Upgrading level, costs ' + this.ns.nFormat(cost, "$0.000a"))
     await this.waitForCash(cost);
     this.ns.hacknet.upgradeLevel(num, 2)
   }
@@ -45,7 +45,7 @@ export class Hacknet {
       return
     }
     let cost = this.ns.hacknet.getRamUpgradeCost(num, 1)
-    this.ns.print('Upgrading ram, costs ' + ns.nFormat(cost, "$0.000a"))
+    this.ns.print('Upgrading ram, costs ' + this.ns.nFormat(cost, "$0.000a"))
     await this.waitForCash(cost);
     this.ns.hacknet.upgradeRam(num, 1)
   }
@@ -55,7 +55,7 @@ export class Hacknet {
       return
     }
     let cost = this.ns.hacknet.getCoreUpgradeCost(num, 1)
-    this.ns.print('Upgrading cores, costs ' + ns.nFormat(cost, "$0.000a"))
+    this.ns.print('Upgrading cores, costs ' + this.ns.nFormat(cost, "$0.000a"))
     await this.waitForCash(cost)
     this.ns.hacknet.upgradeCore(num, 1)
   }
