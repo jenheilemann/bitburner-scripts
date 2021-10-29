@@ -1,4 +1,4 @@
-const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src/'
+const valuesToRemove = []
 const filesToDownload = [
   'BestHack.js',
   'Botnet.js',
@@ -11,41 +11,38 @@ const filesToDownload = [
   'Whisperer.js',
   'Zombifier.js',
 ]
-const valuesToRemove = []
 
-function localeHHMMSS(ms = 0) {
-  if (!ms) {
-    ms = new Date().getTime()
-  }
+export async function download(ns, filesToDownload) {
+  filesToDownload.forEach((filename) => {
+    const path = baseUrl + filename
+    await ns.sleep(100)
+    ns.tprint(`Trying to download ${path}`)
+    await ns.wget(path + '?ts=' + new Date().getTime(), filename)
+  }, ns)
 
-  return new Date(ms).toLocaleTimeString()
+  ns.tprint(`Files downloaded.`)
 }
 
 export async function main(ns) {
-  ns.tprint(`[${localeHHMMSS()}] Starting initHacking.js`)
+  ns.tprint(`Starting initHacking.js`)
 
-  let hostname = ns.getHostname()
-
-  if (hostname !== 'home') {
+  if (ns.getHostname() !== 'home') {
     throw new Exception('Run the script from home')
   }
 
-  for (let i = 0; i < filesToDownload.length; i++) {
-    const filename = filesToDownload[i]
-    const path = baseUrl + filename
+  filesToDownload.forEach((filename) => {
     await ns.scriptKill(filename, 'home')
     await ns.rm(filename)
-    await ns.sleep(200)
-    ns.tprint(`[${localeHHMMSS()}] Trying to download ${path}`)
-    await ns.wget(path + '?ts=' + new Date().getTime(), filename)
-  }
+  }, ns)
+  ns.tprint('Killed and deleted old scripts.')
+  await download(ns, filesToDownload)
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
-  ns.tprint(`[${localeHHMMSS()}] Starting Hacknet.js`)
-  ns.run('Hacknet.js', 1)
-  ns.tprint(`[${localeHHMMSS()}] Starting Buyer.js`)
+  ns.tprint(`Starting HackNet.js`)
+  ns.run('HackNet.js', 1)
+  ns.tprint(`Starting Buyer.js`)
   ns.run('Buyer.js', 1)
-  ns.tprint(`[${localeHHMMSS()}] Spawning Botnet.js`)
+  ns.tprint(`Spawning Botnet.js`)
   ns.spawn('Botnet.js', 1)
 }
