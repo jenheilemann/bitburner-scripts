@@ -1,7 +1,7 @@
-import { networkMap } from 'network.js'
-import { groupBy } from 'groupBy.js'
-import { BestHack } from 'bestHack.js'
-import { toolsCount } from 'rooter.js'
+import { networkMap } from '/network.js'
+import { groupBy } from '/groupBy.js'
+import { BestHack } from '/bestHack.js'
+import { toolsCount } from '/rooter.js'
 
 const crackers = [0, "BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "sqlinject.exe"]
 
@@ -36,6 +36,6 @@ export async function main(ns) {
 }
 
 function zombify(ns, serv, target) {
-  let pid = ns.run("zombie-server.script", 1, serv.name, target, 0)
+  let pid = ns.run("/zombie-server.script", 1, serv.name, target, 0)
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 }

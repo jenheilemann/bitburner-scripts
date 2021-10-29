@@ -20,10 +20,11 @@ const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master
 export async function download(ns, filename) {
   const path = baseUrl + filename
   ns.tprint(`Trying to download ${path}`)
-  await ns.wget(path + '?ts=' + new Date().getTime(), filename)
+  await ns.wget(path + '?ts=' + new Date().getTime(), '/' + filename)
 }
 
 export async function main(ns) {
+  ns.disableLog("sleep")
   ns.tprint(`Starting initHacking.js`)
 
   if (ns.getHostname() !== 'home') {
@@ -41,10 +42,10 @@ export async function main(ns) {
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
-  ns.tprint(`Starting hacknet.js`)
-  ns.run('hacknet.js', 1)
+  ns.tprint(`Starting hacknet/startup.js`)
+  ns.run('/hacknet/starup.js', 1)
   ns.tprint(`Starting buyer.js`)
-  ns.run('buyer.js', 1)
+  ns.run('/buyer.js', 1)
   ns.tprint(`Spawning botnet.js`)
-  ns.spawn('botnet.js', 1)
+  ns.spawn('/botnet.js', 1)
 }

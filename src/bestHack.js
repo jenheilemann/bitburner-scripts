@@ -1,5 +1,5 @@
-import { toolsCount } from 'rooter.js'
-import { networkMap } from 'network.js'
+import { toolsCount } from '/rooter.js'
+import { networkMap } from '/network.js'
 
 const maxMoneyCoefficient = 1.25
 const growthCoefficient = 1.1

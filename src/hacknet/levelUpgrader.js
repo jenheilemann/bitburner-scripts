@@ -1,4 +1,4 @@
-import { waitForCash } from "hacknet/helpers.js"
+import { waitForCash } from "/hacknet/helpers.js"
 const maxLevel = 200
 
 async function upgradeLevel(ns, node, id, level) {
