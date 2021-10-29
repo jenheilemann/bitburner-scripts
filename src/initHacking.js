@@ -2,6 +2,7 @@ const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master
 const filesToDownload = [
   'BestHack.js',
   'Botnet.js',
+  'Buyer.js',
   'Find.js',
   'groupBy.js',
   'HackNet.js',
