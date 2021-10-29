@@ -1,5 +1,5 @@
 import { waitForCash } from "/hacknet/helpers.js"
-const maxCores = 16
+const maxCores = 8
 
 async function upgradeCores(ns, node, id, cores) {
   if (node.cores >= cores) {

@@ -36,7 +36,7 @@ export async function main(ns) {
   }
 
   ns.tprint("Botnet.ns completed running. You have taken over the world! Mwahaha")
-  ns.run('/hacknet/startup.js', 1, 6)
+  ns.run('/hacknet/startup.js', 1, 5)
 }
 
 function zombify(ns, serv, target) {

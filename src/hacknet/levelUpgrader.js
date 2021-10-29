@@ -1,5 +1,5 @@
 import { waitForCash } from "/hacknet/helpers.js"
-const maxLevel = 200
+const maxLevel = 100
 
 async function upgradeLevel(ns, node, id, level) {
   if (node.level >= level) {

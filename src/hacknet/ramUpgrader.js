@@ -1,5 +1,5 @@
 import { waitForCash } from "/hacknet/helpers.js"
-const maxRam = 64
+const maxRam = 16
 
 async function upgradeRam(ns, node, id, ram) {
   if (node.ram >= ram) {

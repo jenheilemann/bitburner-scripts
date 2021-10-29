@@ -36,9 +36,9 @@ export async function main(ns) {
   ns.tprint(`Files downloaded.`)
 
   ns.tprint(`Starting hacknet/startup.js`)
-  ns.run('/hacknet/starup.js', 1, 3)
+  ns.run('/hacknet/starup.js', 1)
   ns.tprint(`Starting buyer.js`)
   ns.run('buyer.js', 1)
   ns.tprint(`Spawning botnet.js`)
-  ns.spawn('botnet.js', 1)
+  ns.run('botnet.js', 1)
 }
