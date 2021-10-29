@@ -1,4 +1,4 @@
-import { Whisperer } from 'Whisperer.js'
+import { Whisperer } from 'whisperer.js'
 const rootFiles = [
   "BruteSSH.exe",
   "FTPCrack.exe",

@@ -1,15 +1,15 @@
 const valuesToRemove = []
 const filesToDownload = [
-  'BestHack.js',
-  'Botnet.js',
-  'Buyer.js',
-  'Find.js',
+  'bestHack.js',
+  'botnet.js',
+  'buyer.js',
+  'find.js',
   'groupBy.js',
-  'HackNet.js',
-  'Network.js',
-  'Rooter.js',
-  'Whisperer.js',
-  'Zombifier.js',
+  'hacknet.js',
+  'network.js',
+  'rooter.js',
+  'whisperer.js',
+  'zombifier.js',
 ]
 const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src/'
 
@@ -37,10 +37,10 @@ export async function main(ns) {
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
-  ns.tprint(`Starting HackNet.js`)
-  ns.run('HackNet.js', 1)
-  ns.tprint(`Starting Buyer.js`)
-  ns.run('Buyer.js', 1)
-  ns.tprint(`Spawning Botnet.js`)
-  ns.spawn('Botnet.js', 1)
+  ns.tprint(`Starting hacknet.js`)
+  ns.run('hacknet.js', 1)
+  ns.tprint(`Starting buyer.js`)
+  ns.run('buyer.js', 1)
+  ns.tprint(`Spawning botnet.js`)
+  ns.spawn('botnet.js', 1)
 }

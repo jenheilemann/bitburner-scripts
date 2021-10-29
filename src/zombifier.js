@@ -1,4 +1,4 @@
-import { whisper } from 'Whisperer.js'
+import { whisper } from 'whisperer.js'
 
 export function Zombifier() {}
 

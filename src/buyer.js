@@ -1,6 +1,6 @@
-import { BestHack } from 'BestHack.js'
-import { networkMap } from 'Network.js'
-import { toolsCount } from 'Rooter.js'
+import { BestHack } from 'bestHack.js'
+import { networkMap } from 'network.js'
+import { toolsCount } from 'rooter.js'
 
 const script = "get-money.script"
 const ram = Math.pow(2, 7);

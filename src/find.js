@@ -1,4 +1,4 @@
-import { networkMap } from "Network.js"
+import { networkMap } from "network.js"
 
 const targets = {
   "CSEC":         "CyberSec",

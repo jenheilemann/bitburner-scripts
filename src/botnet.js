@@ -1,7 +1,7 @@
-import { networkMap } from 'Network.js'
+import { networkMap } from 'network.js'
 import { groupBy } from 'groupBy.js'
-import { BestHack } from 'BestHack.js'
-import { toolsCount } from 'Rooter.js'
+import { BestHack } from 'bestHack.js'
+import { toolsCount } from 'rooter.js'
 
 const crackers = [0, "BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "sqlinject.exe"]
 
@@ -31,12 +31,7 @@ export async function main(ns) {
     }
   }
 
-  ns.tprint("Botnet.ns completed running.")
-  target = searcher.findBestPerLevel(ns.getHackingLevel(), toolsCount(ns))
-  ns.tprint("Running purchase-server.script, targeting " + target.name)
-  ns.run('purchase-server.script', 1, target.name, 6)
-  ns.tprint("Spawning HackNet.js")
-  ns.spawn("HackNet.js", 1)
+  ns.tprint("Botnet.ns completed running. You have taken over the world! Mwahaha")
 }
 
 function zombify(ns, serv, target) {
