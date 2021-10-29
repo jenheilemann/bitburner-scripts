@@ -39,6 +39,5 @@ export async function main(ns) {
     }
     await ns.sleep(4000);
   }
-
-
+  ns.tprint("I've bought all the servers I can. It's up to you now.")
 }
