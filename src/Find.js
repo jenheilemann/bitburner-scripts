@@ -4,7 +4,11 @@ const targets = {
   "CSEC":         "CyberSec",
   "avmnite-02h":  "NiteSec",
   "I.I.I.I":      "The Black Hand",
-  "run4theh111z": "Bitrunners"
+  "run4theh111z": "Bitrunners",
+}
+
+export function autocomplete(data, args) {
+  return Object.keys(targets)
 }
 
 export async function main(ns) {
