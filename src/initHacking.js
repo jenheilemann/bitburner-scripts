@@ -1,11 +1,15 @@
 const valuesToRemove = []
 const filesToDownload = [
+  'hacknet/coreUpgrader.js',
+  'hacknet/helpers.js',
+  'hacknet/levelUpgrader.js',
+  'hacknet/ramUpgrader.js',
+  'hacknet/startup.js',
   'bestHack.js',
   'botnet.js',
   'buyer.js',
   'find.js',
   'groupBy.js',
-  'hacknet.js',
   'network.js',
   'rooter.js',
   'whisperer.js',
