@@ -11,16 +11,12 @@ const filesToDownload = [
   'Whisperer.js',
   'Zombifier.js',
 ]
+const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src/'
 
-export async function download(ns, filesToDownload) {
-  filesToDownload.forEach((filename) => {
-    const path = baseUrl + filename
-    await ns.sleep(100)
-    ns.tprint(`Trying to download ${path}`)
-    await ns.wget(path + '?ts=' + new Date().getTime(), filename)
-  }, ns)
-
-  ns.tprint(`Files downloaded.`)
+export async function download(ns, filename) {
+  const path = baseUrl + filename
+  ns.tprint(`Trying to download ${path}`)
+  await ns.wget(path + '?ts=' + new Date().getTime(), filename)
 }
 
 export async function main(ns) {
@@ -30,12 +26,14 @@ export async function main(ns) {
     throw new Exception('Run the script from home')
   }
 
-  filesToDownload.forEach((filename) => {
-    await ns.scriptKill(filename, 'home')
-    await ns.rm(filename)
-  }, ns)
+  for ( let filename of filesToDownload ) {
+    ns.scriptKill(filename, 'home')
+    ns.rm(filename)
+    await ns.sleep(200)
+    await download(ns, filename)
+  }
   ns.tprint('Killed and deleted old scripts.')
-  await download(ns, filesToDownload)
+  ns.tprint(`Files downloaded.`)
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
