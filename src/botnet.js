@@ -22,6 +22,9 @@ export async function main(ns) {
     }
 
     target = searcher.findBestPerLevel(ns.getHackingLevel(), toolsCount(ns))
+    ns.tprint("Targeting " + target.name + ", ensuring sudo first.")
+    ns.run("hack-server.script", 1, target.name, 0)
+
     ns.tprint("Zombifying level " + i + " servers, targeting " + target.name)
     for (let server of serversByPortsRequired[i]) {
       if (server.name !== 'home') {
