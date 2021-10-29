@@ -75,7 +75,7 @@ export class Hacknet {
         this.ns.tprint("Hacknet Nodes upgraded to max. Good luck, cowgirl.")
         return;
       }
-      this.ns.sleep(200)
+      await this.ns.sleep(200)
     }
   }
 }

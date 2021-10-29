@@ -37,7 +37,7 @@ export async function main(ns) {
       ns.exec(script, hostname, threads, target.name);
       ++i;
     }
-    ns.sleep(4000);
+    await ns.sleep(4000);
   }
 
 
