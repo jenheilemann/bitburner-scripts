@@ -3,7 +3,7 @@ function myMoney(ns) {
   return ns.getServerMoneyAvailable('home')
 }
 
-async function waitForCash(ns, cost) {
+export async function waitForCash(ns, cost) {
   if ( myMoney(ns) >= cost ) {
     ns.print("I have enough: " + ns.nFormat(cost, "$0.000a"))
     return;

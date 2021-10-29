@@ -1,10 +1,9 @@
-const valuesToRemove = []
 const filesToDownload = [
-  'hacknet/coreUpgrader.js',
-  'hacknet/helpers.js',
-  'hacknet/levelUpgrader.js',
-  'hacknet/ramUpgrader.js',
-  'hacknet/startup.js',
+  '/hacknet/coreUpgrader.js',
+  '/hacknet/helpers.js',
+  '/hacknet/levelUpgrader.js',
+  '/hacknet/ramUpgrader.js',
+  '/hacknet/startup.js',
   'bestHack.js',
   'botnet.js',
   'buyer.js',
@@ -15,21 +14,17 @@ const filesToDownload = [
   'whisperer.js',
   'zombifier.js',
 ]
-const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src/'
+const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src'
 
 export async function download(ns, filename) {
-  const path = baseUrl + filename
+  const fileUrl = filename.includes("/") ? filename : "/" + filename;
+  const path = baseUrl + fileUrl
   ns.tprint(`Trying to download ${path}`)
-  await ns.wget(path + '?ts=' + new Date().getTime(), '/' + filename)
+  await ns.wget(path + '?ts=' + new Date().getTime(), filename)
 }
 
 export async function main(ns) {
   ns.disableLog("sleep")
-  ns.tprint(`Starting initHacking.js`)
-
-  if (ns.getHostname() !== 'home') {
-    throw new Exception('Run the script from home')
-  }
 
   for ( let filename of filesToDownload ) {
     ns.scriptKill(filename, 'home')
@@ -40,12 +35,10 @@ export async function main(ns) {
   ns.tprint('Killed and deleted old scripts.')
   ns.tprint(`Files downloaded.`)
 
-  valuesToRemove.map((value) => localStorage.removeItem(value))
-
   ns.tprint(`Starting hacknet/startup.js`)
-  ns.run('/hacknet/starup.js', 1)
+  ns.run('/hacknet/starup.js', 1, 3)
   ns.tprint(`Starting buyer.js`)
-  ns.run('/buyer.js', 1)
+  ns.run('buyer.js', 1)
   ns.tprint(`Spawning botnet.js`)
-  ns.spawn('/botnet.js', 1)
+  ns.spawn('botnet.js', 1)
 }

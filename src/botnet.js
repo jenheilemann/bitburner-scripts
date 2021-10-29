@@ -1,7 +1,7 @@
-import { networkMap } from '/network.js'
-import { groupBy } from '/groupBy.js'
-import { BestHack } from '/bestHack.js'
-import { toolsCount } from '/rooter.js'
+import { networkMap } from 'network.js'
+import { groupBy } from 'groupBy.js'
+import { BestHack } from 'bestHack.js'
+import { toolsCount } from 'rooter.js'
 
 const crackers = [0, "BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "sqlinject.exe"]
 
@@ -11,7 +11,7 @@ export async function main(ns) {
 
   const serversByPortsRequired = groupBy(Object.values(nMap.serverData), (s) => s.portsRequired)
   const searcher = new BestHack(nMap.serverData)
-  let target;
+  let target, hackTime;
 
   for (let i = 0; i < crackers.length; i++) {
     if (i > 0) {
@@ -29,13 +29,17 @@ export async function main(ns) {
         await ns.sleep(400)
       }
     }
+    // wait a sec for us to level up at least once
+    hackTime = ns.getHackTime(target)
+    ns.tprint(`Waiting ${hackTime} seconds until the first hack has run, ${hackTime * 1000} milliseconds`)
+    await ns.sleep(hackTime * 1000)
   }
 
   ns.tprint("Botnet.ns completed running. You have taken over the world! Mwahaha")
-  ns.run('/hacknet/startup.js', 1, 10)
+  ns.run('/hacknet/startup.js', 1, 6)
 }
 
 function zombify(ns, serv, target) {
-  let pid = ns.run("/zombie-server.script", 1, serv.name, target, 0)
+  let pid = ns.run("zombie-server.script", 1, serv.name, target, 0)
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 }
