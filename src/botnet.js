@@ -21,7 +21,7 @@ export async function main(ns) {
       } while (!ns.fileExists(crackers[i], 'home'));
     }
 
-    target = searcher.findBestPerLevel(ns.getHackingLevel(), toolsCount(ns))
+    target = searcher.findBestPerLevel(ns, ns.getHackingLevel(), toolsCount(ns))
     ns.tprint("Targeting " + target.name + ", ensuring sudo first.")
     ns.run("hack-server.script", 1, target.name, 0)
 

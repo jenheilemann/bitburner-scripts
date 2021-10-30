@@ -1,4 +1,4 @@
-import { toolsCount } from 'helpers.js'
+import { toolsCount } from 'rooter.js'
 import { networkMap } from 'network.js'
 
 const maxMoneyCoefficient = 1.25
@@ -6,6 +6,7 @@ const growthCoefficient = 1.1
 const minSecurityCoefficient = 2
 const growthCap = 100 // because otherwise N00dles is always on the top of the list
 const securityWeight = 200
+const maxWeakenTime = 15 * 60
 
 export function calcScore(server) {
   // {"hackingLvl":1,"maxMoney":0,"minSecurity":1,"growth":1}
@@ -22,10 +23,12 @@ export function BestHack(serverData) {
   this.calcsRun = false
 }
 
-BestHack.prototype.findBestPerLevel = function (level, maxPorts) {
+BestHack.prototype.findBestPerLevel = function (ns, level, maxPorts) {
   let scores = this.calcServerScores()
-  let perLevel = Object.values(scores).filter((server) => server.hackingLvl <= level && server.portsRequired <= maxPorts )
-  return perLevel.reduce((prev, current) => (prev.score > current.score) ? prev : current)
+  let filtered = Object.values(scores)
+    .filter((server) => server.hackingLvl <= level && server.portsRequired <= maxPorts)
+    .filter((server) => ns.getWeakenTime(server.name) < maxWeakenTime )
+  return filtered.reduce((prev, current) => (prev.score > current.score) ? prev : current)
 }
 
 BestHack.prototype.calcServerScores = function () {
@@ -42,5 +45,5 @@ BestHack.prototype.calcServerScores = function () {
 
 export function main(ns) {
   let searcher = new BestHack(networkMap(ns).serverData)
-  ns.tprint(searcher.findBestPerLevel(ns.getHackingLevel(), toolsCount(ns)))
+  ns.tprint(searcher.findBestPerLevel(ns, ns.getHackingLevel(), toolsCount(ns)))
 }
