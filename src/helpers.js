@@ -12,6 +12,10 @@ export function toolsCount(ns) {
   return count
 }
 
+export function disableLogs(ns, functions) {
+  functions.forEach((funct) => ns.disableLog(funct))
+}
+
 function myMoney(ns) {
   return ns.getServerMoneyAvailable('home')
 }

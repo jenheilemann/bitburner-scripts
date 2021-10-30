@@ -1,7 +1,9 @@
 var target = args[0]
-var moneyThreshhold = getServerMaxMoney(target) * 0.8
+var maxMoney = getServerMaxMoney(target)
+var moneyThreshhold = maxMoney * 0.8
 var securityThreshhold = getServerMinSecurityLevel(target) + 3
-var money = 1
+var money, threads, growFactor;
+var scriptThreads = getRunningScript().threads
 
 while(true) {
   if (getServerSecurityLevel(target) > securityThreshhold) {
@@ -11,16 +13,31 @@ while(true) {
   }
 
   money = getServerMoneyAvailable(target)
-  if ( money == 0 ) {
-    tprint("Server " + target + " ran out of money. Ooops!")
-    exit()
-  }
   if (money < moneyThreshhold ) {
     print("Current money: " + nFormat(money, "$0.000a") +
       "  ---  Target money: " + nFormat(moneyThreshhold, "$0.000a"))
-    grow(target);
+    growFactor = maxMoney/money
+    threads = Math.ceil(growthAnalyze(target, growFactor))
+    threads = Math.min(threads, scriptThreads)
+    grow(target, { threads: threads });
     continue
   }
 
-  hack(target)
+  if ( money <= 0 ) {
+    print("Not enough money to hack, continuing", target, money)
+    continue
+  }
+
+  threads = Math.floor(hackAnalyzeThreads(target, money * 0.6))
+  threads = Math.min(threads, scriptThreads)
+  if ( threads == -1 ) {
+    tprint("Threads negative! target ", target,
+      " threads ", threads, "money ", nFormat(money,"$0.000a"),
+      " money * 0.6 ", nFormat(money * 0.6,"$0.000a"),
+      " hackAnalyzeThreads ", hackAnalyzeThreads(target, money * 0.6),
+      " Math.floor ", Math.floor(hackAnalyzeThreads(target, money * 0.6)),
+      " scriptThreads ", scriptThreads)
+    continue
+  }
+  hack(target, { threads: threads })
 }
