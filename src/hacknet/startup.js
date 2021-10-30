@@ -1,4 +1,4 @@
-import { waitForCash } from "/hacknet/helpers.js"
+import { waitForCash } from "helpers.js"
 const hacknetGoal = 3
 
 async function buyNodes(ns, goal) {

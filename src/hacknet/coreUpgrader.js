@@ -1,4 +1,4 @@
-import { waitForCash } from "/hacknet/helpers.js"
+import { waitForCash } from "helpers.js"
 const maxCores = 8
 
 async function upgradeCores(ns, node, id, cores) {

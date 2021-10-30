@@ -1,6 +1,5 @@
 const filesToDownload = [
   '/hacknet/coreUpgrader.js',
-  '/hacknet/helpers.js',
   '/hacknet/levelUpgrader.js',
   '/hacknet/ramUpgrader.js',
   '/hacknet/startup.js',
@@ -9,6 +8,7 @@ const filesToDownload = [
   'buyer.js',
   'find.js',
   'groupBy.js',
+  'helpers.js',
   'network.js',
   'rooter.js',
   'whisperer.js',

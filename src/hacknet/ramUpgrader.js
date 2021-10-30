@@ -1,4 +1,4 @@
-import { waitForCash } from "/hacknet/helpers.js"
+import { waitForCash } from "helpers.js"
 const maxRam = 16
 
 async function upgradeRam(ns, node, id, ram) {
