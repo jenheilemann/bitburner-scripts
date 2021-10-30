@@ -6,6 +6,9 @@ const script = "get-money.script"
 const ram = Math.pow(2, 7);
 
 export async function main(ns) {
+  ns.disableLog('getServerMoneyAvailable')
+  ns.disableLog('sleep')
+
   if (ns.args[0] == 'kill') {
     let pServs = ns.getPurchasedServers()
     pServs.forEach((serv) => {
@@ -14,8 +17,6 @@ export async function main(ns) {
     }, ns)
   }
 
-  ns.disableLog('getServerMoneyAvailable')
-  ns.disableLog('sleep')
   ns.tprint("Buying " + ram + "GB RAM servers")
 
   const limit = ns.getPurchasedServerLimit();
