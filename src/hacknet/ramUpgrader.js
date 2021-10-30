@@ -20,7 +20,7 @@ async function upgradeTo(ns, totalCount) {
       ns.print('Upgrading ' + node.name)
       await upgradeRam(ns, node, i, maxRam)
     }
-    if (total >= totalCount && node.ram == maxRam) {
+    if (total >= totalCount && node.ram >= maxRam) {
       ns.tprint("Hacknet Node Ram upgraded to max. I'm so cold.")
       return;
     }

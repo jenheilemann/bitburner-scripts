@@ -20,7 +20,7 @@ async function upgradeTo(ns, totalCount) {
       ns.print('Upgrading ' + node.name)
       await upgradeLevel(ns, node, i, maxLevel)
     }
-    if (total >= totalCount && node.level == maxLevel) {
+    if (total >= totalCount && node.level >= maxLevel) {
       ns.tprint("Hacknet Node Levels upgraded to max. Godspeed, Runner.")
       return;
     }

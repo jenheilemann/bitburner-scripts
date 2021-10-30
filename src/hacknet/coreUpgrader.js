@@ -20,7 +20,7 @@ async function upgradeTo(ns, totalCount) {
       ns.print('Upgrading ' + node.name)
       await upgradeCores(ns, node, i, maxCores)
     }
-    if (total >= totalCount && node.cores == maxCores) {
+    if (total >= totalCount && node.cores >= maxCores) {
       ns.tprint("Hacknet Node Cores upgraded to max. Hasta la vista, baby.")
       return;
     }
