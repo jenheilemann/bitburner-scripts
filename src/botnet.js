@@ -11,7 +11,7 @@ export async function main(ns) {
 
   const serversByPortsRequired = groupBy(Object.values(nMap.serverData), (s) => s.portsRequired)
   const searcher = new BestHack(nMap.serverData)
-  let target, hackTime;
+  let target, waitTime;
 
   for (let i = 0; i < crackers.length; i++) {
     if (i > 0) {
