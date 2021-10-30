@@ -35,7 +35,7 @@ export async function main(ns) {
 
     // wait a sec for us to level up a little
     waitTime = ns.getWeakenTime(target.name)
-    ns.tprint(`Waiting ${ns.tFormat(waitTime)} seconds until the first weaken has run`)
+    ns.tprint(`Waiting ${ns.tFormat(waitTime)} seconds to level up a little`)
     await ns.sleep(waitTime * 1000)
   }
 
