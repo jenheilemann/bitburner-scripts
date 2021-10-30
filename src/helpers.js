@@ -1,3 +1,16 @@
+export const rootFiles = [
+  "BruteSSH.exe",
+  "FTPCrack.exe",
+  "HTTPWorm.exe",
+  "relaySMTP.exe",
+  "sqlinject.exe",
+]
+
+export function toolsCount(ns) {
+  let count = 0
+  rootFiles.forEach((fileName) => { if (ns.fileExists(fileName)) { count++ } }, ns)
+  return count
+}
 
 function myMoney(ns) {
   return ns.getServerMoneyAvailable('home')

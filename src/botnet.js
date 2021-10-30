@@ -1,7 +1,7 @@
 import { networkMap } from 'network.js'
 import { groupBy } from 'groupBy.js'
 import { BestHack } from 'bestHack.js'
-import { toolsCount } from 'rooter.js'
+import { toolsCount } from 'helpers.js'
 
 const crackers = [0, "BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "sqlinject.exe"]
 

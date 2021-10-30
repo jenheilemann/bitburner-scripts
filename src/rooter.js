@@ -1,11 +1,5 @@
 import { Whisperer } from 'whisperer.js'
-const rootFiles = [
-  "BruteSSH.exe",
-  "FTPCrack.exe",
-  "HTTPWorm.exe",
-  "relaySMTP.exe",
-  "sqlinject.exe",
-]
+import { rootFiles, toolsCount } from 'helpers.js'
 
 export class Rooter {
   constructor(ns, logger) {
@@ -43,12 +37,6 @@ export class Rooter {
     var ret = this.ns.nuke(target)
     this.logger.say("Sudo aquired: " + ret)
   }
-}
-
-export function toolsCount(ns) {
-  let count = 0
-  rootFiles.forEach((fileName) => { if (ns.fileExists(fileName)) { count++ } }, ns)
-  return count
 }
 
 export function main(ns) {
