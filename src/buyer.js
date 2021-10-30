@@ -32,6 +32,9 @@ export async function main(ns) {
   while (i < limit) {
     if (ns.getServerMoneyAvailable("home") > cost) {
       target = searcher.findBestPerLevel(ns.getHackingLevel(), toolsCount(ns))
+      ns.tprint("Targeting " + target.name + ", ensuring sudo first.")
+      ns.run("hack-server.script", 1, target.name, 0)
+
       hostname = ns.purchaseServer("pserv-" + i, ram);
       ns.scp(script, hostname);
       ns.exec(script, hostname, threads, target.name);
