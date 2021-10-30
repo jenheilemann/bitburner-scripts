@@ -34,9 +34,9 @@ export async function main(ns) {
     }
 
     // wait a sec for us to level up a little
-    waitTime = ns.getWeakenTime(target.name)
+    waitTime = ns.getWeakenTime(target.name) * 1000
     ns.tprint(`Waiting ${ns.tFormat(waitTime)} seconds to level up a little`)
-    await ns.sleep(waitTime * 1000)
+    await ns.sleep(waitTime)
   }
 
   ns.tprint("Botnet.ns completed running. You have taken over the world! Mwahaha")
