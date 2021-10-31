@@ -25,6 +25,7 @@ while(true) {
 
   if ( money <= 0 ) {
     print("Not enough money to hack, continuing", target, money)
+    sleep(200)
     continue
   }
 
@@ -37,6 +38,7 @@ while(true) {
       " hackAnalyzeThreads ", hackAnalyzeThreads(target, money * 0.6),
       " Math.floor ", Math.floor(hackAnalyzeThreads(target, money * 0.6)),
       " scriptThreads ", scriptThreads)
+    sleep(200)
     continue
   }
   hack(target, { threads: threads })
