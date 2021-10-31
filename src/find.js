@@ -5,6 +5,7 @@ const targets = {
   "avmnite-02h":  "NiteSec",
   "I.I.I.I":      "The Black Hand",
   "run4theh111z": "Bitrunners",
+  "The-Cave":     "Daedalus",
 }
 
 export function autocomplete(data, args) {
