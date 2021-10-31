@@ -16,7 +16,6 @@ export async function main(ns) {
   ns.disableLog('sleep')
 
   const args = ns.flags([
-    ['kill', false ],
     ['destroy', false ],
     ['target', 'dynamic'],
     ['size', 7],
@@ -34,17 +33,6 @@ export async function main(ns) {
   const searcher = new BestHack(networkMap(ns).serverData)
   const pServs = ns.getPurchasedServers()
 
-  if ( args['kill'] ) {
-    ns.print('Killing scripts')
-    pServs.forEach((serv) => {
-      ns.scriptKill(script, serv)
-      if ( args['destroy'] ) {
-        ns.print('Destroying server: ' + serv)
-        ns.deleteServer(serv)
-      }
-    }, ns)
-  }
-
   let i = 0;
   let target, hostname;
 
@@ -58,6 +46,13 @@ export async function main(ns) {
     hostname = "pserv-" + i
     if ( ! ns.serverExists(hostname) ) {
       ns.purchaseServer(hostname, ram);
+    } else {
+      ns.scriptKill(script, serv)
+      if ( args['destroy'] ) {
+        ns.print("Destroying server: " + hostname)
+        ns.deleteServer(serv)
+        ns.purchaseServer(hostname, ram);
+      }
     }
     ns.scp(script, hostname);
     ns.exec(script, hostname, threads, target);
