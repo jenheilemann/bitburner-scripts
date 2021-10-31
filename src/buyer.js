@@ -47,10 +47,10 @@ export async function main(ns) {
     if ( ! ns.serverExists(hostname) ) {
       ns.purchaseServer(hostname, ram);
     } else {
-      ns.scriptKill(script, serv)
+      ns.scriptKill(script, hostname)
       if ( args['destroy'] ) {
         ns.print("Destroying server: " + hostname)
-        ns.deleteServer(serv)
+        ns.deleteServer(hostname)
         ns.purchaseServer(hostname, ram);
       }
     }
