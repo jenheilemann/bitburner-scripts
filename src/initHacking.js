@@ -13,6 +13,12 @@ const filesToDownload = [
   'rooter.js',
   'whisperer.js',
   'zombifier.js',
+
+  // replace this crap
+  'analyze-hack.js',
+  'get-money.script',
+  'hack-server.script',
+  'zombie-server.script',
 ]
 const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src'
 
