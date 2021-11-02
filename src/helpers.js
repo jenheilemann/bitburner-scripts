@@ -1,23 +1,15 @@
 export const rootFiles = [
-  "BruteSSH.exe",
-  "FTPCrack.exe",
-  "HTTPWorm.exe",
-  "relaySMTP.exe",
-  "sqlinject.exe",
+  { name: "BruteSSH.exe", cost: 500000, },
+  { name: "FTPCrack.exe", cost: 1500000, },
+  { name: "relaySMTP.exe", cost: 5000000, },
+  { name: "HTTPWorm.exe", cost: 30000000, },
+  { name: "sqlinject.exe", cost: 250000000, },
+  { name: "Formulas.exe", cost: 5000000000, },
 ]
-
-export const darkwebCosts = {
-  "BruteSSH.exe": 500000,
-  "FTPCrack.exe": 1500000,
-  "relaySMTP.exe": 5000000,
-  "HTTPWorm.exe": 30000000,
-  "sqlinject.exe": 250000000,
-  "Formulas.exe": 5000000000,
-}
 
 export function toolsCount(ns) {
   let count = 0
-  rootFiles.forEach((fileName) => { if (ns.fileExists(fileName)) { count++ } }, ns)
+  rootFiles.forEach((file) => { if (ns.fileExists(file.name)) { count++ } }, ns)
   return count
 }
 
@@ -41,11 +33,7 @@ export async function waitForCash(ns, cost) {
 }
 
 export function reserve(ns) {
-  for (let filename in darkwebCosts) {
-    if (!ns.fileExists(filename, 'home')) {
-      return darkwebCosts[filename]
-    }
-  }
+  rootfiles.forEach( (file) => if (!ns.fileExists(file.name, 'home')) { return file.cost })
   return 0
 }
 
@@ -53,7 +41,7 @@ export async function tryRun(ns, scriptName, threads, args) {
   let pid = 0
   do {
     pid = ns.run(scriptName, threads, ...args)
-    await ns.sleep(500)
+    await ns.sleep(300)
   } while (pid == 0)
   return pid
 }
