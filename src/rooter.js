@@ -1,56 +1,42 @@
-import { Whisperer } from 'whisperer.js'
-import { rootFiles, toolsCount } from 'helpers.js'
+// import { rootFiles, toolsCount } from 'helpers.js'
 
-export class Rooter {
-  constructor(ns, logger) {
-    this.ns = ns
-    this.logger = logger
+export function root (ns, target) {
+
+  if (ns.hasRootAccess(target)) {
+    ns.print("Have root access already")
+    return
   }
 
-  root(target) {
-    if (this.ns.hasRootAccess(target)) {
-      this.logger.say("Have root access already")
-      return
-    }
-
-    if (this.ns.fileExists("BruteSSH.exe", "home")) {
-      this.ns.brutessh(target)
-      this.logger.say("Broke SSH port")
-    }
-    if (this.ns.fileExists("FTPCrack.exe", "home")) {
-      this.ns.ftpcrack(target)
-      this.logger.say("Broke FTP port")
-    }
-    if (this.ns.fileExists("HTTPWorm.exe", "home")) {
-      this.ns.httpworm(target)
-      this.logger.say("HTTPWorm-ed port")
-    }
-    if (this.ns.fileExists("relaySMTP.exe", "home")) {
-      this.ns.relaysmtp(target)
-      this.logger.say("Broke SMTP port")
-    }
-    if (this.ns.fileExists("sqlinject.exe", "home")) {
-      this.ns.sqlinject(target)
-      this.logger.say("Broke SQL port")
-    }
-
-    var ret = this.ns.nuke(target)
-    this.logger.say("Sudo aquired: " + ret)
+  if (ns.fileExists("BruteSSH.exe", "home")) {
+    ns.brutessh(target)
   }
+  if (ns.fileExists("FTPCrack.exe", "home")) {
+    ns.ftpcrack(target)
+  }
+  if (ns.fileExists("HTTPWorm.exe", "home")) {
+    ns.httpworm(target)
+  }
+  if (ns.fileExists("relaySMTP.exe", "home")) {
+    ns.relaysmtp(target)
+  }
+  if (ns.fileExists("sqlinject.exe", "home")) {
+    ns.sqlinject(target)
+  }
+
+  var ret = ns.nuke(target)
+  ns.print("Sudo aquired: " + ret)
 }
 
+/**
+ * @param {NS} ns
+ **/
 export function main(ns) {
   var target = ns.args[0]
-  var loud = ns.args[1] === undefined ? 1 : ns.args[1]
 
   if (target === undefined) {
     ns.tprint("Must choose a target to root, `run Rooter.js n00dles`")
     ns.exit()
     return;
   }
-
-  const whisperer = new Whisperer(ns, loud)
-  const rooter = new Rooter(ns, whisperer)
-  ns.tprint(toolsCount(ns))
-  rooter.root(target)
+  root(ns, target)
 }
