@@ -1,10 +1,14 @@
 import { networkMap } from 'network.js'
 import { groupBy } from 'groupBy.js'
 import { BestHack } from 'bestHack.js'
-import { toolsCount, tryRun } from 'helpers.js'
+import { toolsCount, tryRun, rootFiles } from 'helpers.js'
+import { root } from 'rooter.js'
 
-const crackers = [0, "BruteSSH.exe", "FTPCrack.exe", "relaySMTP.exe", "HTTPWorm.exe", "sqlinject.exe"]
+const crackers = [0].merge(rootFiles)
 
+/**
+ * @param {NS} ns
+ **/
 export async function main(ns) {
   let nMap = networkMap(ns)
   ns.disableLog('sleep')

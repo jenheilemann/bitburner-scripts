@@ -1,15 +1,9 @@
-import { root } from 'rooter.js'
-
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
   var target = ns.args[0]
   var toHack = ns.args[1]
-
-  // make sure we have sudo
-  ns.run("hack-server.script", 1, target, loud)
-  await ns.sleep(3000)
 
   // copy the get-money script to the target
   var script = "get-money.script"
