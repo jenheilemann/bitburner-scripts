@@ -10,9 +10,9 @@ export const darkwebCosts = {
   "BruteSSH.exe": 500000,
   "FTPCrack.exe": 1500000,
   "relaySMTP.exe": 5000000,
-  "HTTPWorm.exe" : 30000000,
+  "HTTPWorm.exe": 30000000,
   "sqlinject.exe": 250000000,
-  "Formulas.exe" : 5000000000,
+  "Formulas.exe": 5000000000,
 }
 
 export function toolsCount(ns) {
@@ -30,21 +30,30 @@ function myMoney(ns) {
 }
 
 export async function waitForCash(ns, cost) {
-  if ( (myMoney(ns) - reserve(ns)) >= cost ) {
+  if ((myMoney(ns) - reserve(ns)) >= cost) {
     ns.print("I have enough: " + ns.nFormat(cost, "$0.000a"))
     return;
   }
   ns.print("Waiting for " + ns.nFormat(cost, "$0.000a"))
-  while ( (myMoney(ns) - reserve(ns)) < cost) {
+  while ((myMoney(ns) - reserve(ns)) < cost) {
     await ns.sleep(3000)
   }
 }
 
 export function reserve(ns) {
-  for (let filename in darkwebCosts ) {
-    if ( !ns.fileExists(filename, 'home') ) {
+  for (let filename in darkwebCosts) {
+    if (!ns.fileExists(filename, 'home')) {
       return darkwebCosts[filename]
     }
   }
   return 0
+}
+
+export async function tryRun(ns, scriptName, threads, args) {
+  let pid = 0
+  do {
+    pid = ns.run(scriptName, threads, ...args)
+    await ns.sleep(500)
+  } while (pid == 0)
+  return pid
 }

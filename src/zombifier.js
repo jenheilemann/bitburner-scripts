@@ -1,11 +1,11 @@
-import { whisper } from 'whisperer.js'
+import { root } from 'rooter.js'
 
-export function Zombifier() {}
-
+/**
+ * @param {NS} ns
+ **/
 export async function main(ns) {
   var target = ns.args[0]
   var toHack = ns.args[1]
-  var loud = ns.args[2] === undefined ? 1 : ns.args[2]
 
   // make sure we have sudo
   ns.run("hack-server.script", 1, target, loud)
