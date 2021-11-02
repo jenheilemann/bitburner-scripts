@@ -18,12 +18,11 @@ export async function main(ns) {
       ns.print("Waiting for the next cracking tool...")
       do {
         await ns.sleep(10000)
-      } while (!ns.fileExists(crackers[i], 'home'));
+      } while (!ns.fileExists(crackers[i].name, 'home'));
     }
 
     target = searcher.findBestPerLevel(ns, ns.getHackingLevel(), toolsCount(ns))
-    ns.tprint("Targeting " + target.name + ", ensuring sudo first.")
-    await tryRun(ns, "hack-server.script", 1, [target.name, 0])
+    root(ns, target)
 
     ns.tprint("Zombifying level " + i + " servers, targeting " + target.name)
     for (let server of serversByPortsRequired[i]) {
@@ -40,7 +39,7 @@ export async function main(ns) {
       // and we're already leveling up anyway, so wait 1 min
       waitTime = 60 * 1000
     }
-    ns.tprint(`Waiting ${ns.tFormat(waitTime)} seconds to level up a little`)
+    ns.tprint(`Waiting ${ns.tFormat(waitTime)} to level up a little`)
     await ns.sleep(waitTime)
   }
 
@@ -49,6 +48,7 @@ export async function main(ns) {
 }
 
 function zombify(ns, serv, target) {
-  let pid = ns.run("zombie-server.script", 1, serv.name, target, 0)
+  root(ns, serv.name)
+  await let pid = tryRun(ns, "zombie-server.script", 1, serv.name, target, 0)
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 }
