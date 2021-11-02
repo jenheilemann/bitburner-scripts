@@ -7,16 +7,18 @@ Create a new script called `start.js` by issuing the following command: `nano st
 
 Paste the following content:
 
-    export async function main(ns) {
-      if (ns.getHostname() !== "home") {
-        throw new Exception("Run the script from home");
-      }
+```js
+export async function main(ns) {
+  if (ns.getHostname() !== "home") {
+    throw new Exception("Run the script from home");
+  }
 
-      await ns.wget(
-        `https://raw.githubusercontent.com/jenheilemann/bitburner/master/src/initHacking.js?ts=${new Date().getTime()}`,
-        "initHacking.js"
-      );
-      ns.spawn("initHacking.js", 1);
-    }
+  await ns.wget(
+    `https://raw.githubusercontent.com/jenheilemann/bitburner/master/src/initHacking.js?ts=${new Date().getTime()}`,
+    "initHacking.js"
+  );
+  ns.spawn("initHacking.js", 1);
+}
+```
 
 Exit the nano and write in console: `run start.js`
