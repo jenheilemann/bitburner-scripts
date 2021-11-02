@@ -1,7 +1,8 @@
-// import { rootFiles, toolsCount } from 'helpers.js'
-
+/**
+ * @param {NS} ns
+ * @param {string} target
+ **/
 export function root (ns, target) {
-
   if (ns.hasRootAccess(target)) {
     ns.print("Have root access already")
     return
