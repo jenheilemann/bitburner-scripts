@@ -4,7 +4,7 @@ import { BestHack } from 'bestHack.js'
 import { toolsCount, tryRun, rootFiles } from 'helpers.js'
 import { root } from 'rooter.js'
 
-const crackers = [0].merge(rootFiles)
+const crackers = [0].concat(rootFiles)
 
 /**
  * @param {NS} ns
@@ -26,7 +26,7 @@ export async function main(ns) {
     }
 
     target = searcher.findBestPerLevel(ns, ns.getHackingLevel(), toolsCount(ns))
-    root(ns, target)
+    root(ns, target.name)
 
     ns.tprint("Zombifying level " + i + " servers, targeting " + target.name)
     for (let server of serversByPortsRequired[i]) {
