@@ -18,29 +18,29 @@ export function calcScore(server) {
   return (money * growth / (securityWeight + minSec * hack))
 }
 
-export function BestHack(serverData) {
-  this.serverData = serverData
-  this.calcsRun = false
-}
+export class BestHack {
+  constructor(serverData) {
+    this.serverData = serverData
+    this.calcsRun = false
+  }
+  findBestPerLevel(ns, level, maxPorts) {
+    let scores = this.calcServerScores()
+    let filtered = Object.values(scores)
+      .filter((server) => server.hackingLvl <= level && server.portsRequired <= maxPorts)
+      .filter((server) => ns.getWeakenTime(server.name) < maxWeakenTime)
+    return filtered.reduce((prev, current) => (prev.score > current.score) ? prev : current)
+  }
+  calcServerScores() {
+    if (this.calcsRun) {
+      return this.serverData
+    }
 
-BestHack.prototype.findBestPerLevel = function (ns, level, maxPorts) {
-  let scores = this.calcServerScores()
-  let filtered = Object.values(scores)
-    .filter((server) => server.hackingLvl <= level && server.portsRequired <= maxPorts)
-    .filter((server) => ns.getWeakenTime(server.name) < maxWeakenTime )
-  return filtered.reduce((prev, current) => (prev.score > current.score) ? prev : current)
-}
-
-BestHack.prototype.calcServerScores = function () {
-  if (this.calcsRun) {
+    for (const server in this.serverData) {
+      this.serverData[server].score = calcScore(this.serverData[server])
+    }
+    this.calcsRun = true
     return this.serverData
   }
-
-  for (const server in this.serverData) {
-    this.serverData[server].score = calcScore(this.serverData[server])
-  }
-  this.calcsRun = true
-  return this.serverData
 }
 
 export function main(ns) {
