@@ -51,8 +51,8 @@ export async function main(ns) {
   await tryRun(ns, '/hacknet/startup.js', 1, 5)
 }
 
-function zombify(ns, serv, target) {
+async function zombify(ns, serv, target) {
   root(ns, serv.name)
-  await let pid = tryRun(ns, "zombie-server.script", 1, serv.name, target, 0)
+  let pid = await tryRun(ns, "zombie-server.script", 1, serv.name, target, 0)
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 }
