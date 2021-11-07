@@ -5,6 +5,7 @@ const filesToDownload = [
   '/hacknet/startup.js',
   'bestHack.js',
   'botnet.js',
+  'breadwinner.js',
   'buyer.js',
   'find.js',
   'groupBy.js',
