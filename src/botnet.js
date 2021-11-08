@@ -48,11 +48,11 @@ export async function main(ns) {
   }
 
   ns.tprint("Botnet.ns completed running. You have taken over the world! Mwahaha")
-  await tryRun(ns, '/hacknet/startup.js', 1, 5)
+  await tryRun(ns, () => ns.run('/hacknet/startup.js', 1, 5) )
 }
 
 async function zombify(ns, serv, target) {
   root(ns, serv.name)
-  let pid = await tryRun(ns, () => ns.run("zombie-server.script", 1, serv.name, target, 0))
+  let pid = await tryRun(ns, () => ns.run("zombifier.js", 1, serv.name, target, 0))
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 }
