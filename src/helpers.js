@@ -33,7 +33,11 @@ export async function waitForCash(ns, cost) {
 }
 
 export function reserve(ns) {
-  rootFiles.forEach( (file) => {if (!ns.fileExists(file.name, 'home')) { return file.cost }})
+  for ( const file of rootFiles ) {
+    if (!ns.fileExists(file.name, 'home')) {
+      return file.cost
+    }
+  }
   return 0
 }
 
