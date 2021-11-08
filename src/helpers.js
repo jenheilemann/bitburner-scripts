@@ -26,7 +26,7 @@ export async function waitForCash(ns, cost) {
     ns.print("I have enough: " + ns.nFormat(cost, "$0.000a"))
     return;
   }
-  ns.print("Waiting for " + ns.nFormat(cost, "$0.000a"))
+  ns.print("Waiting for " + ns.nFormat(cost + reserve(ns), "$0.000a"))
   while ((myMoney(ns) - reserve(ns)) < cost) {
     await ns.sleep(3000)
   }
@@ -37,10 +37,10 @@ export function reserve(ns) {
   return 0
 }
 
-export async function tryRun(ns, scriptName, threads, args) {
+export async function tryRun(ns, callback) {
   let pid = 0
   do {
-    pid = ns.run(scriptName, threads, ...args)
+    pid = callback()
     await ns.sleep(300)
   } while (pid == 0)
   return pid

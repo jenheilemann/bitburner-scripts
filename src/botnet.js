@@ -31,7 +31,7 @@ export async function main(ns) {
     ns.tprint("Zombifying level " + i + " servers, targeting " + target.name)
     for (let server of serversByPortsRequired[i]) {
       if (server.name !== 'home') {
-        zombify(ns, server, target.name)
+        await zombify(ns, server, target.name)
         await ns.sleep(5000)
       }
     }
@@ -53,6 +53,6 @@ export async function main(ns) {
 
 async function zombify(ns, serv, target) {
   root(ns, serv.name)
-  let pid = await tryRun(ns, "zombie-server.script", 1, serv.name, target, 0)
+  let pid = await tryRun(ns, () => ns.run("zombie-server.script", 1, serv.name, target, 0))
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 }
