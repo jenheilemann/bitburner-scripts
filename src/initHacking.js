@@ -3,6 +3,7 @@ const filesToDownload = [
   '/hacknet/levelUpgrader.js',
   '/hacknet/ramUpgrader.js',
   '/hacknet/startup.js',
+  'analyze-hack.js',
   'bestHack.js',
   'botnet.js',
   'breadwinner.js',
@@ -14,12 +15,6 @@ const filesToDownload = [
   'rooter.js',
   'whisperer.js',
   'zombifier.js',
-
-  // replace this crap
-  'analyze-hack.js',
-  'get-money.script',
-  'hack-server.script',
-  'zombie-server.script',
 ]
 const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src'
 

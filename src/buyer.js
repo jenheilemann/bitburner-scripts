@@ -1,8 +1,9 @@
 import { BestHack } from 'bestHack.js'
 import { networkMap } from 'network.js'
 import { toolsCount, waitForCash } from 'helpers.js'
+import { root } from 'rooter.js'
 
-const script = "get-money.script"
+const script = "breadwinner.js"
 
 function findTarget(ns, target, searcher) {
   if (target != 'dynamic') {
@@ -51,7 +52,7 @@ export async function main(ns) {
 
     target = findTarget(ns, args.target, searcher)
     ns.print("Targeting " + target + ", ensuring sudo first.")
-    ns.run("hack-server.script", 1, target, 0)
+    root(ns, target)
     ns.scp(script, hostname);
     threads = Math.floor(ns.getServerMaxRam(hostname) / ramRequired)
     ns.exec(script, hostname, threads, target)

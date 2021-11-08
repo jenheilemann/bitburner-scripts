@@ -1,3 +1,5 @@
+const script = 'breadwinner.js'
+
 /**
  * @param {NS} ns
  **/
@@ -5,8 +7,7 @@ export async function main(ns) {
   var target = ns.args[0]
   var toHack = ns.args[1]
 
-  // copy the get-money script to the target
-  var script = "get-money.script"
+  // copy the scripts to the target
   ns.scp(script, "home", target);
   ns.print("Copied " + script + " to " + target)
 
@@ -19,6 +20,7 @@ export async function main(ns) {
   if (threads < 1) {
     ns.print("No ram available")
     ns.exit()
+    return;
   }
 
   ns.print("Using " + threads + " threads")
