@@ -53,6 +53,6 @@ export async function main(ns) {
 
 async function zombify(ns, serv, target) {
   root(ns, serv.name)
-  let pid = await tryRun(ns, () => ns.run("zombifier.js", 1, serv.name, target, 0))
+  let pid = await tryRun(ns, () => ns.run("zombifier.js", 1, serv.name, target))
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 }

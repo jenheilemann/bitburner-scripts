@@ -8,21 +8,21 @@ export async function main(ns) {
   // copy the get-money script to the target
   var script = "get-money.script"
   ns.scp(script, "home", target);
-  whisper(ns, loud, "Copied " + script + " to " + target)
+  ns.print("Copied " + script + " to " + target)
 
   // calculate the threads we can use for running our script
   var ramRequired = ns.getScriptRam(script);
   var availableRam = ns.getServerMaxRam(target) - ns.getServerUsedRam(target);
-  whisper(ns, loud, "" + target + " has " + availableRam + " ram available to use")
+  ns.print(target + " has " + availableRam + " ram available to use")
   var threads = Math.min(50, Math.floor(availableRam / ramRequired))
 
   if (threads < 1) {
-    whisper(ns, loud, "No ram available")
-    exit()
+    ns.print("No ram available")
+    ns.exit()
   }
 
-  whisper(ns, loud, "Using " + threads + " threads")
+  ns.print("Using " + threads + " threads")
 
   var pid = ns.exec(script, target, threads, toHack, loud);
-  whisper(ns, loud, "Running script on " + target + " with PID " + pid)
+  ns.print("Running script on " + target + " with PID " + pid)
 }
