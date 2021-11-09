@@ -13,7 +13,7 @@ export function autocomplete(data, args) {
 }
 
 export async function main(ns) {
-  let nMap = networkMap(ns).serverData
+  let nMap = networkMap(ns)
   if ( ns.args[0] === undefined ) {
     for ( const server in targets ) {
       ns.tprint("** " + server + " ( " + targets[server] + " faction)")

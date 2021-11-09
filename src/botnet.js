@@ -13,8 +13,8 @@ export async function main(ns) {
   let nMap = networkMap(ns)
   ns.disableLog('sleep')
 
-  const serversByPortsRequired = groupBy(Object.values(nMap.serverData), (s) => s.portsRequired)
-  const searcher = new BestHack(nMap.serverData)
+  const serversByPortsRequired = groupBy(Object.values(nMap), (s) => s.portsRequired)
+  const searcher = new BestHack(nMap)
   let target, waitTime;
 
   for (let i = 0; i < crackers.length; i++) {

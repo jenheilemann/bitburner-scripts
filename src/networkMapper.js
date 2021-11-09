@@ -3,7 +3,6 @@ import { setLSItem, lsKeys } from 'helpers.js'
 /**
  * @param {NS} ns
  **/
-
 export class NetworkMapper {
   constructor(ns) {
     ns.tprint("Initializing new Network object");
@@ -58,6 +57,9 @@ export class NetworkMapper {
   }
 }
 
+/**
+ * @param {NS} ns
+ **/
 export async function main(ns) {
   let mapper = new NetworkMapper(ns)
 
