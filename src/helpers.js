@@ -4,8 +4,9 @@ export const rootFiles = [
   { name: "relaySMTP.exe", cost: 5000000, },
   { name: "HTTPWorm.exe", cost: 30000000, },
   { name: "sqlinject.exe", cost: 250000000, },
-  { name: "Formulas.exe", cost: 5000000000, },
 ]
+
+export const purchaseables = [{ name: "Formulas.exe", cost: 5000000000, }].concat(rootFiles)
 
 export function toolsCount(ns) {
   let count = 0
@@ -33,7 +34,7 @@ export async function waitForCash(ns, cost) {
 }
 
 export function reserve(ns) {
-  for ( const file of rootFiles ) {
+  for ( const file of purchaseables ) {
     if (!ns.fileExists(file.name, 'home')) {
       return file.cost
     }
