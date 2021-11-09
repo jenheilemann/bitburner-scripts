@@ -42,6 +42,10 @@ export function reserve(ns) {
   return 0
 }
 
+export const lsKeys = {
+  nmap : 'jh_network_map'
+}
+
 export async function tryRun(ns, callback) {
   let pid = 0
   do {
@@ -49,4 +53,15 @@ export async function tryRun(ns, callback) {
     await ns.sleep(300)
   } while (pid == 0)
   return pid
+}
+
+
+export function getLSItem(key) {
+  let item = localStorage.getItem(key)
+
+  return item ? JSON.parse(item) : undefined
+}
+
+export function setLSItem(key, value) {
+  localStorage.setItem(key, JSON.stringify(value))
 }

@@ -12,6 +12,7 @@ const filesToDownload = [
   'groupBy.js',
   'helpers.js',
   'network.js',
+  'networkMapper.js',
   'rooter.js',
   'whisperer.js',
   'zombifier.js',
