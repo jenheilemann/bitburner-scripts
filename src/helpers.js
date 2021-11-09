@@ -6,7 +6,7 @@ export const rootFiles = [
   { name: "sqlinject.exe", cost: 250000000, },
 ]
 
-export const purchaseables = [{ name: "Formulas.exe", cost: 5000000000, }].concat(rootFiles)
+export const purchaseables = rootFiles.concat([{ name: "Formulas.exe", cost: 5000000000, }])
 
 export function toolsCount(ns) {
   let count = 0
