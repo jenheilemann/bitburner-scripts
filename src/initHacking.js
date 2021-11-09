@@ -1,3 +1,5 @@
+
+const valuesToRemove = ['jh_network_map']
 const filesToDownload = [
   '/hacknet/coreUpgrader.js',
   '/hacknet/levelUpgrader.js',
@@ -38,10 +40,14 @@ export async function main(ns) {
   ns.tprint('Killed and deleted old scripts.')
   ns.tprint(`Files downloaded.`)
 
+  valuesToRemove.map((value) => localStorage.removeItem(value))
+  ns.tprint(`Cleaned up localStorage.`)
+
   ns.tprint(`Starting hacknet/startup.js`)
   ns.run('/hacknet/startup.js', 1)
   ns.tprint(`Starting buyer.js`)
   ns.run('buyer.js', 1)
   ns.tprint(`Spawning botnet.js`)
   ns.run('botnet.js', 1)
+  ns.tprint(`Startup script completed. May your pillow always be cool.`)
 }
