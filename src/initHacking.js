@@ -1,6 +1,8 @@
 
 const valuesToRemove = ['jh_network_map']
 const filesToDownload = [
+  '/contracts/failSolver.js',
+  '/contracts/scanner.js',
   '/hacknet/coreUpgrader.js',
   '/hacknet/levelUpgrader.js',
   '/hacknet/ramUpgrader.js',
@@ -28,6 +30,9 @@ export async function download(ns, filename) {
   await ns.wget(path + '?ts=' + new Date().getTime(), filename)
 }
 
+/**
+ * @param {NS} ns
+ **/
 export async function main(ns) {
   ns.disableLog("sleep")
 
