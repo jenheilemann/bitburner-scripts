@@ -40,12 +40,14 @@ export async function main(ns) {
       await waitForCash(ns, cost)
       ns.purchaseServer(hostname, ram)
     } else {
-      ns.scriptKill(script, hostname)
       if (args['destroy']) {
         await waitForCash(ns, cost)
         ns.print("Destroying server: " + hostname)
+        ns.scriptKill(script, hostname)
         ns.deleteServer(hostname)
         ns.purchaseServer(hostname, ram)
+      } else {
+        ns.scriptKill(script, hostname)
       }
     }
 

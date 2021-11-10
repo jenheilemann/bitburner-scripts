@@ -26,11 +26,16 @@ const solvers = {
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
   let map = await networkMap(ns)
-  let contracts = findContracts(ns, map)
+  let contracts;
 
-  for (let contract of contracts ) {
-    ns.print(`Contract ${contract.file} (${contract.type)}) found on ${contract.server}`)
-    await tryRun(ns, () => ns.run(solvers[contract.type], 1, '--dataString', JSON.stringify(contract)) )
+  while ( true ) {
+    contracts = findContracts(ns, map)
+
+    for (let contract of contracts ) {
+      ns.print(`Contract ${contract.file} (${contract.type)}) found on ${contract.server}`)
+      await tryRun(ns, () => ns.run(solvers[contract.type], 1, '--dataString', JSON.stringify(contract)) )
+    }
+    await ns.sleep(10 * 60 * 1000)
   }
 }
 
