@@ -8,7 +8,7 @@ export async function main(ns) {
   var toHack = ns.args[1]
 
   // copy the scripts to the target
-  ns.scp(script, "home", target);
+  await ns.scp(script, "home", target);
   ns.print("Copied " + script + " to " + target)
 
   // calculate the threads we can use for running our script

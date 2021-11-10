@@ -53,7 +53,7 @@ export async function main(ns) {
     target = findTarget(ns, args.target, searcher)
     ns.print("Targeting " + target + ", ensuring sudo first.")
     root(ns, target)
-    ns.scp(script, hostname);
+    await ns.scp(script, hostname);
     threads = Math.floor(ns.getServerMaxRam(hostname) / ramRequired)
     ns.exec(script, hostname, threads, target)
     await ns.sleep(2000)
