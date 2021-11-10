@@ -1,40 +1,43 @@
 import { networkMap } from 'network.js'
+import { disableLogs, tryRun } from 'helpers.js'
 
 const solvers = {
-  "Find Largest Prime Factor"           : "failSolver.js",
-  "Subarray with Maximum Sum"           : "failSolver.js",
-  "Total Ways to Sum"                   : "failSolver.js",
-  "Spiralize Matrix"                    : "failSolver.js",
-  "Array Jumping Game"                  : "failSolver.js",
-  "Merge Overlapping Intervals"         : "failSolver.js",
-  "Generate IP Addresses"               : "failSolver.js",
-  "Algorithmic Stock Trader I"          : "failSolver.js",
-  "Algorithmic Stock Trader II"         : "failSolver.js",
-  "Algorithmic Stock Trader III"        : "failSolver.js",
-  "Algorithmic Stock Trader IV"         : "failSolver.js",
-  "Minimum Path Sum in a Triangle"      : "failSolver.js",
-  "Unique Paths in a Grid I"            : "failSolver.js",
-  "Unique Paths in a Grid II"           : "failSolver.js",
-  "Sanitize Parentheses in Expression"  : "failSolver.js",
-  "Find All Valid Math Expressions"     : "failSolver.js",
+  "Find Largest Prime Factor"           : "/contracts/failSolver.js",
+  "Subarray with Maximum Sum"           : "/contracts/failSolver.js",
+  "Total Ways to Sum"                   : "/contracts/failSolver.js",
+  "Spiralize Matrix"                    : "/contracts/spiralizeMatrixSolver.js",
+  "Array Jumping Game"                  : "/contracts/failSolver.js",
+  "Merge Overlapping Intervals"         : "/contracts/failSolver.js",
+  "Generate IP Addresses"               : "/contracts/failSolver.js",
+  "Algorithmic Stock Trader I"          : "/contracts/failSolver.js",
+  "Algorithmic Stock Trader II"         : "/contracts/failSolver.js",
+  "Algorithmic Stock Trader III"        : "/contracts/failSolver.js",
+  "Algorithmic Stock Trader IV"         : "/contracts/failSolver.js",
+  "Minimum Path Sum in a Triangle"      : "/contracts/failSolver.js",
+  "Unique Paths in a Grid I"            : "/contracts/failSolver.js",
+  "Unique Paths in a Grid II"           : "/contracts/failSolver.js",
+  "Sanitize Parentheses in Expression"  : "/contracts/failSolver.js",
+  "Find All Valid Math Expressions"     : "/contracts/failSolver.js",
 }
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
+  disableLogs(ns, ['sleep'])
   let map = networkMap(ns)
-  let contracts = findContracts(map)
+  let contracts = findContracts(ns, map)
 
   for (let contract of contracts ) {
-    ns.tprint(`Contract ${contract.file} (${contract.type)}) found on ${contract.server}`)
+    ns.print(`Contract ${contract.file} (${contract.type)}) found on ${contract.server}`)
+    await tryRun(ns, () => ns.run(solvers[contract.type], 1, '--dataString', JSON.stringify(contract)) )
   }
 }
 
-function findContracts(map) {
+function findContracts(ns, map) {
   let contracts = []
 
-  for (let serverName of map ) {
+  for (let serverName in map ) {
     for ( let file of ns.ls(serverName, '.cct') ) {
       contracts.push({
         file: file,
