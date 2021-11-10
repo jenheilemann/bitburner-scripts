@@ -31,7 +31,6 @@ export async function main(ns) {
 
   const ramRequired = ns.getScriptRam(script)
   const searcher = new BestHack(await networkMap(ns))
-  const pServs = ns.getPurchasedServers()
 
   let target, hostname, threads
 
@@ -43,9 +42,9 @@ export async function main(ns) {
     } else {
       ns.scriptKill(script, hostname)
       if (args['destroy']) {
+        await waitForCash(ns, cost)
         ns.print("Destroying server: " + hostname)
         ns.deleteServer(hostname)
-        await waitForCash(ns, cost)
         ns.purchaseServer(hostname, ram)
       }
     }
