@@ -8,7 +8,7 @@ const solvers = {
   "Spiralize Matrix"                    : "/contracts/spiralizeMatrixSolver.js",
   "Array Jumping Game"                  : "/contracts/failSolver.js",
   "Merge Overlapping Intervals"         : "/contracts/failSolver.js",
-  "Generate IP Addresses"               : "/contracts/failSolver.js",
+  "Generate IP Addresses"               : "/contracts/generateIpAddsSolver.js",
   "Algorithmic Stock Trader I"          : "/contracts/failSolver.js",
   "Algorithmic Stock Trader II"         : "/contracts/failSolver.js",
   "Algorithmic Stock Trader III"        : "/contracts/failSolver.js",
