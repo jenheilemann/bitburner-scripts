@@ -47,14 +47,13 @@ export const lsKeys = {
 }
 
 export async function tryRun(ns, callback) {
-  let pid = 0
-  do {
-    pid = callback()
+  let pid = callback()
+  while (pid == 0) {
     await ns.sleep(300)
-  } while (pid == 0)
+    pid = callback()
+  }
   return pid
 }
-
 
 export function getLSItem(key) {
   let item = localStorage.getItem(key)
