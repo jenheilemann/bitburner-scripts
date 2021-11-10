@@ -5,6 +5,8 @@ const filesToDownload = [
   '/contracts/generateIpAddsSolver.js',
   '/contracts/scanner.js',
   '/contracts/spiralizeMatrixSolver.js',
+  '/contracts/uniquePaths1Solver.js',
+  '/contracts/uniquePaths2Solver.js',
   '/hacknet/coreUpgrader.js',
   '/hacknet/levelUpgrader.js',
   '/hacknet/ramUpgrader.js',

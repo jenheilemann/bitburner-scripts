@@ -14,7 +14,7 @@ const solvers = {
   "Algorithmic Stock Trader III"        : "/contracts/failSolver.js",
   "Algorithmic Stock Trader IV"         : "/contracts/failSolver.js",
   "Minimum Path Sum in a Triangle"      : "/contracts/failSolver.js",
-  "Unique Paths in a Grid I"            : "/contracts/failSolver.js",
+  "Unique Paths in a Grid I"            : "/contracts/uniquePaths1Solver.js",
   "Unique Paths in a Grid II"           : "/contracts/uniquePaths2Solver.js",
   "Sanitize Parentheses in Expression"  : "/contracts/failSolver.js",
   "Find All Valid Math Expressions"     : "/contracts/failSolver.js",
