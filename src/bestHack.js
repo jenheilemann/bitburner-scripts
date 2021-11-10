@@ -6,7 +6,7 @@ const growthCoefficient = 1.1
 const minSecurityCoefficient = 2
 const growthCap = 100 // because otherwise N00dles is always on the top of the list
 const securityWeight = 200
-const maxWeakenTime = 15 * 60
+const maxWeakenTime = 15 * 60 * 1000
 
 export function calcScore(server) {
   // {"hackingLvl":1,"maxMoney":0,"minSecurity":1,"growth":1}

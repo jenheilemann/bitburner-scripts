@@ -63,6 +63,6 @@ export class NetworkMapper {
 export async function main(ns) {
   let mapper = new NetworkMapper(ns)
 
-  ns.tprint("writing networkMap to local storage!")
+  ns.tprint(`Writing networkMap to local storage (lsKeys['nmap']:${lsKeys['nmap']}) and ${mapper.filename}!`)
   await mapper.writeMap(ns)
 }

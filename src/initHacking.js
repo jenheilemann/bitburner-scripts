@@ -41,7 +41,7 @@ export async function main(ns) {
   for ( let filename of filesToDownload ) {
     ns.scriptKill(filename, 'home')
     ns.rm(filename)
-    await ns.sleep(200)
+    await ns.sleep(50)
     await download(ns, filename)
   }
   ns.tprint('Killed and deleted old scripts.')
