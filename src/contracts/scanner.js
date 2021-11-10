@@ -32,7 +32,7 @@ export async function main(ns) {
     contracts = findContracts(ns, map)
 
     for (let contract of contracts ) {
-      ns.print(`Contract ${contract.file} (${contract.type)}) found on ${contract.server}`)
+      ns.print(`Contract ${contract.file} (${contract.type}) found on ${contract.server}`)
       await tryRun(ns, () => ns.run(solvers[contract.type], 1, '--dataString', JSON.stringify(contract)) )
     }
     await ns.sleep(10 * 60 * 1000)
