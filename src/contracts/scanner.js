@@ -15,7 +15,7 @@ const solvers = {
   "Algorithmic Stock Trader IV"         : "/contracts/failSolver.js",
   "Minimum Path Sum in a Triangle"      : "/contracts/failSolver.js",
   "Unique Paths in a Grid I"            : "/contracts/failSolver.js",
-  "Unique Paths in a Grid II"           : "/contracts/failSolver.js",
+  "Unique Paths in a Grid II"           : "/contracts/uniquePaths2Solver.js",
   "Sanitize Parentheses in Expression"  : "/contracts/failSolver.js",
   "Find All Valid Math Expressions"     : "/contracts/failSolver.js",
 }
@@ -34,6 +34,7 @@ export async function main(ns) {
     for (let contract of contracts ) {
       ns.print(`Contract ${contract.file} (${contract.type}) found on ${contract.server}`)
       await tryRun(ns, () => ns.run(solvers[contract.type], 1, '--dataString', JSON.stringify(contract)) )
+      await ns.sleep(30)
     }
     await ns.sleep(10 * 60 * 1000)
   }
