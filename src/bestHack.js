@@ -44,6 +44,6 @@ export class BestHack {
 }
 
 export function main(ns) {
-  let searcher = new BestHack(networkMap(ns))
+  let searcher = new BestHack(await networkMap(ns))
   ns.tprint(searcher.findBestPerLevel(ns, ns.getHackingLevel(), toolsCount(ns)))
 }

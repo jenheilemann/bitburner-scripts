@@ -30,7 +30,7 @@ export async function main(ns) {
   ns.tprint("Buying " + limit + " servers for " + ns.nFormat(cost, "$0.000a") + " each")
 
   const ramRequired = ns.getScriptRam(script)
-  const searcher = new BestHack(networkMap(ns))
+  const searcher = new BestHack(await networkMap(ns))
   const pServs = ns.getPurchasedServers()
 
   let target, hostname, threads

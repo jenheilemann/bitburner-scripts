@@ -25,7 +25,7 @@ const solvers = {
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
-  let map = networkMap(ns)
+  let map = await networkMap(ns)
   let contracts = findContracts(ns, map)
 
   for (let contract of contracts ) {

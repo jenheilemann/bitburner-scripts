@@ -10,7 +10,7 @@ const crackers = [0].concat(rootFiles)
  * @param {NS} ns
  **/
 export async function main(ns) {
-  let nMap = networkMap(ns)
+  let nMap = await networkMap(ns)
   ns.disableLog('sleep')
 
   const serversByPortsRequired = groupBy(Object.values(nMap), (s) => s.portsRequired)
