@@ -57,7 +57,9 @@ export async function main(ns) {
   ns.run('/hacknet/startup.js', 1)
   ns.tprint(`Starting buyer.js`)
   ns.run('buyer.js', 1)
-  ns.tprint(`Spawning botnet.js`)
+  ns.tprint(`Starting botnet.js`)
   ns.run('botnet.js', 1)
+  ns.tprint(`Starting contracts/scanner.js`)
+  ns.run('/contracts/scanner.js', 1)
   ns.tprint(`Startup script completed. May your pillow always be cool.`)
 }
