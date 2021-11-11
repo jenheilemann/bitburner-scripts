@@ -58,7 +58,7 @@ export async function main(ns) {
   var best_server = server_eval.sort(function (a, b) {
     return b.gainRate - a.gainRate;
   })[0];
-  ns.tprint("Best server: ", best_server.hostname, " with ", ns.nFormat(best_server., "$0.000a"), " per ram-second");
+  ns.tprint("Best server: ", best_server.hostname, " with ", ns.nFormat(best_server.gainRate, "$0.000a"), " per ram-second");
   ns.print(`\nServers in order of best to worst hack money at Hack ${player.hacking}:`);
   let order = 1;
   for (const server of server_eval) {
