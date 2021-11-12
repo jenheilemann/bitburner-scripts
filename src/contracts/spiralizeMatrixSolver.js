@@ -41,6 +41,8 @@ function solve(matrix) {
     answer.push( ...matrix.shift() )
     // add the last element of each array
     matrix.forEach((arr) => answer.push(arr.pop()))
+    // check if it's an odd number of rows, we might be done now
+    if ( matrix.length == 0 ) { return answer }
     // add the bottom array, reversed
     answer.push( ...matrix.pop().reverse() )
     // add the first element of each array, reversed (bottom to top)
