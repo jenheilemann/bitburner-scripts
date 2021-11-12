@@ -24,8 +24,9 @@ export async function main(ns) {
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
 
+  let solveArgs = solveArgsByType(args.type, data)
+  let answer = solve(...solveArgs)
 
-  let answer = solve(data[0], data[1])
   ns.tprint(`My answer: ${answer}`)
   let result = ns.codingcontract.attempt(
     answer,
@@ -34,6 +35,19 @@ export async function main(ns) {
     { returnReward: true }
   )
   ns.tprint(`${args.file} attempt result: ${result}`)
+}
+
+function solveArgsByType(type, data) {
+  switch (type) {
+    case "Algorithmic Stock Trader I" :
+      return [1, data]
+    case "Algorithmic Stock Trader II" :
+      return [data.length, data]
+    case "Algorithmic Stock Trader III" :
+      return [2, data]
+    case "Algorithmic Stock Trader IV" :
+      return [data[0], data[1]]
+  }
 }
 
 export function solve(transactions, prices) {
