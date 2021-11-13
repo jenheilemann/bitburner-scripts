@@ -2,6 +2,7 @@
 const valuesToRemove = ['jh_network_map']
 const filesToDownload = [
   '/contracts/algorithmicStockTraderSolver.js',
+  '/contracts/arrayJumpingSolver.js',
   '/contracts/failSolver.js',
   '/contracts/findValidExpressionsSolver.js',
   '/contracts/generateIpAddsSolver.js',

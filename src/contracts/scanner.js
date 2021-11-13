@@ -6,7 +6,7 @@ const solvers = {
   "Subarray with Maximum Sum"           : "/contracts/failSolver.js",
   "Total Ways to Sum"                   : "/contracts/failSolver.js",
   "Spiralize Matrix"                    : "/contracts/spiralizeMatrixSolver.js",
-  "Array Jumping Game"                  : "/contracts/failSolver.js",
+  "Array Jumping Game"                  : "/contracts/arrayJumpingSolver.js",
   "Merge Overlapping Intervals"         : "/contracts/mergeOverlappingIntervalsSolver.js",
   "Generate IP Addresses"               : "/contracts/generateIpAddsSolver.js",
   "Algorithmic Stock Trader I"          : "/contracts/algorithmicStockTraderSolver.js",
