@@ -37,25 +37,27 @@ export async function main(ns) {
 function solve(pairs) {
   let changed = true
   let focus;
+  let intervals = []
 
-  while (changed === true) {
+  while (pairs.length > 0) {
     changed = false
     focus = pairs.shift()
     for (let i = 0; i < pairs.length; i++) {
       if ( overlap(focus, pairs[i]) ) {
         changed = true
-        focus = focus.concat(pairs[i]).sort((a,b) => a - b)
-        focus = [focus.shift(), focus.pop()]
+        focus = [Math.min(focus[0], pairs[i][0]), Math.max(focus[1], pairs[i][1])]
         pairs.splice(i, 1)
-        pairs.push(focus)
-        break
       }
     }
+    if (!changed) {
+      intervals.push(focus)
+    } else {
+      pairs.push(focus)
+    }
   }
-  pairs.push(focus)
-  pairs.sort(([a,b],[c,d]) => a - c || b - d)
+  intervals.sort((a,b) => a[0] - b[0])
 
-  return pairs
+  return intervals
 }
 
 function overlap(val, range) {
