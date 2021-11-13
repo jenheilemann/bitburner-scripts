@@ -31,7 +31,7 @@ const filesToDownload = [
   'whisperer.js',
   'zombifier.js',
 ]
-const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner/master/src'
+const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/master/src'
 
 export async function download(ns, filename) {
   const fileUrl = filename.includes("/") ? filename : "/" + filename;
