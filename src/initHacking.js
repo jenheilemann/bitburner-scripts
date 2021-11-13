@@ -1,7 +1,6 @@
 
 const valuesToRemove = ['jh_network_map']
 const filesToDownload = [
-  '/contracts/algorithmicStockTraderSolver.js',
   '/contracts/arrayJumpingSolver.js',
   '/contracts/failSolver.js',
   '/contracts/findValidExpressionsSolver.js',
@@ -11,6 +10,7 @@ const filesToDownload = [
   '/contracts/primeFactorSolver.js',
   '/contracts/scanner.js',
   '/contracts/spiralizeMatrixSolver.js',
+  '/contracts/stockTraderSolver.js',
   '/contracts/uniquePaths1Solver.js',
   '/contracts/uniquePaths2Solver.js',
   '/hacknet/coreUpgrader.js',
