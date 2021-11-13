@@ -7,7 +7,7 @@ const solvers = {
   "Total Ways to Sum"                   : "/contracts/failSolver.js",
   "Spiralize Matrix"                    : "/contracts/spiralizeMatrixSolver.js",
   "Array Jumping Game"                  : "/contracts/arrayJumpingSolver.js",
-  "Merge Overlapping Intervals"         : "/contracts/mergeOverlappingIntervalsSolver.js",
+  "Merge Overlapping Intervals"         : "/contracts/mergeIntervalsSolver.js",
   "Generate IP Addresses"               : "/contracts/generateIpAddsSolver.js",
   "Algorithmic Stock Trader I"          : "/contracts/stockTraderSolver.js",
   "Algorithmic Stock Trader II"         : "/contracts/stockTraderSolver.js",
