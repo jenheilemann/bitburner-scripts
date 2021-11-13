@@ -38,8 +38,46 @@ export async function main(ns) {
   ns.tprint(args)
   ns.tprint(data)
 
-  // let answer = solve(data)
-  // ns.tprint(`My answer: ${answer}`)
+  let answer = solve(data[0], data[1])
+  ns.tprint(`My answer: ${answer}`)
   // let result = ns.codingcontract.attempt('', args.file, args.server, { returnReward: true })
   // ns.tprint(`${args.file} attempt result: ${result}`)
+}
+
+function solve(digits, target) {
+  let walker = new Walker(digits, target)
+  walker.walk()
+  return walker.result
+}
+
+class Walker {
+  constructor(digits, target) {
+    this.digits = digits
+    this.target = target
+    this.result = []
+  }
+
+  walk(path="", position=0, evaluated=0, prevTerm=0) {
+    if ( position === this.digits.length ) {
+      if (this.target === value) {
+        this.result.push(path)
+      }
+      return
+    }
+
+    for ( let i = position; i < this.digits.length; ++i ) {
+      if (i != position && this.digits[position] == '0') {
+        break
+      }
+      const current = parseInt(this.digits.substring(position, i + 1))
+
+      if ( position == 0 ) {
+        this.walk(`${path}${current}`, i+1, current, current)
+      } else {
+        this.walk(`${path}+${current}`, i+1, value + current, current)
+        this.walk(`${path}-${current}`, i+1, value - current, -current)
+        this.walk(`${path}*${current}`, i+1, value - prevTerm + prevTerm*current, prevTerm*current)
+      }
+    }
+  }
 }
