@@ -2,7 +2,7 @@ import { networkMap } from 'network.js'
 import { disableLogs, tryRun } from 'helpers.js'
 
 const solvers = {
-  "Find Largest Prime Factor"           : "/contracts/failSolver.js",
+  "Find Largest Prime Factor"           : "/contracts/primeFactorSolver.js",
   "Subarray with Maximum Sum"           : "/contracts/failSolver.js",
   "Total Ways to Sum"                   : "/contracts/failSolver.js",
   "Spiralize Matrix"                    : "/contracts/spiralizeMatrixSolver.js",

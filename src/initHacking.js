@@ -7,6 +7,7 @@ const filesToDownload = [
   '/contracts/generateIpAddsSolver.js',
   '/contracts/mergeOverlappingIntervalsSolver.js',
   '/contracts/minimumPathSumSolver.js',
+  '/contracts/primeFactorSolver.js',
   '/contracts/scanner.js',
   '/contracts/spiralizeMatrixSolver.js',
   '/contracts/uniquePaths1Solver.js',
