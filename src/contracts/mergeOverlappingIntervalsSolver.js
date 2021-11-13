@@ -1,0 +1,69 @@
+/**
+ * Merge Overlapping Intervals
+ *
+ * Given an array of arrays of numbers representing a list of intervals, merge
+ * all overlapping intervals.
+ *
+ * Example:
+ *
+ * [[1, 3], [8, 10], [2, 6], [10, 16]]
+ *
+ * would merge into [[1, 6], [8, 16]].
+ *
+ * The intervals must be returned in ASCENDING order. You can assume that in an
+ * interval, the first number will always be smaller than the second.
+ *
+ * @param {NS} ns
+ **/
+export async function main(ns) {
+  let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
+  let data = ns.codingcontract.getData(args.file, args.server)
+
+  ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
+
+  let answer = solve(data)
+
+  ns.tprint(`My answer: ${answer}`)
+  let result = ns.codingcontract.attempt(
+    answer,
+    args.file,
+    args.server,
+    { returnReward: true }
+  )
+  ns.tprint(`${args.file} attempt result: ${result}`)
+}
+
+
+function solve(pairs) {
+  let changed = true
+  let focus;
+
+  while (changed === true) {
+    changed = false
+    focus = pairs.shift()
+    for (let i = 0; i < pairs.length; i++) {
+      if ( overlap(focus, pairs[i]) ) {
+        changed = true
+        focus = focus.concat(pairs[i]).sort((a,b) => a - b)
+        focus = [focus.shift(), focus.pop()]
+        pairs.splice(i, 1)
+        pairs.push(focus)
+        break
+      }
+    }
+  }
+  pairs.push(focus)
+  pairs.sort(([a,b],[c,d]) => a - c || b - d)
+
+  return pairs
+}
+
+function overlap(val, range) {
+  if ( typeof val === 'object' ) {
+    return ( overlap(val[0], range) || overlap(val[1], range) || overlap(range[1], val) || overlap(range[0], val))
+  }
+  if ( val >= range[0] && val <= range[1] ){
+    return true
+  }
+  return false
+}
