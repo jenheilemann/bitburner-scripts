@@ -4,7 +4,7 @@ import { disableLogs, tryRun } from 'helpers.js'
 const solvers = {
   "Find Largest Prime Factor"           : "/contracts/primeFactorSolver.js",
   "Subarray with Maximum Sum"           : "/contracts/subarrayMaximumSolver.js",
-  "Total Ways to Sum"                   : "/contracts/failSolver.js",
+  "Total Ways to Sum"                   : "/contracts/totalWaysToSumSolver.js",
   "Spiralize Matrix"                    : "/contracts/spiralizeMatrixSolver.js",
   "Array Jumping Game"                  : "/contracts/arrayJumpingSolver.js",
   "Merge Overlapping Intervals"         : "/contracts/mergeIntervalsSolver.js",
