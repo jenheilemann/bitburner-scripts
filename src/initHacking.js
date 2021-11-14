@@ -11,6 +11,7 @@ const filesToDownload = [
   '/contracts/scanner.js',
   '/contracts/spiralizeMatrixSolver.js',
   '/contracts/stockTraderSolver.js',
+  '/contracts/subarrayMaximumSolver.js',
   '/contracts/uniquePaths1Solver.js',
   '/contracts/uniquePaths2Solver.js',
   '/hacknet/coreUpgrader.js',
