@@ -26,8 +26,6 @@ export async function main(ns) {
 
   let solveArgs = solveArgsByType(args.type, data)
   let answer = solve(...solveArgs)
-
-  ns.tprint(`My answer: ${answer}`)
   let result = ns.codingcontract.attempt(
     answer,
     args.file,

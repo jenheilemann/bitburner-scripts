@@ -21,8 +21,6 @@ export async function main(ns) {
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
   let answer = solve(expand(data[0], data[1]))
-  ns.tprint(`My answer: ${answer}`)
-
   let result = ns.codingcontract.attempt(
     answer,
     args.file,
