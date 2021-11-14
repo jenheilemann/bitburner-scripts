@@ -27,7 +27,6 @@ export async function main(ns) {
 
 function printPathToServer(ns, target, nMap, backdoor = false) {
   let path = findPath(target, nMap)
-  ns.tprint(path)
   let msg = ""
   path.forEach((step) => msg += "connect " + step + ";")
   if ( backdoor ) {
