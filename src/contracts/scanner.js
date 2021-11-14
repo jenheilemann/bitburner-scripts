@@ -16,7 +16,7 @@ const solvers = {
   "Minimum Path Sum in a Triangle"      : "/contracts/minimumPathSumSolver.js",
   "Unique Paths in a Grid I"            : "/contracts/uniquePaths1Solver.js",
   "Unique Paths in a Grid II"           : "/contracts/uniquePaths2Solver.js",
-  "Sanitize Parentheses in Expression"  : "/contracts/failSolver.js",
+  "Sanitize Parentheses in Expression"  : "/contracts/sanitizeParensSolver.js",
   "Find All Valid Math Expressions"     : "/contracts/findValidExpressionsSolver.js",
 }
 

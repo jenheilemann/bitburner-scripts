@@ -8,6 +8,7 @@ const filesToDownload = [
   '/contracts/mergeIntervalsSolver.js',
   '/contracts/minimumPathSumSolver.js',
   '/contracts/primeFactorSolver.js',
+  '/contracts/sanitizeParensSolver.js',
   '/contracts/scanner.js',
   '/contracts/spiralizeMatrixSolver.js',
   '/contracts/stockTraderSolver.js',
