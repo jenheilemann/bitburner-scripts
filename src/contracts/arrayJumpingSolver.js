@@ -39,7 +39,7 @@ export async function main(ns) {
 function solve(arr) {
   let farthest = arr[0]
 
-  for (i = 0; i <= farthest; i++) {
+  for (let i = 0; i <= farthest; i++) {
     farthest = Math.max(farthest, i+arr[i])
     if ( farthest >= arr.length-1 ) { return 1 }
   }
