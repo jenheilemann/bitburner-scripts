@@ -24,7 +24,6 @@ export async function main(ns) {
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
   let answer = solve(data)
-  ns.tprint(`My answer: ${answer}`)
   let result = ns.codingcontract.attempt(
     answer,
     args.file,
@@ -35,19 +34,56 @@ export async function main(ns) {
 }
 
 function solve(str) {
-  let left = 0
-  let right = 0
-  const res = []
+  let walker = new Walker(str)
+  let [left, right] = walker.calcLeftRight()
+  walker.walk(left, right)
+  return walker.solutions
+}
 
-  for (var i = 0; i < data.length; i++) {
-    if (data[i] === "(") {
-      ++left
-    } else if (data[i] ===")") {
-      left > 0 ? --left : ++right
+class Walker {
+  constructor(str) {
+    this.str = str
+    this.solutions = []
+  }
+
+  calcLeftRight() {
+    let left = 0
+    let right = 0
+
+    for (var i = 0; i < this.str.length; i++) {
+      if (this.str[i] === "(") {
+        ++left
+      } else if (this.str[i] ===")") {
+        left > 0 ? --left : ++right
+      }
+    }
+    return [left, right]
+  }
+
+  walk(left, right, pair = 0, index = 0, solutionCandidate = "") {
+    if ( this.str.length === index ) {
+      if (left === 0 && right === 0 && pair == 0) {
+        if (this.solutions.indexOf(solutionCandidate) > -1) {
+          return
+        }
+        this.solutions.push(solutionCandidate)
+      }
+      return
+    }
+
+    if (this.str[index] === "(") {
+      if ( left > 0 ) {
+        this.walk(left-1, right, pair, index+1, solutionCandidate)
+      }
+      this.walk(left, right, pair+1, index+1, solutionCandidate+this.str[index])
+    } else if (this.str[index] === ")") {
+      if (right > 0)
+        this.walk(left, right-1, pair, index+1, solutionCandidate)
+      if (pair > 0)
+        this.walk(left, right, pair-1, index+1, solutionCandidate+this.str[index])
+    } else {
+      this.walk(left, right, pair, index+1, solutionCandidate+this.str[index])
     }
   }
 }
 
-function walk(pair, index, left, right, data, solution, res) {
-
-}
