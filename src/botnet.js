@@ -32,7 +32,7 @@ export async function main(ns) {
     for (let server of serversByPortsRequired[i]) {
       if (server.name !== 'home') {
         await zombify(ns, server, target.name)
-        await ns.sleep(5000)
+        await ns.sleep(500)
       }
     }
 
