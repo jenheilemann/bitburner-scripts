@@ -71,7 +71,6 @@ export function solve(transactions, prices) {
 
   for (let i = 0; i < length; ++i) {
     current = prices[i]
-    console.log(current, rele, hold, rele[transactions])
     for (let j = transactions; j > 0; --j) {
       rele[j] = Math.max(rele[j], hold[j] + current)
       hold[j] = Math.max(hold[j], rele[j - 1] - current)
