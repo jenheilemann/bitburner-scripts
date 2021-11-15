@@ -26,6 +26,13 @@ export async function networkMap(ns) {
   return map;
 }
 
+/**
+ * @param {NS} ns
+ * @param {string} serverName
+ **/
+export async function getServer(ns, serverName) {
+  return await networkMap(ns)[serverName]
+}
 
 /**
  * @param {NS} ns
