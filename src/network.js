@@ -1,5 +1,4 @@
 import { getLSItem } from 'helpers.js'
-import { lsKeys } from 'constants.js'
 
 /**
  * @param {NS} ns
@@ -13,14 +12,14 @@ export async function main(ns) {
  * @param {NS} ns
  **/
 export async function networkMap(ns) {
-  let map = getLSItem(lsKeys.NMAP)
+  let map = getLSItem('NMAP')
   ns.print(`fetched map from localStorage: (${typeof map}) ${map}`)
 
   while ( map === undefined ) {
     ns.print(`map is undefined, running networkMapper.js`)
     ns.run('networkMapper.js', 1)
     await ns.sleep(200)
-    map = getLSItem(lsKeys.NMAP)
+    map = getLSItem('NMAP')
     ns.print(`fetched map from localStorage: (${typeof map}) ${map}`)
   }
 

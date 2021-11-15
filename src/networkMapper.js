@@ -1,5 +1,4 @@
 import { setLSItem } from 'helpers.js'
-import { lsKeys } from 'constants.js'
 
 /**
  * @param {NS} ns
@@ -27,7 +26,7 @@ export class NetworkMapper {
   }
 
   async writeMap(ns) {
-    setLSItem(lsKeys.NMAP, this.serverData)
+    setLSItem('NMAP', this.serverData)
 
     let line = "Name,MaxRam,PortsRequired," +
       "HackingLvl,MaxMoney,MinSecurity,Growth," +

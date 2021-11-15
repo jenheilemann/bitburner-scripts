@@ -1,4 +1,4 @@
-import { rootFiles, purchaseables } from "constants.js"
+import { rootFiles, purchaseables,lsKeys } from "constants.js"
 
 export function toolsCount(ns) {
   let count = 0
@@ -44,11 +44,15 @@ export async function tryRun(ns, callback) {
 }
 
 export function getLSItem(key) {
-  let item = localStorage.getItem(key)
+  let item = localStorage.getItem(lsKeys[key].toUpperCase())
 
   return item ? JSON.parse(item) : undefined
 }
 
 export function setLSItem(key, value) {
-  localStorage.setItem(key, JSON.stringify(value))
+  localStorage.setItem(lsKeys[key].toUpperCase(), JSON.stringify(value))
+}
+
+export function clearLSItem(key) {
+  localStorage.removeItem(lsKeys[key].toUpperCase())
 }

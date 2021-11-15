@@ -19,7 +19,6 @@ export const purchaseables = rootFiles.concat([
   // { name: "Formulas.exe", cost: 5000000000, }
 ])
 
-
 export const lsKeys = {
   NMAP : 'jh_network_map',
   PLAYER : 'jh_player',
