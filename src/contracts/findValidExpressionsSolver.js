@@ -64,7 +64,7 @@ class Walker {
     this.result = []
   }
 
-  walk(path="", position=0, evaluated=0, prevTerm=0) {
+  walk(path="", position=0, value=0, prevTerm=0) {
     if ( position === this.digits.length ) {
       if (this.target === value) {
         this.result.push(path)

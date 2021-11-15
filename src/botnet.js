@@ -1,9 +1,9 @@
 import { networkMap } from 'network.js'
 import { groupBy } from 'groupBy.js'
 import { BestHack } from 'bestHack.js'
-import { toolsCount, tryRun, rootFiles } from 'helpers.js'
+import { toolsCount, tryRun } from 'helpers.js'
 import { root } from 'rooter.js'
-import { factionServer } from 'constants.js'
+import { factionServers, rootFiles } from 'constants.js'
 
 const crackers = [0].concat(rootFiles)
 
@@ -57,7 +57,7 @@ async function zombify(ns, serv, target) {
   let pid = await tryRun(ns, () => ns.run("zombifier.js", 1, serv.name, target))
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 
-  if ( server.name in factionServer ) {
+  if ( serv.name in factionServers && serv.hackingLvl <= ns.getHackingLevel() ) {
     await tryRun(ns, () => ns.run("backdoor.js", 1, serv.name))
   }
 }

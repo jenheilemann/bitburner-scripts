@@ -1,4 +1,4 @@
-import { faction_servers as targets } from 'constants.js'
+import { factionServers as targets } from 'constants.js'
 import { findPath } from 'network.js'
 
 export function autocomplete(data, args) {

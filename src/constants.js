@@ -1,5 +1,5 @@
 
-export const faction_servers = {
+export const factionServers = {
   "CSEC"         : "CyberSec",
   "avmnite-02h"  : "NiteSec",
   "I.I.I.I"      : "The Black Hand",
@@ -21,5 +21,6 @@ export const purchaseables = rootFiles.concat([
 
 
 export const lsKeys = {
-  NMAP : 'jh_network_map'
+  NMAP : 'jh_network_map',
+  PLAYER : 'jh_player',
 }
