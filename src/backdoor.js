@@ -6,6 +6,10 @@ export async function main(ns) {
   await backdoor(ns, target)
 }
 
+export function autocomplete(data, args) {
+  return Object.keys(factionServers)
+}
+
 /**
  * @param {NS} ns
  * @param {string} target
