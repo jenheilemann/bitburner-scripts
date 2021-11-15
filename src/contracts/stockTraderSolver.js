@@ -33,6 +33,12 @@ export async function main(ns) {
     { returnReward: true }
   )
   ns.tprint(`${args.file} attempt result: ${result}`)
+  if ( result === '' ) {
+    ns.tprint(`**************** Failure detected! ********************`)
+    ns.tprint(JSON.stringify(args))
+    ns.tprint(data)
+    ns.kill('/contracts/scanner.js', 'home')
+  }
 }
 
 function solveArgsByType(type, data) {

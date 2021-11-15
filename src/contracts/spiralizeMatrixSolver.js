@@ -21,7 +21,9 @@ export async function main(ns) {
   let data = ns.codingcontract.getData(args.file, args.server)
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}, data: `)
+  ns.tprint(`\n\r${data.join('\n\r')}`)
   let answer = solve(data)
+  ns.tprint(`Answer: ${answer}`)
   let result = ns.codingcontract.attempt(
     answer,
     args.file,
@@ -29,6 +31,12 @@ export async function main(ns) {
     { returnReward: true }
   )
   ns.tprint(`${args.file} attempt result: ${result}`)
+  if ( result === '' ) {
+    ns.tprint(`**************** Failure detected! ********************`)
+    ns.tprint(JSON.stringify(args))
+    ns.tprint(data)
+    ns.kill('/contracts/scanner.js', 'home')
+  }
 }
 
 
