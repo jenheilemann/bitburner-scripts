@@ -41,7 +41,7 @@ export class NetworkMapper {
   }
 
   aggregateData(ns, server, parent) {
-    return {
+    let sobj = {
       name: server,
       maxRam: ns.getServerMaxRam(server),
       portsRequired: ns.getServerNumPortsRequired(server),
@@ -49,10 +49,19 @@ export class NetworkMapper {
       maxMoney: ns.getServerMaxMoney(server),
       minSecurity: ns.getServerMinSecurityLevel(server),
       growth: ns.getServerGrowth(server),
-      parent: parent
-    };
+      parent: parent,
+    }
+    updateData(ns, sobj)
+    return sobj
   }
 }
+
+export function updateData(ns, server) {
+  server.data = ns.getServer(server.name)
+  server.files = ns.ls(server.name)
+  return server
+}
+
 
 /**
  * @param {NS} ns
