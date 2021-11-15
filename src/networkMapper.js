@@ -17,10 +17,7 @@ export class NetworkMapper {
   walkServers(ns) {
     for (var i = 0; i < this.serverList.length; i++) {
       ns.scan(this.serverList[i]).forEach(function (host) {
-        if (host.includes('pserv-')) {
-          return;
-        }
-        if (this.serverList.indexOf(host) == -1) {
+        if (!this.serverList.includes(host)) {
           this.serverData[host] = this.aggregateData(ns, host, this.serverList[i]);
           this.serverList.push(host);
         }
