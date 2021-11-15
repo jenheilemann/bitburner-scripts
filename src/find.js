@@ -1,47 +1,30 @@
-import { networkMap } from "network.js"
-
-const targets = {
-  "CSEC":         "CyberSec",
-  "avmnite-02h":  "NiteSec",
-  "I.I.I.I":      "The Black Hand",
-  "run4theh111z": "Bitrunners",
-  "The-Cave":     "Daedalus",
-}
+import { faction_servers as targets } from 'constants.js'
+import { findPath } from 'network.js'
 
 export function autocomplete(data, args) {
   return Object.keys(targets)
 }
 
 export async function main(ns) {
-  let nMap = await networkMap(ns)
-  if ( ns.args[0] === undefined ) {
-    for ( const server in targets ) {
-      ns.tprint("** " + server + " ( " + targets[server] + " faction)")
-      printPathToServer(ns, server, nMap, true)
+  let path;
+
+  if (ns.args[0] === undefined) {
+    for (const server in targets) {
+      ns.tprint("*********** " + server + " ( " + targets[server] + " faction)")
+      path = await findPath(ns, server)
+      ns.tprint(printablePathToServer(path, true))
     }
   } else {
-    printPathToServer(ns, ns.args[0], nMap)
+    path = await findPath(ns, ns.args[0])
+    ns.tprint(printablePathToServer(path))
+    path.forEach((step) => ns.connect(step))
   }
-  // path.forEach( (step) => ns.connect(step) )
 }
 
-function printPathToServer(ns, target, nMap, backdoor = false) {
-  let path = findPath(target, nMap)
-  let msg = ""
-  path.forEach((step) => msg += "connect " + step + ";")
-  if ( backdoor ) {
-    msg += "backdoor;"
+function printablePathToServer(path, backdoor = false) {
+  let msg = path.join("; connect ")
+  if (backdoor) {
+    msg += "; backdoor;"
   }
-  ns.tprint(msg)
-}
-
-function findPath(goal, servers) {
-  let path = []
-  while (true) {
-    path.unshift(goal)
-    goal = servers[goal].parent
-    if (goal == 'home') {
-      return path
-    }
-  }
+  return msg
 }

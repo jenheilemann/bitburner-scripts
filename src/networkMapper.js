@@ -1,4 +1,5 @@
-import { setLSItem, lsKeys } from 'helpers.js'
+import { setLSItem } from 'helpers.js'
+import { lsKeys } from 'constants.js'
 
 /**
  * @param {NS} ns
@@ -29,7 +30,7 @@ export class NetworkMapper {
   }
 
   async writeMap(ns) {
-    setLSItem(lsKeys['nmap'], this.serverData)
+    setLSItem(lsKeys.NMAP, this.serverData)
 
     let line = "Name,MaxRam,PortsRequired," +
       "HackingLvl,MaxMoney,MinSecurity,Growth," +
@@ -63,6 +64,6 @@ export class NetworkMapper {
 export async function main(ns) {
   let mapper = new NetworkMapper(ns)
 
-  ns.tprint(`Writing networkMap to local storage (lsKeys['nmap']:${lsKeys['nmap']}) and ${mapper.filename}!`)
+  ns.tprint(`Writing networkMap to local storage (lsKeys.NMAP:${lsKeys.NMAP}) and ${mapper.filename}!`)
   await mapper.writeMap(ns)
 }

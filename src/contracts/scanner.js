@@ -26,7 +26,6 @@ const solvers = {
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
   let map = await networkMap(ns)
-  let contracts, solverFile;
 
   while ( true ) {
     await runContracts(ns, map)
@@ -49,5 +48,4 @@ async function runContracts(ns, map) {
       await tryRun(ns, () => ns.run(solverFile, 1, '--dataString', JSON.stringify(contract)) )
     }
   }
-  return contracts;
 }

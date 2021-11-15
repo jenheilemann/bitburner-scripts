@@ -1,14 +1,4 @@
-export const rootFiles = [
-  { name: "BruteSSH.exe", cost: 500000, },
-  { name: "FTPCrack.exe", cost: 1500000, },
-  { name: "relaySMTP.exe", cost: 5000000, },
-  { name: "HTTPWorm.exe", cost: 30000000, },
-  { name: "sqlinject.exe", cost: 250000000, },
-]
-
-export const purchaseables = rootFiles.concat([
-    // { name: "Formulas.exe", cost: 5000000000, }
-  ])
+import { rootFiles, purchaseables } from "constants.js"
 
 export function toolsCount(ns) {
   let count = 0
@@ -42,10 +32,6 @@ export function reserve(ns) {
     }
   }
   return 0
-}
-
-export const lsKeys = {
-  nmap : 'jh_network_map'
 }
 
 export async function tryRun(ns, callback) {

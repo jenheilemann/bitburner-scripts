@@ -3,6 +3,7 @@ import { groupBy } from 'groupBy.js'
 import { BestHack } from 'bestHack.js'
 import { toolsCount, tryRun, rootFiles } from 'helpers.js'
 import { root } from 'rooter.js'
+import { factionServer } from 'constants.js'
 
 const crackers = [0].concat(rootFiles)
 
@@ -55,4 +56,8 @@ async function zombify(ns, serv, target) {
   root(ns, serv.name)
   let pid = await tryRun(ns, () => ns.run("zombifier.js", 1, serv.name, target))
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
+
+  if ( server.name in factionServer ) {
+    await tryRun(ns, () => ns.run("backdoor.js", 1, serv.name))
+  }
 }

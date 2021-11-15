@@ -1,3 +1,4 @@
+
 /**
  * @param {NS} ns
  * @param {string} target
