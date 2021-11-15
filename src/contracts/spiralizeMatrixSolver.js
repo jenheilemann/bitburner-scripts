@@ -21,8 +21,8 @@ export async function main(ns) {
   let data = ns.codingcontract.getData(args.file, args.server)
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}, data: `)
-  ns.tprint(`\n\r${data.join('\n\r')}`)
-  let answer = solve(data)
+  ns.tprint(data)
+  let answer = solve(data.slice())
   ns.tprint(`Answer: ${answer}`)
   let result = ns.codingcontract.attempt(
     answer,
@@ -52,12 +52,12 @@ function solve(matrix) {
     // add the last element of each array
     matrix.forEach((arr) => answer.push(arr.pop()))
     // check if it's an odd number of rows, we might be done now
-    if ( matrix.length == 0 ) { return answer }
+    if ( matrix.length == 0 ) { return answer.flat().filter(v => v != null) }
     // add the bottom array, reversed
     answer.push( ...matrix.pop().reverse() )
     // add the first element of each array, reversed (bottom to top)
     answer.push( ...matrix.map(arr => arr.shift()).reverse() )
   }
 
-  return answer
+  return answer.flat().filter(v => v != null)
 }
