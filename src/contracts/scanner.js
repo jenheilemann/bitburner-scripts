@@ -34,7 +34,7 @@ export async function main(ns) {
   }
 }
 
-async function findContracts(ns, map) {
+async function runContracts(ns, map) {
   let contract, solverFile;
 
   for (let serverName in map ) {
