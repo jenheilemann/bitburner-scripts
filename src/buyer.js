@@ -17,7 +17,6 @@ export async function main(ns) {
   ns.disableLog('sleep')
 
   const args = ns.flags([
-    ['destroy', false],
     ['target', 'dynamic'],
     ['size', 7],
   ])
@@ -40,7 +39,7 @@ export async function main(ns) {
       await waitForCash(ns, cost)
       ns.purchaseServer(hostname, ram)
     } else {
-      if (args['destroy']) {
+      if ( ns.getServerMaxRam(hostname) < ram ) {
         await waitForCash(ns, cost)
         ns.print("Destroying server: " + hostname)
         ns.scriptKill(script, hostname)
