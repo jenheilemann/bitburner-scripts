@@ -69,6 +69,6 @@ export function updateData(ns, server) {
 export async function main(ns) {
   let mapper = new NetworkMapper(ns)
 
-  ns.tprint(`Writing networkMap to local storage (lsKeys.NMAP:${lsKeys.NMAP}) and ${mapper.filename}!`)
+  ns.tprint(`Writing networkMap to local storage and ${mapper.filename}!`)
   await mapper.writeMap(ns)
 }
