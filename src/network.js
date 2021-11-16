@@ -31,7 +31,8 @@ export async function networkMap(ns) {
  * @param {string} serverName
  **/
 export async function getServer(ns, serverName) {
-  return await networkMap(ns)[serverName]
+  let map = await networkMap(ns)
+  return map[serverName]
 }
 
 /**

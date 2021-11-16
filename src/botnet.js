@@ -56,8 +56,4 @@ async function zombify(ns, serv, target) {
   root(ns, serv.name)
   let pid = await tryRun(ns, () => ns.run("zombifier.js", 1, serv.name, target))
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
-
-  if ( serv.name in factionServers && serv.hackingLvl <= ns.getHackingLevel() ) {
-    await tryRun(ns, () => ns.run("backdoor.js", 1, serv.name))
-  }
 }

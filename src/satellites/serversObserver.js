@@ -6,10 +6,10 @@ import { updateData } from 'networkMapper.js'
  * @param {NS} ns
  **/
 export async function main(ns) {
-  let nMap = networkMap(ns)
+  let nMap = await networkMap(ns)
 
-  for ( let server of nMap ) {
-    updateData(ns, server)
+  for ( let server in nMap ) {
+    updateData(ns, nMap[server])
   }
 
   setLSItem('NMAP', nMap)

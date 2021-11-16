@@ -18,7 +18,7 @@ export async function main(ns) {
   }
 
   for ( const file of purchaseables ) {
-    if ( player.programs.indexOf(file.name) == -1 ) {
+    if ( !player.programs.includes(file.name) ) {
       if ( player.money > file.cost) {
         await tryRun(ns, () => ns.run('/satellites/programBuyer.js', 1, file.name))
       }
