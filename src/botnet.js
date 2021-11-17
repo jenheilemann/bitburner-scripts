@@ -1,6 +1,6 @@
 import { networkMap, fetchServer } from 'network.js'
 import { BestHack } from 'bestHack.js'
-import { toolsCount, tryRun, getLSItem, fetchPlayer, groupBy } from 'helpers.js'
+import { toolsCount, tryRun, fetchPlayer, groupBy } from 'helpers.js'
 import { root } from 'rooter.js'
 import { rootFiles } from 'constants.js'
 

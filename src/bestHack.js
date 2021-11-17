@@ -1,6 +1,6 @@
 import { toolsCount, fetchPlayer } from 'helpers.js'
 import { networkMap } from 'network.js'
-import { * as formulae } from '/formulae/hacking.js'
+import { calculateWeakenTime } from '/formulae/hacking.js'
 
 const maxMoneyCoefficient = 1.25
 const growthCoefficient = 1.1
@@ -28,7 +28,7 @@ export class BestHack {
     let scores = this.calcServerScores()
     let filtered = Object.values(scores)
       .filter((server) => server.hackingLvl <= player.hacking && server.portsRequired <= maxPorts)
-      .filter((server) => formulae.calculateWeakenTime(server.data, player) < maxWeakenTime)
+      .filter((server) => calculateWeakenTime(server.data, player) < maxWeakenTime)
     return filtered.reduce((prev, current) => (prev.score > current.score) ? prev : current)
   }
   calcServerScores() {
