@@ -1,4 +1,5 @@
 import { findPath } from 'network.js'
+import { factionServers } from 'constants.js'
 
 /** @param {NS} ns **/
 export async function main(ns) {

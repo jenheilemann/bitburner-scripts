@@ -44,15 +44,15 @@ export async function tryRun(ns, callback) {
 }
 
 export function getLSItem(key) {
-  let item = localStorage.getItem(lsKeys[key].toUpperCase())
+  let item = localStorage.getItem(lsKeys[key.toUpperCase()])
 
   return item ? JSON.parse(item) : undefined
 }
 
 export function setLSItem(key, value) {
-  localStorage.setItem(lsKeys[key].toUpperCase(), JSON.stringify(value))
+  localStorage.setItem(lsKeys[key.toUpperCase()], JSON.stringify(value))
 }
 
 export function clearLSItem(key) {
-  localStorage.removeItem(lsKeys[key].toUpperCase())
+  localStorage.removeItem(lsKeys[key.toUpperCase()])
 }

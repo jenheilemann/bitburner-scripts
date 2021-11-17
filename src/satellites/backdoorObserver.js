@@ -10,11 +10,11 @@ export async function main(ns) {
 
   for ( const server of Object.values(nmap)) {
     if ( server.data.backdoorInstalled )
-      return
+      continue
     if ( player.hacking < server.hackingLvl )
-      return
-    if ( !server.hasAdminRights )
-      return
+      continue
+    if ( !server.data.hasAdminRights )
+      continue
 
     await tryRun(ns, () => { ns.run('backdoor.js', 1, server.name) })
     await ns.sleep(50)

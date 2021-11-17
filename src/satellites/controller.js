@@ -15,6 +15,7 @@ const timers = [
  * @param {NS} ns
  **/
 export async function main(ns) {
+  disableLogs(ns, ['sleep'])
   while(true) {
 
     for ( const timer of timers) {

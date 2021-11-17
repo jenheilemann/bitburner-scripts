@@ -20,5 +20,5 @@ function didPlayerBuyAllPrograms(player) {
   if ( !player.tor )
     return false
 
-  return player.programs.length >= Object.keys(purchaseables).length
+  return purchaseables.every(f => player.programs.includes(f.name))
 }
