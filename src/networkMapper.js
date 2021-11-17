@@ -5,7 +5,7 @@ import { setLSItem } from 'helpers.js'
  **/
 export class NetworkMapper {
   constructor(ns) {
-    ns.tprint("Initializing new Network object");
+    ns.print("Initializing new Network object");
     this.filename = 'network_map.txt';
     this.serverData = {};
     this.serverData['home'] = this.aggregateData(ns, 'home', '');
@@ -69,6 +69,6 @@ export function updateData(ns, server) {
 export async function main(ns) {
   let mapper = new NetworkMapper(ns)
 
-  ns.tprint(`Writing networkMap to local storage and ${mapper.filename}!`)
+  ns.print(`Writing networkMap to local storage and ${mapper.filename}!`)
   await mapper.writeMap(ns)
 }

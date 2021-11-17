@@ -1,4 +1,4 @@
-import { tryRun } from 'helpers.js'
+import { tryRun, disableLogs } from 'helpers.js'
 
 /**
  * how long to wait between running a satellite file

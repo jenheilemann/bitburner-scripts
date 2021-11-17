@@ -71,6 +71,10 @@ export async function main(ns) {
   valuesToRemove.map((value) => localStorage.removeItem(value))
   ns.tprint(`Cleaned up localStorage.`)
 
+  ns.tprint(`Starting satellites/controller.js`)
+  ns.run('/satellites/controller.js', 1)
+  await ns.sleep(200) // just give it a sec
+
   ns.tprint(`Starting hacknet/startup.js`)
   ns.run('/hacknet/startup.js', 1)
   ns.tprint(`Starting buyer.js`)

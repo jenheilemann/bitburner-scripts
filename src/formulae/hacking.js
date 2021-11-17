@@ -78,7 +78,7 @@ export function calculateHackingTime(server, player) {
     (hackTimeMultiplier * skillFactor) /
     (player.hacking_speed_mult * calculateIntelligenceBonus(player.intelligence, 1));
 
-  return hackingTime;
+  return hackingTime * 1000;
 }
 
 /**

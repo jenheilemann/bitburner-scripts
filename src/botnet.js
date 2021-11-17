@@ -3,6 +3,7 @@ import { BestHack } from 'bestHack.js'
 import { toolsCount, tryRun, fetchPlayer, groupBy } from 'helpers.js'
 import { root } from 'rooter.js'
 import { rootFiles } from 'constants.js'
+import { calculateWeakenTime } from '/formulae/hacking.js'
 
 const crackers = [0].concat(rootFiles.map(f => f.name))
 
@@ -11,12 +12,9 @@ const crackers = [0].concat(rootFiles.map(f => f.name))
  **/
 export async function main(ns) {
   ns.disableLog('sleep')
-  let nMap = await networkMap(ns)
-  let player = fetchPlayer()
 
-  const serversByPortsRequired = groupBy(Object.values(nMap), (s) => s.portsRequired)
-  const searcher = new BestHack(nMap)
-  let target, waitTime;
+  const serversByPortsRequired = groupBy(Object.values(await networkMap(ns)), (s) => s.portsRequired)
+  let player, target, searcher, waitTime;
 
   for (let i = 0; i < crackers.length; i++) {
     if (i > 0) {
@@ -28,6 +26,7 @@ export async function main(ns) {
     }
 
     player = fetchPlayer()
+    searcher = new BestHack(await networkMap(ns))
     target = searcher.findBestPerLevel(player, toolsCount())
     root(ns, await fetchServer(ns, target.name))
 
@@ -40,7 +39,9 @@ export async function main(ns) {
     }
 
     // wait a sec for us to level up a little
-    waitTime = ns.getWeakenTime(target.name)
+    target = await fetchServer(ns, target.name)
+    player = fetchPlayer()
+    waitTime = calculateWeakenTime(target.data, player)
     if ( i > 0 ) {
       // we're probably targeting something that'll take a while
       // and we're already leveling up anyway, so wait 1 min
