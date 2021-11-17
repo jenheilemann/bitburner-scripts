@@ -1,6 +1,6 @@
 import { setLSItem } from 'helpers.js'
 import { purchaseables } from 'constants.js'
-import { getServer } from 'network.js'
+import { fetchServer } from 'network.js'
 
 /**
  * @param {NS} ns
@@ -8,8 +8,9 @@ import { getServer } from 'network.js'
 export async function main(ns) {
   let player = ns.getPlayer()
   player.isBusy = ns.isBusy()
+  player.karma = ns.heart.break()
 
-  const home = await getServer(ns, 'home')
+  const home = await fetchServer(ns, 'home')
   player.programs = home.files.filter(f => f.includes('.exe'))
   player.boughtAllPrograms = didPlayerBuyAllPrograms(player)
 

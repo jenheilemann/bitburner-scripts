@@ -1,18 +1,18 @@
-import { networkMap } from 'network.js'
-import { groupBy } from 'groupBy.js'
+import { networkMap, fetchServer } from 'network.js'
 import { BestHack } from 'bestHack.js'
-import { toolsCount, tryRun } from 'helpers.js'
+import { toolsCount, tryRun, getLSItem, fetchPlayer, groupBy } from 'helpers.js'
 import { root } from 'rooter.js'
-import { factionServers, rootFiles } from 'constants.js'
+import { rootFiles } from 'constants.js'
 
-const crackers = [0].concat(rootFiles)
+const crackers = [0].concat(rootFiles.map(f => f.name))
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  let nMap = await networkMap(ns)
   ns.disableLog('sleep')
+  let nMap = await networkMap(ns)
+  let player = fetchPlayer()
 
   const serversByPortsRequired = groupBy(Object.values(nMap), (s) => s.portsRequired)
   const searcher = new BestHack(nMap)
@@ -23,17 +23,19 @@ export async function main(ns) {
       ns.print("Waiting for the next cracking tool...")
       do {
         await ns.sleep(10000)
-      } while (!ns.fileExists(crackers[i].name, 'home'));
+        player = fetchPlayer()
+      } while ( !player.programs.includes(crackers[i]) );
     }
 
-    target = searcher.findBestPerLevel(ns, ns.getHackingLevel(), toolsCount(ns))
-    root(ns, target.name)
+    player = fetchPlayer()
+    target = searcher.findBestPerLevel(player, toolsCount())
+    root(ns, await fetchServer(ns, target.name))
 
     ns.tprint("Zombifying level " + i + " servers, targeting " + target.name)
     for (let server of serversByPortsRequired[i]) {
       if (server.name !== 'home') {
         await zombify(ns, server, target.name)
-        await ns.sleep(500)
+        await ns.sleep(200)
       }
     }
 
@@ -53,7 +55,7 @@ export async function main(ns) {
 }
 
 async function zombify(ns, serv, target) {
-  root(ns, serv.name)
+  root(ns, await fetchServer(ns,serv.name))
   let pid = await tryRun(ns, () => ns.run("zombifier.js", 1, serv.name, target))
   ns.tprint("Zombifying " + serv.name + " with PID " + pid)
 }

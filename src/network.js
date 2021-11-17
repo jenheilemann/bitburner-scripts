@@ -30,7 +30,7 @@ export async function networkMap(ns) {
  * @param {NS} ns
  * @param {string} serverName
  **/
-export async function getServer(ns, serverName) {
+export async function fetchServer(ns, serverName) {
   let map = await networkMap(ns)
   return map[serverName]
 }

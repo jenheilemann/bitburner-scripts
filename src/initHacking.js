@@ -34,6 +34,7 @@ const filesToDownload = [
   'breadwinner.js',
   'buyer.js',
   'constants.js',
+  'crime.js',
   'find.js',
   'groupBy.js',
   'helpers.js',

@@ -1,11 +1,11 @@
-import { getLSItem, tryRun } from 'helpers.js'
+import { fetchPlayer, tryRun } from 'helpers.js'
 import { purchaseables } from 'constants.js'
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  const player = getLSItem('PLAYER')
+  const player = fetchPlayer()
   if ( player.tor && player.boughtAllPrograms ) {
     return
   }

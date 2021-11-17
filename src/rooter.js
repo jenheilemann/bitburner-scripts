@@ -1,28 +1,31 @@
+import { fetchPlayer } from 'helpers.js'
 
 /**
  * @param {NS} ns
  * @param {string} target
  **/
 export function root (ns, target) {
-  if (ns.hasRootAccess(target)) {
+  let player = fetchPlayer()
+
+  if (target.data.hasAdminRights) {
     ns.print("Have root access already")
     return
   }
 
-  if (ns.fileExists("BruteSSH.exe", "home")) {
-    ns.brutessh(target)
+  if (player.programs.includes("BruteSSH.exe")) {
+    ns.brutessh(target.name)
   }
-  if (ns.fileExists("FTPCrack.exe", "home")) {
-    ns.ftpcrack(target)
+  if (player.programs.includes("FTPCrack.exe")) {
+    ns.ftpcrack(target.name)
   }
-  if (ns.fileExists("HTTPWorm.exe", "home")) {
-    ns.httpworm(target)
+  if (player.programs.includes("HTTPWorm.exe")) {
+    ns.httpworm(target.name)
   }
-  if (ns.fileExists("relaySMTP.exe", "home")) {
-    ns.relaysmtp(target)
+  if (player.programs.includes("relaySMTP.exe")) {
+    ns.relaysmtp(target.name)
   }
-  if (ns.fileExists("sqlinject.exe", "home")) {
-    ns.sqlinject(target)
+  if (player.programs.includes("sqlinject.exe")) {
+    ns.sqlinject(target.name)
   }
 
   var ret = ns.nuke(target)
