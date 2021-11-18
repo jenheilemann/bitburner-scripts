@@ -11,7 +11,7 @@ export async function main(ns) {
 
   while (true) {
     target = await fetchServer(ns.args[0])
-    ns.print(`Security: ${ns.nformat(target.security, "0,0")}`)
+    ns.print(`Security: ${ns.nFormat(target.security, "0,0")}`)
     if (target.security > securityThreshhold) {
       ns.print("------ Target security: " + securityThreshhold)
       await ns.weaken(target.name)
