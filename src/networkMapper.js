@@ -59,6 +59,7 @@ export class NetworkMapper {
 export function updateData(ns, server) {
   server.data = ns.getServer(server.name)
   server.files = ns.ls(server.name)
+  server.security = ns.getServerSecurityLevel(server.name)
   return server
 }
 
