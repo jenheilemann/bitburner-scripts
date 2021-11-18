@@ -20,5 +20,5 @@ export async function backdoor(ns, target) {
 
   path.forEach((step) => ns.connect(step))
   await ns.installBackdoor()
-  path.reverse().forEach(step => ns.connect(step))
+  ns.connect('home')
 }
