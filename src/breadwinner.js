@@ -11,17 +11,19 @@ export async function main(ns) {
 
   while (true) {
     target = await fetchServer(ns.args[0])
+    ns.print(`Security: ${ns.nformat(target.security, "0,0")}`)
     if (target.security > securityThreshhold) {
-      ns.print("Target security: " + securityThreshhold)
+      ns.print("------ Target security: " + securityThreshhold)
       await ns.weaken(target.name)
       continue
     }
 
     target = await fetchServer(ns.args[0])
     money = target.data.moneyAvailable
+    ns.print("Current money: " + ns.nFormat(money, "$0.000a") )
+
     if (money < moneyThreshhold) {
-      ns.print("Current money: " + ns.nFormat(money, "$0.000a") +
-        "  ---  Target money: " + ns.nFormat(moneyThreshhold, "$0.000a"))
+      ns.print("------  Target money: " + ns.nFormat(moneyThreshhold, "$0.00a"))
       growFactor = maxMoney / money
       player = fetchPlayer()
       threads = Math.ceil(numCycleForGrowth(target.data, growFactor, player))
