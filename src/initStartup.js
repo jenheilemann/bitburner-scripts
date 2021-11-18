@@ -1,6 +1,4 @@
-  ns.run('/contracts/scanner.js', 1)
-
-const valuesToRemove = ['jh_network_map']
+const valuesToRemove = ['jh_network_map', 'jh_reserve', 'jh_player']
 const filesToDownload = [
   '/contracts/arrayJumpingSolver.js',
   '/contracts/failSolver.js',
