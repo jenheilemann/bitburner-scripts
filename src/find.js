@@ -11,11 +11,11 @@ export async function main(ns) {
   if (ns.args[0] === undefined) {
     for (const server in targets) {
       ns.tprint("*********** " + server + " ( " + targets[server] + " faction)")
-      path = await findPath(ns, server)
+      path = await findPath(server)
       ns.tprint(printablePathToServer(path, true))
     }
   } else {
-    path = await findPath(ns, ns.args[0])
+    path = await findPath(ns.args[0])
     ns.tprint(printablePathToServer(path))
     path.forEach((step) => ns.connect(step))
   }

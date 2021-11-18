@@ -16,7 +16,7 @@ export function autocomplete(data, args) {
  * @param {string} target
  **/
 export async function backdoor(ns, target) {
-  let path = await findPath(ns, target)
+  let path = await findPath(target)
 
   path.forEach((step) => ns.connect(step))
   await ns.installBackdoor()

@@ -36,38 +36,33 @@ export async function fetchServer(ns, serverName) {
 }
 
 /**
- * @param {NS} ns
  * @param {string} serverName
  **/
-export async function fetchServerFree(ns, serverName) {
-  let map = await networkMapFree(ns)
+export async function fetchServerFree(serverName) {
+  let map = await networkMapFree()
   return map[serverName]
 }
 
 /**
  * @param {NS} ns
  **/
-export async function networkMapFree(ns) {
+export async function networkMapFree() {
   let map = getLSItem('NMAP')
-  ns.print(`fetched map from localStorage: (${typeof map}) ${map}`)
 
   while ( map === undefined ) {
-    ns.print(`map is undefined, waiting.`)
-    await ns.sleep(200)
+    await mySleep(200)
     map = getLSItem('NMAP')
   }
-  ns.print(`fetched map from localStorage: (${typeof map}) ${map}`)
 
   return map;
-
 }
 
 /**
  * @param {NS} ns
  * @param {string} goal
  **/
-export async function findPath(ns, goal) {
-  let nMap = await networkMap(ns)
+export async function findPath(goal) {
+  let nMap = await networkMapFree()
 
   let path = []
   while (true) {
