@@ -9,7 +9,7 @@ export async function main(ns) {
   const player = getLSItem('PLAYER')
 
   for ( const server of Object.values(nmap)) {
-    if ( server.data.backdoorInstalled )
+    if ( server.data.backdoorInstalled || server.data.purchasedByPlayer )
       continue
     if ( player.hacking < server.hackingLvl )
       continue
