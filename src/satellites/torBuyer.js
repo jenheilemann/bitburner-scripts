@@ -8,6 +8,7 @@ export async function main(ns) {
   if ( player.tor || player.money < 2e5)
     return
 
+  ns.tprint(`Buying access to the Darkweb. ooOOOooo spoooooOOOkey`)
   ns.purchaseTor()
   // force refresh the network map
   clearLSItem('NMAP')

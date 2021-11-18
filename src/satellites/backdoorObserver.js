@@ -17,6 +17,7 @@ export async function main(ns) {
       continue
 
     await tryRun(ns, () => { ns.run('backdoor.js', 1, server.name) })
+    ns.tprint(`Backdoor running on ${server.name}`)
     return
     // can't do more than one at a time, as installBackdoor() can take 30+s
     // at low levels

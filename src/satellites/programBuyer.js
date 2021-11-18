@@ -19,5 +19,6 @@ export async function main(ns) {
     return
   }
 
+  ns.tprint(`Buying ${program.name} for ${ns.nFormat(program.cost, "$0.000a" )}`)
   ns.purchaseProgram(program.name)
 }
