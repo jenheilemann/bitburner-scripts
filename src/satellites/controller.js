@@ -5,8 +5,8 @@ import { tryRun, disableLogs } from 'helpers.js'
  * time in ms
  **/
 const timers = [
-  { file: '/satellites/playerObserver.js', freq: 400, last: 0 },
-  { file: '/satellites/serversObserver.js', freq: 200, last: 0 },
+  { file: '/satellites/playerObserver.js', freq: 100, last: 0 },
+  { file: '/satellites/serversObserver.js', freq: 50, last: 0 },
   { file: '/satellites/programObserver.js', freq: 2 * 60 * 1000, last: 0 },
   { file: '/satellites/backdoorObserver.js', freq: 2 * 60 * 1000, last: 0 },
 ]
@@ -24,6 +24,6 @@ export async function main(ns) {
         timer.last = Date.now()
       }
     }
-    await ns.sleep(200)
+    await ns.sleep(20)
   }
 }
