@@ -42,16 +42,22 @@ export async function tryRun(ns, callback) {
   return pid
 }
 
+/** @params {string} key **/
 export function getLSItem(key) {
   let item = localStorage.getItem(lsKeys[key.toUpperCase()])
 
   return item ? JSON.parse(item) : undefined
 }
 
+/**
+ * @params {string} key
+ * @params {any} value
+ **/
 export function setLSItem(key, value) {
   localStorage.setItem(lsKeys[key.toUpperCase()], JSON.stringify(value))
 }
 
+/** @params {string} key **/
 export function clearLSItem(key) {
   localStorage.removeItem(lsKeys[key.toUpperCase()])
 }
