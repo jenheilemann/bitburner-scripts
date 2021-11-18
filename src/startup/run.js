@@ -27,8 +27,5 @@ export async function main(ns) {
   ns.tprint(`Starting buyer.js`)
   await tryRun(ns, () => ns.run('buyer.js'))
 
-  ns.tprint(`Starting contracts/scanner.js`)
-  await tryRun(ns, () => ns.run('/contracts/scanner.js'))
-
   ns.tprint(`Startup completed. May your pillow always be cool.`)
 }

@@ -10,6 +10,7 @@ const timers = [
   { file: '/satellites/programObserver.js', freq: 2 * 60 * 1000, last: 0 },
   { file: '/satellites/backdoorObserver.js', freq: 30 * 1000, last: 0 },
   { file: '/satellites/factionObserver.js', freq: 60 * 1000, last: 0 },
+  { file: '/contracts/scanner.js', freq: 10 * 60 * 1000, last: 0 },
 ]
 
 /**
