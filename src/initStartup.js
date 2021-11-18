@@ -1,3 +1,4 @@
+  ns.run('/contracts/scanner.js', 1)
 
 const valuesToRemove = ['jh_network_map']
 const filesToDownload = [
@@ -28,6 +29,7 @@ const filesToDownload = [
   '/satellites/programObserver.js',
   '/satellites/serversObserver.js',
   '/satellites/torBuyer.js',
+  '/startup/run.js',
   'analyze-hack.js',
   'backdoor.js',
   'bestHack.js',
@@ -48,13 +50,6 @@ const filesToDownload = [
 ]
 const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/master/src'
 
-export async function download(ns, filename) {
-  const fileUrl = filename.includes("/") ? filename : "/" + filename;
-  const path = baseUrl + fileUrl
-  ns.tprint(`Trying to download ${path}`)
-  await ns.wget(path + '?ts=' + new Date().getTime(), filename)
-}
-
 /**
  * @param {NS} ns
  **/
@@ -67,23 +62,23 @@ export async function main(ns) {
     await ns.sleep(50)
     await download(ns, filename)
   }
+  await ns.sleep(50)
   ns.tprint('Killed and deleted old scripts.')
+  await ns.sleep(50)
   ns.tprint(`Files downloaded.`)
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
+  await ns.sleep(50)
   ns.tprint(`Cleaned up localStorage.`)
 
-  ns.tprint(`Starting satellites/controller.js`)
-  ns.run('/satellites/controller.js', 1)
-  await ns.sleep(200) // just give it a sec
+  await ns.sleep(50)
+  ns.tprint(`Starting startup/run.js`)
+  ns.spawn('/startup/run.js')
+}
 
-  ns.tprint(`Starting hacknet/startup.js`)
-  ns.run('/hacknet/startup.js', 1)
-  ns.tprint(`Starting buyer.js`)
-  ns.run('buyer.js', 1)
-  ns.tprint(`Starting botnet.js`)
-  ns.run('botnet.js', 1)
-  ns.tprint(`Starting contracts/scanner.js`)
-  ns.run('/contracts/scanner.js', 1)
-  ns.tprint(`Startup script completed. May your pillow always be cool.`)
+export async function download(ns, filename) {
+  const fileUrl = filename.includes("/") ? filename : "/" + filename;
+  const path = baseUrl + fileUrl
+  ns.tprint(`Trying to download ${path}`)
+  await ns.wget(path + '?ts=' + new Date().getTime(), filename)
 }

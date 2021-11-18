@@ -14,10 +14,10 @@ export async function main(ns) {
   }
 
   await ns.wget(
-    `https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/master/src/initHacking.js?ts=${new Date().getTime()}`,
-    "initHacking.js"
+    `https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/master/src/initStartup.js?ts=${new Date().getTime()}`,
+    "initStartup.js"
   );
-  ns.spawn("initHacking.js", 1);
+  ns.spawn("initStartup.js", 1);
 }
 ```
 
