@@ -18,7 +18,7 @@ export async function main(ns) {
 
   for (let i = 0; i < crackers.length; i++) {
     if (i > 0) {
-      ns.print("Waiting for the next cracking tool...")
+      ns.print(`Waiting for the next cracking tool: ${crackers[i]}`)
       do {
         await ns.sleep(10000)
         player = fetchPlayer()

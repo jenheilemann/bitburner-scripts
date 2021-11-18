@@ -14,8 +14,7 @@ export function disableLogs(ns, functions) {
 }
 
 function myMoney(ns) {
-  let player = fetchPlayer()
-  return player.money
+  return ns.getServerMoneyAvailable('home')
 }
 
 export async function waitForCash(ns, cost) {

@@ -11,9 +11,9 @@ export async function main(ns) {
 
   while (true) {
     target = await fetchServer(ns.args[0])
-    if (target.data.requiredHackingSkill > securityThreshhold) {
+    if (target.security > securityThreshhold) {
       ns.print("Target security: " + securityThreshhold)
-      await ns.weaken(target)
+      await ns.weaken(target.name)
       continue
     }
 
@@ -26,18 +26,18 @@ export async function main(ns) {
       player = fetchPlayer()
       threads = Math.ceil(numCycleForGrowth(target.data, growFactor, player))
       threads = Math.min(threads, scriptThreads)
-      await ns.grow(target, { threads: threads });
+      await ns.grow(target.name, { threads: threads });
       continue
     }
 
     if (money <= 0) {
-      ns.print("Not enough money to hack, continuing", target, money)
+      ns.print("Not enough money to hack, continuing", target.name, money)
       await mySleep(200)
       continue
     }
 
     target = await fetchServer(ns.args[0])
-    threads = Math.floor(hackThreads(target, money * 0.6))
+    threads = Math.floor(hackThreads(target.data, money * 0.6))
     threads = Math.min(threads, scriptThreads)
     if (threads == -1) {
       ns.tprint("Threads negative!")
@@ -45,7 +45,7 @@ export async function main(ns) {
       continue
     }
 
-    await ns.hack(target, { threads: threads })
+    await ns.hack(target.name, { threads: threads })
   }
 }
 
@@ -116,7 +116,7 @@ export const lsKeys = {
  * @param {NS} ns
  * @param {string} serverName
  **/
-export async function fetchServer(ns, serverName) {
+export async function fetchServer(serverName) {
   let map = await networkMap()
   return map[serverName]
 }

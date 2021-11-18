@@ -9,13 +9,13 @@ export async function main(ns) {
   var toHack = ns.args[1]
 
   // copy the scripts to the target
-  await ns.scp(script, "home", target);
-  ns.print("Copied " + script + " to " + target)
+  await ns.scp(script, "home", target.name);
+  ns.print("Copied " + script + " to " + target.name)
 
   // calculate the threads we can use for running our script
   var ramRequired = ns.getScriptRam(script);
   var availableRam = target.maxRam - target.data.ramUsed
-  ns.print(target + " has " + availableRam + " ram available to use")
+  ns.print(target.name + " has " + availableRam + " ram available to use")
   var threads = Math.min(50, Math.floor(availableRam / ramRequired))
 
   if (threads < 1) {
@@ -26,6 +26,6 @@ export async function main(ns) {
 
   ns.print("Using " + threads + " threads")
 
-  var pid = ns.exec(script, target, threads, toHack, threads);
-  ns.print("Running script on " + target + " with PID " + pid)
+  var pid = ns.exec(script, target.name, threads, toHack, threads);
+  ns.print("Running script on " + target.name + " with PID " + pid)
 }
