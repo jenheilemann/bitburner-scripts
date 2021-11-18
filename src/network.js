@@ -1,4 +1,4 @@
-import { getLSItem } from 'helpers.js'
+import { getLSItem, mySleep } from 'helpers.js'
 
 /**
  * @param {NS} ns
@@ -18,7 +18,7 @@ export async function networkMap(ns) {
   while ( map === undefined ) {
     ns.print(`map is undefined, running networkMapper.js`)
     ns.run('networkMapper.js', 1)
-    await ns.sleep(200)
+    await mySleep(200)
     map = getLSItem('NMAP')
   }
   ns.print(`fetched map from localStorage: (${typeof map}) ${map}`)
