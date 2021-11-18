@@ -62,7 +62,7 @@ export async function main(ns) {
 
     await ns.scp(script, hostname)
     threads = Math.floor( host.maxRam / ramRequired)
-    ns.exec(script, hostname, threads, target.name)
+    ns.exec(script, hostname, threads, target.name, threads)
     await ns.sleep(2000)
   }
   ns.tprint("I've bought all the servers I can. It's up to you now.")

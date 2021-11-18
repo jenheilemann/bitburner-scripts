@@ -26,6 +26,6 @@ export async function main(ns) {
 
   ns.print("Using " + threads + " threads")
 
-  var pid = ns.exec(script, target, threads, toHack);
+  var pid = ns.exec(script, target, threads, toHack, threads);
   ns.print("Running script on " + target + " with PID " + pid)
 }
