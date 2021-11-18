@@ -71,7 +71,7 @@ export async function main(ns) {
 
   await ns.sleep(50)
   ns.tprint(`Starting startup/run.js`)
-  ns.spawn('/startup/run.js')
+  ns.spawn('/startup/run.js', 1)
 }
 
 export async function download(ns, filename) {
