@@ -1,5 +1,9 @@
 import { rootFiles, purchaseables,lsKeys } from "constants.js"
 
+export function mySleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 export function toolsCount() {
   let player = getLSItem('player')
   return (rootFiles.filter((file) => player.programs.includes(file.name))).length
@@ -10,7 +14,8 @@ export function disableLogs(ns, functions) {
 }
 
 function myMoney(ns) {
-  return ns.getServerMoneyAvailable('home')
+  let player = fetchPlayer()
+  return player.money
 }
 
 export async function waitForCash(ns, cost) {
