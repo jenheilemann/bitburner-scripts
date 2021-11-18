@@ -99,11 +99,6 @@ export function calculateWeakenTime(server, player) {
   return weakenTimeMultiplier * calculateHackingTime(server, player);
 }
 
-const CONSTANTS = {
-  ServerBaseGrowthRate: 1.03, // Unadjusted Growth rate
-  ServerMaxGrowthRate: 1.0035, // Maximum possible growth rate (max rate accounting for server security)
-}
-
 /**
  * Returns the number of "growth cycles" needed to grow the specified server by the
  * specified amount.
@@ -113,9 +108,9 @@ const CONSTANTS = {
  * @returns Number of "growth cycles" needed
  */
 export function numCycleForGrowth(server, growth, p, cores = 1) {
-  let ajdGrowthRate = 1 + (CONSTANTS.ServerBaseGrowthRate - 1) / server.hackDifficulty;
-  if (ajdGrowthRate > CONSTANTS.ServerMaxGrowthRate) {
-    ajdGrowthRate = CONSTANTS.ServerMaxGrowthRate;
+  let ajdGrowthRate = 1 + (1.03 - 1) / server.hackDifficulty
+  if (ajdGrowthRate > 1.0035) {
+    ajdGrowthRate = 1.0035;
   }
 
   const serverGrowthPercentage = server.serverGrowth / 100;
@@ -126,8 +121,8 @@ export function numCycleForGrowth(server, growth, p, cores = 1) {
     (Math.log(ajdGrowthRate) *
       p.hacking_grow_mult *
       serverGrowthPercentage *
-      BitNodeMultipliers.ServerGrowthRate *
-      coreBonus);
+      // BitNodeMultipliers.ServerGrowthRate * // in BN4 == 1
+      coreBonus)
 
-  return cycles;
+  return cycles
 }
