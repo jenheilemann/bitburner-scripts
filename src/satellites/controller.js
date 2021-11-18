@@ -1,5 +1,8 @@
 import { tryRun, disableLogs } from 'helpers.js'
 
+const sec = 1000
+const min = 60 * sec
+
 /**
  * how long to wait between running a satellite file
  * time in ms
@@ -7,10 +10,10 @@ import { tryRun, disableLogs } from 'helpers.js'
 const timers = [
   { file: '/satellites/playerObserver.js', freq: 100, last: 0 },
   { file: '/satellites/serversObserver.js', freq: 50, last: 0 },
-  { file: '/satellites/programObserver.js', freq: 2 * 60 * 1000, last: 0 },
-  { file: '/satellites/backdoorObserver.js', freq: 30 * 1000, last: 0 },
-  { file: '/satellites/factionObserver.js', freq: 60 * 1000, last: 0 },
-  { file: '/contracts/scanner.js', freq: 10 * 60 * 1000, last: 0 },
+  { file: '/satellites/programObserver.js', freq: 2 * min, last: 0 },
+  { file: '/satellites/backdoorObserver.js', freq: 30 * sec, last: 0 },
+  { file: '/satellites/factionObserver.js', freq: min, last: 0 },
+  { file: '/contracts/scanner.js', freq: 10 * min, last: 0 },
 ]
 
 /**
