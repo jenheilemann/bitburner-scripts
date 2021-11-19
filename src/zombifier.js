@@ -1,6 +1,10 @@
 import { fetchServerFree } from 'network.js'
 const script = 'breadwinner.js'
 
+export function autocomplete(data, args) {
+  return data.servers
+}
+
 /**
  * @param {NS} ns
  **/

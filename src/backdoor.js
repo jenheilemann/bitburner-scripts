@@ -8,7 +8,7 @@ export async function main(ns) {
 }
 
 export function autocomplete(data, args) {
-  return Object.keys(factionServers)
+  return data.servers
 }
 
 /**

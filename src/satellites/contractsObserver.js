@@ -27,10 +27,7 @@ export async function main(ns) {
   disableLogs(ns, ['sleep'])
   let map = await networkMap(ns)
 
-  while ( true ) {
-    await runContracts(ns, map)
-    await ns.sleep(10 * 60 * 1000)
-  }
+  await runContracts(ns, map)
 }
 
 async function runContracts(ns, map) {

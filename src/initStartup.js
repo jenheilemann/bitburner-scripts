@@ -8,7 +8,6 @@ const filesToDownload = [
   '/contracts/minimumPathSumSolver.js',
   '/contracts/primeFactorSolver.js',
   '/contracts/sanitizeParensSolver.js',
-  '/contracts/scanner.js',
   '/contracts/spiralizeMatrixSolver.js',
   '/contracts/stockTraderSolver.js',
   '/contracts/subarrayMaximumSolver.js',
@@ -21,7 +20,9 @@ const filesToDownload = [
   '/hacknet/ramUpgrader.js',
   '/hacknet/startup.js',
   '/satellites/backdoorObserver.js',
+  '/satellites/contractsObserver.js',
   '/satellites/controller.js',
+  '/satellites/factionObserver.js',
   '/satellites/playerObserver.js',
   '/satellites/programBuyer.js',
   '/satellites/programObserver.js',
@@ -46,7 +47,7 @@ const filesToDownload = [
   'rooter.js',
   'zombifier.js',
 ]
-const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/master/src'
+const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/main/src'
 
 /**
  * @param {NS} ns

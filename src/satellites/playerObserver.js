@@ -1,4 +1,4 @@
-import { setLSItem } from 'helpers.js'
+import { getLSItem, setLSItem } from 'helpers.js'
 import { purchaseables } from 'constants.js'
 import { fetchServer } from 'network.js'
 
@@ -10,9 +10,14 @@ export async function main(ns) {
   player.isBusy = ns.isBusy()
   player.karma = ns.heart.break()
 
-  const home = await fetchServer(ns, 'home')
-  player.programs = home.files.filter(f => f.includes('.exe'))
-  player.boughtAllPrograms = didPlayerBuyAllPrograms(player)
+  if ( isFirstRun() ) {
+    player.programs = []
+    player.boughtAllPrograms = false
+  } else {
+    const home = await fetchServer(ns, 'home')
+    player.programs = home.files.filter(f => f.includes('.exe'))
+    player.boughtAllPrograms = didPlayerBuyAllPrograms(player)
+  }
 
   setLSItem('PLAYER', player)
 }
@@ -22,4 +27,8 @@ function didPlayerBuyAllPrograms(player) {
     return false
 
   return purchaseables.every(f => player.programs.includes(f.name))
+}
+
+function isFirstRun() {
+  return getLSItem('player') === undefined
 }
