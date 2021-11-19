@@ -2,7 +2,7 @@ import { factionServers as targets } from 'constants.js'
 import { findPath } from 'network.js'
 
 export function autocomplete(data, args) {
-  return Object.keys(targets)
+  return data.servers
 }
 
 export async function main(ns) {
