@@ -15,18 +15,28 @@ const crimes = [
   "heist",
 ]
 
-const xpStats = [
-  'hacking_exp',
+const combatXPStats = [
   'strength_exp',
   'defense_exp',
   'dexterity_exp',
-  'agility_exp',
-  'charisma_exp',
-  'intelligence_exp'
+  'agility_exp'
 ]
 
+const xpStats = [
+  'hacking_exp',
+  'charisma_exp',
+  'intelligence_exp'
+].concat(combatXPStats)
+
 export function autocomplete(data, args) {
-  return crimes.concat(['money', 'xp', 'karma'])
+  return crimes.concat([
+    'money',
+    'xp',
+    'karma',
+    'hacking',
+    'combat',
+    'charisma'
+  ])
 }
 
 /**
@@ -70,12 +80,14 @@ function focusValue(focus, stats) {
     case 'karma' :
       return stats.karma
     case 'xp':
-      return totalXPGain(stats)
+      return xpStats.reduce((prev, name) => stats[name] + prev, 0)
+    case 'hacking':
+      return stats.hacking_exp
+    case 'combat':
+      return combatXPStats.reduce((p, name) => stats[name] + prev, 0)
+    case 'charisma':
+      return stats.charisma_exp
     default:
       return stats.money
   }
-}
-
-function totalXPGain(stats) {
-  return  xpStats.reduce((prev, name) => stats[name] + prev, 0)
 }
