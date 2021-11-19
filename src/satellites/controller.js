@@ -21,13 +21,16 @@ const timers = [
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
-  while(true) {
+  let first = true
 
+  while(true) {
     for ( const timer of timers) {
       if ( Date.now() > timer.last + timer.freq ) {
         await tryRun(ns, () => ns.run(timer.file, 1))
         timer.last = Date.now()
       }
+      // spread out inits so player has time to propigate
+      if ( first ) { await ns.sleep(50); first = false }
     }
     await ns.sleep(20)
   }
