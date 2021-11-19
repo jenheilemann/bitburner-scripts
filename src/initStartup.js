@@ -47,7 +47,7 @@ const filesToDownload = [
   'rooter.js',
   'zombifier.js',
 ]
-const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/master/src'
+const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/main/src'
 
 /**
  * @param {NS} ns
@@ -72,7 +72,7 @@ export async function main(ns) {
 
   await ns.sleep(50)
   ns.tprint(`Starting startup/run.js`)
-  ns.spawn('/startup/run.js')
+  ns.spawn('/startup/run.js', 1)
 }
 
 export async function download(ns, filename) {

@@ -14,7 +14,7 @@ export async function main(ns) {
   }
 
   await ns.wget(
-    `https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/master/src/initStartup.js?ts=${new Date().getTime()}`,
+    `https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/main/src/initStartup.js?ts=${new Date().getTime()}`,
     "initStartup.js"
   );
   ns.spawn("initStartup.js", 1);
