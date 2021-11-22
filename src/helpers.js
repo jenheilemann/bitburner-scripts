@@ -40,7 +40,7 @@ export function reserve(ns) {
 export async function tryRun(ns, callback) {
   let pid = callback()
   while (pid == 0) {
-    await ns.sleep(300)
+    await ns.sleep(30)
     pid = callback()
   }
   return pid

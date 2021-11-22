@@ -17,7 +17,6 @@ export async function main(ns) {
       continue
 
     await tryRun(ns, () => { ns.run('backdoor.js', 1, server.name) })
-    ns.tprint(`Backdoor running on ${server.name}`)
     await ns.sleep(100) // give it a sec to spin up
     ns.connect('home')
   }
