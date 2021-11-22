@@ -7,6 +7,8 @@ Hi! Welcome, please look around. You are absolutely welcome and free to copy/pas
 
 This repo.... is not especially new-player-friendly. If you want to take my repo whole-hog and run it in your own game (following the instructions below), it is unlikely to work unless you've been playing for a while. I started this repo primarily for myself, and the code makes some assumptions about certain features that are not available to new players. I also assume that there is at least 64GB of ram on your home computer (I probably need to fix, that's a bad assumption...), which is certainly not available to new players.
 
+Also, be aware, I am not primarily a Javascript programmer, though it is something I enjoy playing with. I don't follow best practices in the industry for this language. If somebody says that the way I did something was *not good*, it probably is *not good* and trust other resources before you trust my code for `the best way` if you're learning.
+
 Good luck, and have fun out there.
 
 ## Installation
@@ -29,4 +31,4 @@ export async function main(ns) {
 }
 ```
 
-Save and exit nano and write in console: `run start.js`
+Save and exit nano and write in console: `run start.js` then press enter.
