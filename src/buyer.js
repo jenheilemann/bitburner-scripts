@@ -7,6 +7,10 @@ import { toolsCount,
          disableLogs } from 'helpers.js'
 import { root } from 'rooter.js'
 
+export function autocomplete(data, args) {
+  return data.servers
+}
+
 const script = "breadwinner.js"
 
 async function findTarget(ns, target) {
