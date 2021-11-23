@@ -57,7 +57,8 @@ export async function main(ns) {
     while (fetchPlayer().busy) {
       await ns.sleep(50)
     }
-    if ( ns.heart.break() > karma ){
+
+    if ( ns.heart.break() < karma ){
       ns.print(`SUCCESS: ${crime}`)
     } else {
       ns.print(`FAILURE: ${crime}`)
