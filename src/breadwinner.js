@@ -16,7 +16,7 @@ export async function main(ns) {
 
   while (true) {
     target = await fetchServer(ns.args[0])
-    ns.print(`Security: ${ns.nFormat(target.security, "0,0")}`)
+    ns.print(`Security: ${ns.nFormat(target.security, "0,0.0")}`)
     if (target.security > securityThreshhold) {
       ns.print("------ Target security: " + securityThreshhold)
       await ns.weaken(target.name)
@@ -25,7 +25,7 @@ export async function main(ns) {
 
     target = await fetchServer(ns.args[0])
     money = target.data.moneyAvailable
-    ns.print("Current money: " + ns.nFormat(money, "$0.000a") )
+    ns.print("Current money: " + ns.nFormat(money, "$0.00a") )
 
     if (money < moneyThreshhold) {
       ns.print("------  Target money: " + ns.nFormat(moneyThreshhold, "$0.00a"))
@@ -53,6 +53,7 @@ export async function main(ns) {
     }
 
     await ns.hack(target.name, { threads: threads })
+    await mySleep(50)
   }
 }
 
