@@ -13,7 +13,6 @@ export async function main(ns) {
  **/
 export async function networkMap(ns) {
   let map = getLSItem('NMAP')
-  ns.print(`fetched map from localStorage: (${typeof map}) ${map}`)
 
   while ( map === undefined ) {
     ns.print(`map is undefined, running networkMapper.js`)
@@ -21,8 +20,6 @@ export async function networkMap(ns) {
     await mySleep(200)
     map = getLSItem('NMAP')
   }
-  ns.print(`fetched map from localStorage: (${typeof map}) ${map}`)
-
   return map;
 }
 
@@ -50,7 +47,7 @@ export async function networkMapFree() {
   let map = getLSItem('NMAP')
 
   while ( map === undefined ) {
-    await mySleep(200)
+    await mySleep(50)
     map = getLSItem('NMAP')
   }
 
