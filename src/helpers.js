@@ -1,22 +1,45 @@
 import { rootFiles, purchaseables,lsKeys } from "constants.js"
 
+/**
+ * @param {integer} milliseconds to sleep
+ * @cost 0 GB
+ */
 export function mySleep(ms){
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+/**
+ * @returns {integer} number of exe rootfiles on the player's computer
+ * @cost 0 GB
+ */
 export function toolsCount() {
   let player = getLSItem('player')
   return (rootFiles.filter((file) => player.programs.includes(file.name))).length
 }
 
+/**
+ * @param {NS} ns
+ * @param {array} list of loggable functions to disable
+ * @cost 0 GB
+ */
 export function disableLogs(ns, listOfLogs) {
   ['disableLog'].concat(...listOfLogs).forEach(log => ns.disableLog(log));
 }
 
+/**
+ * @param {NS} ns
+ * @cost 0.1 GB
+ * @returns {integer} player's money available
+ */
 function myMoney(ns) {
   return ns.getServerMoneyAvailable('home')
 }
 
+/**
+ * @param {NS} ns
+ * @param {integer} cost - amount wanted
+ * @cost 0.2 GB
+ */
 export async function waitForCash(ns, cost) {
   if ((myMoney(ns) - reserve(ns)) >= cost) {
     ns.print("I have enough: " + ns.nFormat(cost, "$0.000a"))
@@ -28,6 +51,11 @@ export async function waitForCash(ns, cost) {
   }
 }
 
+/**
+ * Reserve a certain amount for big purchases
+ * @param {NS} ns
+ * @cost 0.1 GB
+ */
 export function reserve(ns) {
   for ( const file of purchaseables ) {
     if (!ns.fileExists(file.name, 'home')) {
@@ -37,6 +65,12 @@ export function reserve(ns) {
   return 0
 }
 
+
+/**
+ * @param {NS} ns
+ * @param {function} callback
+ * @cost 0 GB
+ */
 export async function tryRun(ns, callback) {
   let pid = callback()
   while (pid == 0) {
@@ -46,7 +80,11 @@ export async function tryRun(ns, callback) {
   return pid
 }
 
-/** @params {string} key **/
+/**
+ * @param {string} key
+ * @return {any} The value read from localStorage
+ * @cost 0 GB
+ **/
 export function getLSItem(key) {
   let item = localStorage.getItem(lsKeys[key.toUpperCase()])
 
@@ -54,18 +92,26 @@ export function getLSItem(key) {
 }
 
 /**
- * @params {string} key
- * @params {any} value
+ * @param {string} key
+ * @param {any} value
+ * @cost 0 GB
  **/
 export function setLSItem(key, value) {
   localStorage.setItem(lsKeys[key.toUpperCase()], JSON.stringify(value))
 }
 
-/** @params {string} key **/
+/**
+ * @param {string} key
+ * @cost 0 GB
+ **/
 export function clearLSItem(key) {
   localStorage.removeItem(lsKeys[key.toUpperCase()])
 }
 
+/**
+ * @return {object} The player data from localStorage
+ * @cost 0 GB
+ **/
 export function fetchPlayer() {
   return getLSItem('player')
 }
