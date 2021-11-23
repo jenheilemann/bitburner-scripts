@@ -20,7 +20,7 @@ export async function networkMap(ns) {
     await mySleep(200)
     map = getLSItem('NMAP')
   }
-  return map;
+  return map
 }
 
 /**
