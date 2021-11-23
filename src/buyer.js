@@ -4,15 +4,22 @@ import { toolsCount,
          waitForCash,
          fetchPlayer,
          clearLSItem,
+         getNsDataThroughFile as fetch,
+         runCommand,
          disableLogs } from 'helpers.js'
 import { root } from 'rooter.js'
+const script = "breadwinner.js"
+
 
 export function autocomplete(data, args) {
   return data.servers
 }
 
-const script = "breadwinner.js"
-
+/**
+ * @param {NS} ns
+ * @param {string} target (if selected)
+ * @return {object} server data
+ */
 async function findTarget(ns, target) {
   if (target != 'dynamic') {
     return await fetchServer(ns, target)
@@ -22,6 +29,9 @@ async function findTarget(ns, target) {
   return searcher.findBestPerLevel(player, toolsCount())
 }
 
+/**
+ * @param {NS} ns
+ */
 export async function main(ns) {
   disableLogs(ns, ['getServerMoneyAvailable', 'sleep'])
 
@@ -32,9 +42,9 @@ export async function main(ns) {
 
   let target, hostname, host, threads
   const ram = Math.pow(2, args.size)
-  const limit = ns.getPurchasedServerLimit()
-  const cost = ns.getPurchasedServerCost(ram)
-  const ramRequired = ns.getScriptRam(script)
+  const limit = await fetch(ns, `ns.getPurchasedServerLimit()`)
+  const cost = await fetch(ns, `ns.getPurchasedServerCost(${ram})`)
+  const ramRequired = await fetch(ns, `ns.getScriptRam('${script}')`)
   ns.tprint("Buying " + ram + "GB RAM servers")
   ns.tprint("Buying " + limit + " servers for " + ns.nFormat(cost, "$0.000a") + " each")
 
@@ -43,18 +53,16 @@ export async function main(ns) {
     host = await fetchServer(ns, hostname)
     if ( host === undefined ) {
       await waitForCash(ns, cost)
-      ns.purchaseServer(hostname, ram)
+      await runCommand(ns, `ns.purchaseServer('${hostname}', ${ram})`)
       clearLSItem('nmap')
     } else {
+      await runCommand(ns, `ns.scriptKill('${script}', '${hostname}')`)
       if ( host.maxRam < ram ) {
         await waitForCash(ns, cost)
         ns.print("Destroying server: " + hostname)
-        ns.scriptKill(script, hostname)
-        ns.deleteServer(hostname)
-        ns.purchaseServer(hostname, ram)
+        await runCommand(ns, `ns.deleteServer('${hostname}')`)
+        await runCommand(ns, `ns.purchaseServer('${hostname}', ${ram})`)
         clearLSItem('nmap')
-      } else {
-        ns.scriptKill(script, hostname)
       }
     }
 
@@ -64,9 +72,10 @@ export async function main(ns) {
     ns.print("Targeting " + target.name + ", ensuring sudo first.")
     root(ns, target)
 
-    await ns.scp(script, hostname)
+    await runCommand(ns, `ns.scp('${script}', '${hostname}')`)
     threads = Math.floor( host.maxRam / ramRequired)
-    ns.exec(script, hostname, threads, target.name, threads)
+
+    await runCommand(ns, `ns.exec('${script}', '${hostname}', ${threads}, '${target.name}', ${threads})`)
     await ns.sleep(2000)
   }
   ns.tprint("I've bought all the servers I can. It's up to you now.")
