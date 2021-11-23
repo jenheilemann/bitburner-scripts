@@ -16,7 +16,7 @@ export async function main(ns) {
 
   while (true) {
     target = await fetchServer(ns.args[0])
-    ns.print(`Security: ${ns.nFormat(target.security, "0,0.0")}`)
+    ns.print(`Security: ${ns.nFormat(target.security, "0,0.00")}`)
     if (target.security > securityThreshhold) {
       ns.print("------ Target security: " + securityThreshhold)
       await ns.weaken(target.name)
@@ -53,7 +53,7 @@ export async function main(ns) {
     }
 
     await ns.hack(target.name, { threads: threads })
-    await mySleep(50)
+    await mySleep(75)
   }
 }
 
