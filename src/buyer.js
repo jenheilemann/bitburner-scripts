@@ -48,21 +48,26 @@ export async function main(ns) {
   ns.tprint("Buying " + ram + "GB RAM servers")
   ns.tprint("Buying " + limit + " servers for " + ns.nFormat(cost, "$0.000a") + " each")
 
-  for (let i=0; i < limit; i++) {
+  for (let i = 0; i < limit; i++) {
     hostname = "pserv-" + i
     host = await fetchServer(ns, hostname)
-    if ( host === undefined ) {
+    if (host === null || host === undefined) {
+      ns.print(`Buying a new server ${hostname} with ${ram} GB ram for ${ns.nFormat(cost, "$0.000a")}`)
       await waitForCash(ns, cost)
-      await runCommand(ns, `ns.purchaseServer('${hostname}', ${ram})`)
+      await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
       clearLSItem('nmap')
     } else {
-      await runCommand(ns, `ns.scriptKill('${script}', '${hostname}')`)
-      if ( host.maxRam < ram ) {
+      if (host.maxRam < ram) {
+        ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram for ${ns.nFormat(cost, "$0.000a")}`)
         await waitForCash(ns, cost)
         ns.print("Destroying server: " + hostname)
-        await runCommand(ns, `ns.deleteServer('${hostname}')`)
-        await runCommand(ns, `ns.purchaseServer('${hostname}', ${ram})`)
+        await fetch(ns, `ns.scriptKill('${script}', '${hostname}')`)
+        await fetch(ns, `ns.deleteServer('${hostname}')`)
+        await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
         clearLSItem('nmap')
+      } else {
+        ns.print(`${hostname} is large enough, with ${host.maxRam} GB ram`)
+        await fetch(ns, `ns.scriptKill('${script}', '${hostname}')`)
       }
     }
 
@@ -73,8 +78,9 @@ export async function main(ns) {
     root(ns, target)
 
     await runCommand(ns, `ns.scp('${script}', '${hostname}')`)
-    threads = Math.floor( host.maxRam / ramRequired)
+    threads = Math.floor(host.maxRam / ramRequired)
 
+    ns.print(`Starting ${script} on ${host.name}, targeting ${target.name} with ${threads} threads`)
     await runCommand(ns, `ns.exec('${script}', '${hostname}', ${threads}, '${target.name}', ${threads})`)
     await ns.sleep(2000)
   }
