@@ -45,18 +45,24 @@ export async function main(ns) {
   ns.tail()
   let args = ns.flags([['focus', 'money']])
   let time = 1, again = true, crime
+  let karma =  ns.heart.break()
 
   while (again) {
-    ns.print('karma: ', ns.heart.break())
-
     crime = await chooseCrime(ns, args)
     time = await fetch(ns, `ns.commitCrime('${crime}')`)
+    ns.print(`Attempting ${crime} in ${ns.tFormat(time)}...`)
     await ns.sleep(time * 0.75)
 
-    again = fetchPlayer().isBusy
-    while (fetchPlayer().isBusy) {
-      await ns.sleep(100)
+    again = fetchPlayer().busy
+    while (fetchPlayer().busy) {
+      await ns.sleep(50)
     }
+    if ( ns.heart.break() > karma ){
+      ns.print(`SUCCESS: ${crime}`)
+    } else {
+      ns.print(`FAILURE: ${crime}`)
+    }
+    ns.print('karma: ', karma = ns.heart.break())
   }
 }
 
