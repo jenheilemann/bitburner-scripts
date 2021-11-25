@@ -44,6 +44,7 @@ const filesToDownload = [
   'lsSet.js',
   'network.js',
   'networkMapper.js',
+  'nuker.js',
   'rooter.js',
   'zombifier.js',
 ]
