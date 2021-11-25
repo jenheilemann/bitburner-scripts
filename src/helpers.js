@@ -201,7 +201,6 @@ export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, .
     if (ns.read(fileName) != script) await ns.write(fileName, script, "w");
     return fnRun(fileName, ...args);
 }
-const _cachedTempScripts = [];
 
 /**
  * Wait for a process id to complete running
