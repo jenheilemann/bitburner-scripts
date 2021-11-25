@@ -3,7 +3,7 @@ import {
           disableLogs,
           toolsCount,
           clearLSItem,
-          getNsDataThroughFile as fetch,
+          tryRun,
         } from 'helpers.js'
 
 /**
@@ -17,13 +17,13 @@ export async function main(ns) {
     .filter(s => !s.data.hasAdminRights &&
                  s.portsRequired <= count )
 
-  ns.tprint(`Nuking servers with ${count} or less ports required.`)
+  ns.tprint(`Nuking ${servers.length} servers with ${count} or less ports required.`)
   for ( const server of servers ) {
-    await fetch(ns, `ns.run("rooter.js", 1, ${server.name}`)
+    await tryRun(ns, () => ns.run("rooter.js", 1, server.name))
   }
-  ns.tprint(`Nuked ${servers.map(s => s.name).join(", ")}`)
+  ns.tprint(`SUCCESS: Nuked ${servers.map(s => s.name).join(", ")}`)
   ns.tprint(`Spawning botnet.`)
 
   clearLSItem('nmap')
-  await fetch(ns, `ns.spawn("botnet.js", 1)`)
+  await tryRun(ns, () => ns.run("botnet.js", 1))
 }

@@ -1,5 +1,9 @@
 import { fetchServerFree } from 'network.js'
-import { getNsDataThroughFile as fetch } from 'helpers.js'
+import {
+          getNsDataThroughFile as fetch,
+          runCommand,
+          runCommandAndWait,
+        } from 'helpers.js'
 const script = 'breadwinner.js'
 
 export function autocomplete(data, args) {
@@ -14,13 +18,14 @@ export async function main(ns) {
   var toHack = ns.args[1]
 
   // copy the scripts to the target
-  await fetch(ns, `ns.scp(${script}, "home", ${target.name})`)
+  await runCommandAndWait(ns, `await ns.scp('${script}', "home", '${target.name}')`)
   ns.print(`Copied ${script} to ${target.name}`)
 
   // calculate the threads we can use for running our script
   var ramRequired = await fetch(ns, `ns.getScriptRam(${script})`)
   var availableRam = target.maxRam - target.data.ramUsed
-  ns.print(`${target.name} has ${availableRam} ram available to use`)
+  ns.print(`${target.name} has ${availableRam} ram available to use ` +
+    `(${ramRequired} required)`)
   var threads = Math.floor(availableRam / ramRequired)
 
   if (threads < 1) {
@@ -31,6 +36,7 @@ export async function main(ns) {
 
   ns.print("Using " + threads + " threads")
 
-  var pid = await fetch(ns, `ns.exec('${script}', '${target.name}', ${threads}, '${toHack}', ${threads})` )
+  var pid = await runCommand(ns, `ns.exec('${script}', '${target.name}', ` +
+    `${threads}, '${toHack}', ${threads})` )
   ns.print(`Running script on ${target.name} with PID ${pid}`)
 }

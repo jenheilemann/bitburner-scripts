@@ -21,9 +21,6 @@ export async function main(ns) {
   ns.tprint(`Starting nuker.js`)
   await tryRun(ns, () => ns.run('nuker.js'))
 
-  ns.tprint(`Starting hacknet/startup.js`)
-  await tryRun(ns, () => ns.run('/hacknet/startup.js'))
-
   ns.tprint(`Starting buyer.js`)
   await tryRun(ns, () => ns.run('buyer.js'))
 

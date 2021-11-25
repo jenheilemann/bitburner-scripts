@@ -28,5 +28,5 @@ export async function main(ns) {
     ns.tprint(`SUCCESS: ${program.name} purchased. Starting nuker.`)
     return await runCommand(ns, `ns.spawn('nuker.js', 1)`)
   }
-  ns.tprint(`Purchasing ${program.name} was unsuccessfull. Trying again soon.`)
+  ns.tprint(`FAILURE: Purchasing ${program.name} was unsuccessfull. Trying again soon.`)
 }
