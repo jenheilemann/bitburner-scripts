@@ -1,7 +1,6 @@
 import { BestHack } from 'bestHack.js'
 import { networkMap, fetchServer } from 'network.js'
-import { toolsCount,
-         waitForCash,
+import { waitForCash,
          fetchPlayer,
          clearLSItem,
          getNsDataThroughFile as fetch,
@@ -26,7 +25,7 @@ async function findTarget(ns, target) {
   }
   const searcher = new BestHack(await networkMap(ns))
   const player = fetchPlayer()
-  return searcher.findBestPerLevel(player, toolsCount())
+  return searcher.findBestPerLevel(player)
 }
 
 /**

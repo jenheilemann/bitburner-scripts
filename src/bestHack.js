@@ -24,11 +24,12 @@ export class BestHack {
     this.serverData = serverData
     this.calcsRun = false
   }
-  findBestPerLevel(player, maxPorts) {
+  findBestPerLevel(player) {
     let scores = this.calcServerScores()
     let filtered = Object.values(scores)
-      .filter((server) => server.hackingLvl <= player.hacking && server.portsRequired <= maxPorts)
-      .filter((server) => calculateWeakenTime(server.data, player) < maxWeakenTime)
+      .filter((server) => server.hackingLvl <= player.hacking &&
+                          server.hasAdminRights &&
+                          calculateWeakenTime(server.data, player) < maxWeakenTime)
     return filtered.reduce((prev, current) => (prev.score > current.score) ? prev : current)
   }
   calcServerScores() {
@@ -47,5 +48,5 @@ export class BestHack {
 export async function main(ns) {
   let searcher = new BestHack(await networkMap(ns))
   let player = fetchPlayer()
-  ns.tprint(searcher.findBestPerLevel(player, toolsCount()))
+  ns.tprint(searcher.findBestPerLevel(player) )
 }
