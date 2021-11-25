@@ -22,7 +22,7 @@ export async function main(ns) {
   ns.print(`Copied ${script} to ${target.name}`)
 
   // calculate the threads we can use for running our script
-  var ramRequired = await fetch(ns, `ns.getScriptRam(${script})`)
+  var ramRequired = await fetch(ns, `ns.getScriptRam('${script}')`)
   var availableRam = target.maxRam - target.data.ramUsed
   ns.print(`${target.name} has ${availableRam} ram available to use ` +
     `(${ramRequired} required)`)
