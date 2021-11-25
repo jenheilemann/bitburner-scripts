@@ -18,8 +18,8 @@ export async function main(ns) {
   ns.run('/satellites/controller.js')
   await ns.sleep(1000) // just give it a sec
 
-  ns.tprint(`Starting botnet.js`)
-  await tryRun(ns, () => ns.run('botnet.js'))
+  ns.tprint(`Starting nuker.js`)
+  await tryRun(ns, () => ns.run('nuker.js'))
 
   ns.tprint(`Starting hacknet/startup.js`)
   await tryRun(ns, () => ns.run('/hacknet/startup.js'))
