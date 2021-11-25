@@ -180,9 +180,35 @@ export function getFnIsAliveViaNsPs(ns) {
  * @param {...args} args - args to be passed in as arguments to command being run as a new script.
  */
 export async function runCommand(ns, command, fileName, verbose, ...args) {
-    if (ns.run === undefined) throw "The first argument to runCommand should be the ns instance. (Did you mean to use runCommand_Custom?)"
-    if (!verbose) disableLogs(ns, ['run', 'sleep']);
-    return await runCommand_Custom(ns, ns.run, command, fileName, verbose, ...args);
+  checkNsInstance(ns)
+  if (!verbose) disableLogs(ns, ['run', 'sleep'])
+  return await runCommand_Custom(ns, ns.run, command, fileName, verbose, ...args)
+}
+
+/**
+ * Evaluate an arbitrary ns command by writing it to a new script and running it
+ *
+ * @param {NS} ns - The nestcript instance passed to your script
+ * @param {string} command - The ns command that should be invoked to get the
+ *                           desired result (e.g. "ns.exec('nuker.js', 'home')")
+ * @param {string=} fileName - (default "/Temp/{commandhash}-data.txt") The name
+ *                             of the file to which data will be written to disk
+ *                             by a temporary process
+ * @param {bool=} verbose - (default false) If set to true, the evaluation
+ *                          result of the command is printed to the terminal
+ * @param {...args} args - args to be passed in as arguments to command being
+ *                         run as a new script
+ */
+export async function runCommandAndWait(ns, command, fileName, verbose, ...args) {
+  checkNsInstance(ns)
+  if (!verbose) disableLogs(ns, ['run', 'sleep']);
+
+  const pid = await runCommand_Custom(ns, ns.run, command, fileName, verbose, ...args)
+  if (pid === 0) {
+    throw (`runCommand returned no pid. (Insufficient RAM, or bad command?) ` +
+      `Destination: ${fNameCommand} Command: ${commandToFile}`)
+  }
+  await waitForProcessToComplete_Custom(ns, ns.isRunning, pid, verbose)
 }
 
 /**
