@@ -1,5 +1,6 @@
 import {
         getNsDataThroughFile as fetch,
+        runCommand,
         fetchPlayer,
         } from 'helpers.js'
 import { purchaseables } from 'constants.js'
@@ -15,17 +16,17 @@ export async function main(ns) {
     ns.print('Program buyer quit unexpectedly')
     ns.print('Program: ', program)
     ns.print('player.tor: ', player.tor)
-    ns.print('player.money ', ns.nFormat(player.money, "$0.000a"),
-      ' program.cost ', ns.nFormat(program.cost, "$0.000a" ),
+    ns.print('player.money: ', ns.nFormat(player.money, "$0.000a")," > ",
+      ' program.cost ', ns.nFormat(program.cost, "$0.000a" ), " ? ",
       player.money >= program.cost)
     return
   }
 
   ns.tprint(`Buying ${program.name} for ${ns.nFormat(program.cost, "$0.000a" )}`)
-  let result = await fetch(ns, `ns.purchaseProgram(${program.name})`)
+  let result = await fetch(ns, `ns.purchaseProgram('${program.name}')`)
   if ( result ) {
     ns.tprint(`SUCCESS: ${program.name} purchased. Starting nuker.`)
-    return await fetch(ns, `ns.spawn('nuker.js', 1)`)
+    return await runCommand(ns, `ns.spawn('nuker.js', 1)`)
   }
   ns.tprint(`Purchasing ${program.name} was unsuccessfull. Trying again soon.`)
 }
