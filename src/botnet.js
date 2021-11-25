@@ -4,6 +4,7 @@ import {
           tryRun,
           fetchPlayer,
           disableLogs,
+          toolsCount,
         } from 'helpers.js'
 // magic number (Ram required to run breadwinner.js)
 let hackingScriptSize = 2
@@ -30,6 +31,9 @@ export async function main(ns) {
       await ns.sleep(200)
     }
   }
+
+  ns.tprint(`Starting up hacknet to buy ${toolsCount() + 1} hacknet servers`)
+  let pid = await tryRun(ns, () => ns.run("/hacknet/startup.js", 1, toolsCount() + 1))
 }
 
 async function zombify(ns, server, target) {
