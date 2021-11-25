@@ -1,12 +1,14 @@
-import { getLSItem } from 'helpers.js'
+import {
+        getNsDataThroughFile as fetch,
+        fetchPlayer,
+        } from 'helpers.js'
 import { purchaseables } from 'constants.js'
-import { networkMap } from 'network.js'
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  const player = getLSItem('PLAYER')
+  const player = fetchPlayer()
   const program = purchaseables.find(p => p.name === ns.args[0])
   if ( program === undefined || !player.tor || player.money < program.cost) {
     ns.tail()
@@ -20,5 +22,10 @@ export async function main(ns) {
   }
 
   ns.tprint(`Buying ${program.name} for ${ns.nFormat(program.cost, "$0.000a" )}`)
-  ns.purchaseProgram(program.name)
+  let result = await fetch(ns, `ns.purchaseProgram(${program.name})`)
+  if ( result ) {
+    ns.tprint(`SUCCESS: ${program.name} purchased. Starting nuker.`)
+    return await fetch(ns, `ns.spawn('nuker.js', 1)`)
+  }
+  ns.tprint(`Purchasing ${program.name} was unsuccessfull. Trying again soon.`)
 }
