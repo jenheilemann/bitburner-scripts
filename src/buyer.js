@@ -45,19 +45,21 @@ export async function main(ns) {
   const cost = await fetch(ns, `ns.getPurchasedServerCost(${ram})`)
   const ramRequired = await fetch(ns, `ns.getScriptRam('${script}')`)
   ns.tprint("Buying " + ram + "GB RAM servers")
-  ns.tprint("Buying " + limit + " servers for " + ns.nFormat(cost, "$0.000a") + " each")
+  ns.tprint(`${limit} servers for ${ns.nFormat(cost, "$0.000a")} each`)
 
   for (let i = 0; i < limit; i++) {
     hostname = "pserv-" + i
     host = await fetchServer(ns, hostname)
     if (host === null || host === undefined) {
-      ns.print(`Buying a new server ${hostname} with ${ram} GB ram for ${ns.nFormat(cost, "$0.000a")}`)
+      ns.print(`Buying a new server ${hostname} with ${ram} GB ram for ` +
+        `${ns.nFormat(cost, "$0.000a")}`)
       await waitForCash(ns, cost)
       await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
       clearLSItem('nmap')
     } else {
       if (host.maxRam < ram) {
-        ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram for ${ns.nFormat(cost, "$0.000a")}`)
+        ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram` +
+          ` for ${ns.nFormat(cost, "$0.000a")}`)
         await waitForCash(ns, cost)
         ns.print("Destroying server: " + hostname)
         await fetch(ns, `ns.scriptKill('${script}', '${hostname}')`)
@@ -79,7 +81,8 @@ export async function main(ns) {
     await runCommand(ns, `ns.scp('${script}', '${hostname}')`)
     threads = Math.floor(host.maxRam / ramRequired)
 
-    ns.print(`Starting ${script} on ${host.name}, targeting ${target.name} with ${threads} threads`)
+    ns.print(`Starting ${script} on ${host.name}, targeting ${target.name} ` +
+      `with ${threads} threads`)
     await runCommand(ns, `ns.exec('${script}', '${hostname}', ${threads}, '${target.name}', ${threads})`)
     await ns.sleep(2000)
   }
