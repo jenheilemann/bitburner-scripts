@@ -27,7 +27,7 @@ export async function main(ns) {
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
   let answer = solve(data.slice())
   let result = await fetch(ns, `ns.codingcontract.attempt(
-    '${JSON.stringify(answer)}',
+    ${answer},
     '${args.file}',
     '${args.server}',
     { returnReward: true }
@@ -61,5 +61,5 @@ function solve(matrix) {
     answer.push( ...matrix.map(arr => arr.shift()).reverse() )
   }
 
-  return answer.flat().filter(v => v != null).join(',')
+  return answer.flat().filter(v => v != null)
 }

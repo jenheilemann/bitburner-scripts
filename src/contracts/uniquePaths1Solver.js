@@ -26,7 +26,7 @@ export async function main(ns) {
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
   let answer = solve(expand(data[0], data[1]))
   let result = await fetch(ns, `ns.codingcontract.attempt(
-    '${JSON.stringify(answer)}',
+    ${answer},
     '${args.file}',
     '${args.server}',
     { returnReward: true }

@@ -31,7 +31,7 @@ export async function main(ns) {
   let solveArgs = solveArgsByType(args.type, data)
   let answer = solve(...solveArgs)
   let result = await fetch(ns, `ns.codingcontract.attempt(
-    '${JSON.stringify(answer)}',
+    ${answer},
     '${args.file}',
     '${args.server}',
     { returnReward: true }
