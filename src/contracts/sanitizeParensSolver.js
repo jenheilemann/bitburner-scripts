@@ -24,7 +24,7 @@ import {
  **/
 export async function main(ns) {
   let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
-  let data = ns.codingcontract.getData(args.file, args.server)
+  let data = fetch(ns, `ns.codingcontract.getData('${args.file}', '${args.server}')` )
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
   let answer = solve(data)
@@ -38,7 +38,8 @@ export async function main(ns) {
   if ( result === '' ) {
     ns.tprint(`**************** Failure detected! ********************`)
     ns.tprint(JSON.stringify(args))
-    ns.tprint(data)
+    ns.tprint(`Data: ` + data)
+    ns.tprint(`My answer: ` + answer)
   }
 }
 
@@ -46,7 +47,7 @@ function solve(str) {
   let walker = new Walker(str)
   let [left, right] = walker.calcLeftRight()
   walker.walk(left, right)
-  return walker.solutions
+  return walker.solutions.join(',')
 }
 
 class Walker {

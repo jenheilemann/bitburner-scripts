@@ -24,7 +24,7 @@ import {
  **/
 export async function main(ns) {
   let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
-  let data = ns.codingcontract.getData(args.file, args.server)
+  let data = fetch(ns, `ns.codingcontract.getData('${args.file}', '${args.server}')` )
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
 
