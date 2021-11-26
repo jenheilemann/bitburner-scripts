@@ -1,5 +1,9 @@
 import { networkMap } from 'network.js'
-import { disableLogs, tryRun } from 'helpers.js'
+import {
+        disableLogs,
+        tryRun,
+        getNsDataThroughFile as fetch,
+      } from 'helpers.js'
 
 const solvers = {
   "Find Largest Prime Factor"           : "/contracts/primeFactorSolver.js",
@@ -31,17 +35,19 @@ export async function main(ns) {
 }
 
 async function runContracts(ns, map) {
-  let contract, solverFile;
+  let contract, solverFile, files, type
 
   for (let serverName in map ) {
-    for ( let file of ns.ls(serverName, '.cct') ) {
+    files = await fetch(ns, `ns.ls('${serverName}', '.cct')`)
+    for ( let file of files ) {
+      type = await fetch(ns, `ns.codingcontract.getContractType('${file}', '${serverName}')`)
       contract = {
         file: file,
         server: serverName,
-        type: ns.codingcontract.getContractType(file, serverName),
+        type: type,
       }
-      ns.print(`Contract ${contract.file} (${contract.type}) found on ${contract.server}`)
-      solverFile = solvers[contract.type] ?? "/contracts/failSolver.js"
+      ns.print(`Contract ${contract.file} (${type}) found on ${contract.server}`)
+      solverFile = solvers[type] ?? "/contracts/failSolver.js"
       await tryRun(ns, () => ns.run(solverFile, 1, '--dataString', JSON.stringify(contract)) )
     }
   }

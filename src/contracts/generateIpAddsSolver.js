@@ -1,3 +1,7 @@
+import {
+        getNsDataThroughFile as fetch,
+      } from 'helpers.js'
+
 /**
  * Generage IP Addresses
  *
@@ -20,18 +24,17 @@ export async function main(ns) {
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
   let answer = solve(data)
-  let result = ns.codingcontract.attempt(
-    answer,
-    args.file,
-    args.server,
+  let result = await fetch(ns, `ns.codingcontract.attempt(
+    '${JSON.stringify(answer)}',
+    '${args.file}',
+    '${args.server}',
     { returnReward: true }
-  )
+  )`)
   ns.tprint(`${args.file} attempt result: ${result}`)
   if ( result === '' ) {
     ns.tprint(`**************** Failure detected! ********************`)
     ns.tprint(JSON.stringify(args))
     ns.tprint(data)
-    ns.kill('/contracts/scanner.js', 'home')
   }
 }
 
