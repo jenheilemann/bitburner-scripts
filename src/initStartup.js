@@ -46,6 +46,7 @@ const filesToDownload = [
   'networkMapper.js',
   'nuker.js',
   'rooter.js',
+  'stats.js',
   'zombifier.js',
 ]
 const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/main/src'
