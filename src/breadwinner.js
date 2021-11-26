@@ -7,6 +7,9 @@ export function autocomplete(data, args) {
  * @param {NS} ns
  **/
 export async function main(ns) {
+  ns.disableLog('disableLog')
+  ns.disableLog('sleep')
+
   let target = await fetchServer(ns.args[0])
   let maxMoney = target.maxMoney
   let moneyThreshhold = maxMoney * 0.8
@@ -15,6 +18,7 @@ export async function main(ns) {
   let scriptThreads = parseInt(ns.args[1])
 
   while (true) {
+    await ns.sleep(50)
     target = await fetchServer(ns.args[0])
     ns.print(`Security: ${ns.nFormat(target.security, "0,0.00")}`)
     if (target.security > securityThreshhold) {
