@@ -36,6 +36,7 @@ export async function main(ns) {
     ns.tprint(`**************** Failure detected! ********************`)
     ns.tprint(JSON.stringify(args))
     ns.tprint(data)
+    ns.tprint(answer)
   }
 }
 

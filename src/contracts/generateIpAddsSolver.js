@@ -35,6 +35,7 @@ export async function main(ns) {
     ns.tprint(`**************** Failure detected! ********************`)
     ns.tprint(JSON.stringify(args))
     ns.tprint(data)
+    ns.tprint(answer)
   }
 }
 
@@ -46,7 +47,7 @@ function solve(digits) {
   let permutations = splitPermutations(digits)
   let answer = permutations.filter(val => val.every(octet => validOctet(octet)))
 
-  return answer.map(ip => ip.join('.'))
+  return answer.map(ip => ip.join('.')).join(',')
 }
 
 /**

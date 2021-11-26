@@ -37,6 +37,7 @@ export async function main(ns) {
     ns.tprint(`**************** Failure detected! ********************`)
     ns.tprint(JSON.stringify(args))
     ns.tprint(data)
+    ns.tprint(answer)
   }
 }
 
@@ -60,5 +61,5 @@ function solve(matrix) {
     answer.push( ...matrix.map(arr => arr.shift()).reverse() )
   }
 
-  return answer.flat().filter(v => v != null)
+  return answer.flat().filter(v => v != null).join(',')
 }

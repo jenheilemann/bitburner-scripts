@@ -36,6 +36,7 @@ export async function main(ns) {
     ns.tprint(`**************** Failure detected! ********************`)
     ns.tprint(JSON.stringify(args))
     ns.tprint(data)
+    ns.tprint(answer)
   }
 }
 
@@ -63,7 +64,7 @@ function solve(pairs) {
   }
   intervals.sort((a,b) => a[0] - b[0])
 
-  return intervals
+  return intervals.join(',')
 }
 
 function overlap(val, range) {
