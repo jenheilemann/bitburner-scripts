@@ -25,8 +25,8 @@ export async function main(ns) {
   ns.tprint(`Buying ${program.name} for ${ns.nFormat(program.cost, "$0.000a" )}`)
   let result = await fetch(ns, `ns.purchaseProgram('${program.name}')`)
   if ( result ) {
-    ns.tprint(`SUCCESS: ${program.name} purchased. Starting nuker.`)
-    return await runCommand(ns, `ns.spawn('nuker.js', 1)`)
+    ns.tprint(`SUCCESS: ${program.name} purchased.`)
+    return
   }
   ns.tprint(`FAILURE: Purchasing ${program.name} was unsuccessfull. Trying again soon.`)
 }

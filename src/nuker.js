@@ -18,6 +18,9 @@ export async function main(ns) {
     .filter(s => !s.data.hasAdminRights &&
                  s.portsRequired <= count )
 
+  if ( servers.length == 0 )
+    return
+
   ns.tprint(`Nuking ${servers.length} servers with ${count} or less ports required.`)
   for ( const server of servers ) {
     root(ns, server)
@@ -26,5 +29,4 @@ export async function main(ns) {
   ns.tprint(`Spawning botnet.`)
 
   clearLSItem('nmap')
-  await tryRun(ns, () => ns.run("botnet.js", 1))
 }

@@ -14,6 +14,8 @@ const timers = [
   { file: '/satellites/backdoorObserver.js', freq: 30 * sec, last: 0 },
   { file: '/satellites/factionObserver.js', freq: min, last: 0 },
   { file: '/satellites/contractsObserver.js', freq: 10 * min, last: 0 },
+  { file: 'nuker.js', freq: 2 * min, last: 0 },
+  { file: 'botnet.js', freq: 2 * min, last: 0 },
 ]
 
 /**

@@ -21,6 +21,11 @@ export async function main(ns) {
                 s.maxRam > 0 &&
                 s.maxRam - s.data.ramUsed >= hackingScriptSize )
 
+  // early return, if there are no servers no need to do anything else
+  if ( servers.length == 0 ) {
+    return
+  }
+
   let searcher = new BestHack(await networkMapFree())
   let target = searcher.findBestPerLevel(fetchPlayer())
 
