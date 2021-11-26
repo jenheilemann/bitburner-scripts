@@ -5,6 +5,7 @@ import {
           clearLSItem,
           tryRun,
         } from 'helpers.js'
+import { root } from 'rooter.js'
 
 /**
  * @param {NS} ns
@@ -19,7 +20,7 @@ export async function main(ns) {
 
   ns.tprint(`Nuking ${servers.length} servers with ${count} or less ports required.`)
   for ( const server of servers ) {
-    await tryRun(ns, () => ns.run("rooter.js", 1, server.name))
+    root(ns, server)
   }
   ns.tprint(`SUCCESS: Nuked ${servers.map(s => s.name).join(", ")}`)
   ns.tprint(`Spawning botnet.`)
