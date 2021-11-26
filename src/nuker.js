@@ -26,7 +26,5 @@ export async function main(ns) {
     root(ns, server)
   }
   ns.tprint(`SUCCESS: Nuked ${servers.map(s => s.name).join(", ")}`)
-  ns.tprint(`Spawning botnet.`)
-
   clearLSItem('nmap')
 }
