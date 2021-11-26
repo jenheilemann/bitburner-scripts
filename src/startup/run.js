@@ -1,25 +1,24 @@
-import { getLSItem, tryRun } from 'helpers.js'
+import {
+        tryRun,
+        disableLogs,
+        getNsDataThroughFile as fetch,
+        setLSItem,
+      } from 'helpers.js'
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  ns.disableLog("sleep")
+  disableLogs(ns, ["sleep"])
 
-  /** this bit won't work until BN5 **/
-  // let multipliers = getLSItem('multipliers')
-  // if ( multipliers === undefined || player.playtimeSinceLastBitnode < (5*60*1000) ) {
-  //   ns.tprint(`Fetching Bitnode Multipliers`)
-  //   ns.run('/startup/bitnode.js', 1)
-  //   await ns.sleep(200)
-  // }
+  ns.tprint(`Fetching bitnode multipliers`)
+  const bn = await fetch(ns, `ns.getBitNodeMultipliers()`, '/Temp/bitnode.txt')
+  setLSItem('bitnode', bn)
+  await ns.sleep(200)
 
   ns.tprint(`Starting satellites/controller.js`)
   ns.run('/satellites/controller.js')
   await ns.sleep(1000) // just give it a sec
-
-  ns.tprint(`Starting nuker.js`)
-  await tryRun(ns, () => ns.run('nuker.js'))
 
   ns.tprint(`Starting buyer.js`)
   await tryRun(ns, () => ns.run('buyer.js'))

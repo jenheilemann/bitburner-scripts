@@ -23,4 +23,5 @@ export const lsKeys = {
   NMAP : 'jh_network_map',
   PLAYER : 'jh_player',
   RESERVE : 'jh_reserve',
+  BITNODE : 'jh_bn_multipliers',
 }
