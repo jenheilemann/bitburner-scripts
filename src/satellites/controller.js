@@ -16,7 +16,7 @@ const timers = [
   { file: 'nuker.js', freq: 45 * sec, last: 0 },
   { file: 'botnet.js', freq: 30 * sec, last: 0 },
   { file: 'stats.js', freq: 1 * sec, last: 0 },
-  { file: '/satellites/activityObserver.js', freq: 1 * sec, last: Date.now() + min },
+  { file: '/satellites/activityObserver.js', freq: 1 * min, last: Date.now() },
 ]
 
 /**
