@@ -38,6 +38,7 @@ const filesToDownload = [
   'buyer.js',
   'constants.js',
   'crime.js',
+  'doProcess.js',
   'find.js',
   'helpers.js',
   'lsClear.js',
