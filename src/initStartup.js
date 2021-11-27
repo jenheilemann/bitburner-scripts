@@ -19,6 +19,7 @@ const filesToDownload = [
   '/hacknet/levelUpgrader.js',
   '/hacknet/ramUpgrader.js',
   '/hacknet/startup.js',
+  '/satellites/activityObserver.js',
   '/satellites/backdoorObserver.js',
   '/satellites/contractsObserver.js',
   '/satellites/controller.js',
