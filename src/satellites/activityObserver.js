@@ -8,7 +8,7 @@ export async function main(ns) {
   const factionPS = processes.find(p => p.filename === 'workForFactions.js')
 
   // if I set the working key within the last hour, don't change anything
-  if ( getLSItem('working') < Date.now() - hour ) {
+  if ( getLSItem('working') > Date.now() - hour ) {
     ns.kill('crime.js', 'home')
     ns.kill('workForFactions.js', 'home')
     return
