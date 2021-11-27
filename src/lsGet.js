@@ -10,19 +10,17 @@ export function autocomplete() {
  **/
 export async function main(ns) {
   let args = ns.flags([
-    ['k', ''],
-    ['key', ''],
     ['pretty', false],
     ['p', false],
   ])
 
-  if ( !args.key && !args.k ) {
+  if ( args._.length === 0 ) {
     ns.tprint(`This script needs a recognized key!`)
-    ns.tprint('like: `run lsSet.js --key reserve`')
+    ns.tprint('like: `run lsGet.js reserve`')
     return
   }
 
-  let key = args.k ? args.k : args.key
+  let key = args._[0]
   if ( !lsKeys[key.toUpperCase()] ) {
     ns.tprint(`That is not a recognized key. Use one of: `)
     ns.tprint(Object.keys(lsKeys).join(", "))
