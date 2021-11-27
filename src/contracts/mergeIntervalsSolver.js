@@ -24,9 +24,9 @@ export async function main(ns) {
   let data = await fetch(ns, `ns.codingcontract.getData('${args.file}', '${args.server}')` )
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
-  let answer = solve(data)
+  let answer = solve(data.slice())
   let result = await fetch(ns, `ns.codingcontract.attempt(
-    '${answer}',
+    ${JSON.stringify(answer)},
     '${args.file}',
     '${args.server}',
     { returnReward: true }
@@ -64,7 +64,7 @@ function solve(pairs) {
   }
   intervals.sort((a,b) => a[0] - b[0])
 
-  return intervals.join(',')
+  return intervals
 }
 
 function overlap(val, range) {
