@@ -124,7 +124,7 @@ export function announce(ns, log, toastVariant = 'info') {
   // becomes undefined
   if (!ns.print || !ns.toast) return;
   ns.print(`${toastVariant.toUpperCase()}: ${log}`);
-  ns.toast(log, toastVariant);
+  ns.toast(log, toastVariant.toLowerCase());
 }
 
 
@@ -156,49 +156,81 @@ export function groupBy(data, key) {
 
 
 /** Generate a hashCode for a string that is pretty unique most of the time */
-export function hashCode(s) { return s.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0); }
+export function hashCode(s) {
+  return s.split("").reduce(function (a, b) {
+    a = ((a << 5) - a) + b.charCodeAt(0)
+    return a & a
+  }, 0)
+}
 
 // FUNCTIONS THAT PROVIDE ALTERNATIVE IMPLEMENTATIONS TO EXPENSIVE NS FUNCTIONS
 // VARIATIONS ON NS.RUN
 
-/** @param {NS} ns
- *  Use where a function is required to run a script and you have already referenced ns.run in your script **/
+/**
+ * @param {NS} ns
+ *  Use where a function is required to run a script and you have already
+ * referenced ns.run in your script
+ **/
 export function getFnRunViaNsRun(ns) { return checkNsInstance(ns).run; }
 
-/** @param {NS} ns
- *  Use where a function is required to run a script and you have already referenced ns.exec in your script **/
+/**
+ * @param {NS} ns
+ * Use where a function is required to run a script and you have already
+ * referenced ns.exec in your script
+ **/
 export function getFnRunViaNsExec(ns, host = "home") {
-    checkNsInstance(ns);
-    return function (scriptPath, ...args) { return ns.exec(scriptPath, host, ...args); }
+  checkNsInstance(ns);
+  return function (scriptPath, ...args) {
+    return ns.exec(scriptPath, host, ...args)
+  }
 }
 // VARIATIONS ON NS.ISRUNNING
 
-/** @param {NS} ns
- *  Use where a function is required to run a script and you have already referenced ns.run in your script  */
-export function getFnIsAliveViaNsIsRunning(ns) { return checkNsInstance(ns).isRunning; }
-
-/** @param {NS} ns
- *  Use where a function is required to run a script and you have already referenced ns.exec in your script  */
-export function getFnIsAliveViaNsPs(ns) {
-    checkNsInstance(ns);
-    return function (pid, host) { return ns.ps(host).some(process => process.pid === pid); }
+/**
+ * @param {NS} ns
+ * Use where a function is required to check if a script is running and you have
+ * already referenced ns.isRunning in your script
+ **/
+export function getFnIsAliveViaNsIsRunning(ns) {
+  return checkNsInstance(ns).isRunning
 }
 
-/** Evaluate an arbitrary ns command by writing it to a new script and then running or executing it.
- * @param {NS} ns - The nestcript instance passed to your script's main entry point
- * @param {string} command - The ns command that should be invoked to get the desired data (e.g. "ns.getServer('home')" )
- * @param {string=} fileName - (default "/Temp/{commandhash}-data.txt") The name of the file to which data will be written to disk by a temporary process
- * @param {bool=} verbose - (default false) If set to true, the evaluation result of the command is printed to the terminal
- * @param {...args} args - args to be passed in as arguments to command being run as a new script.
+/**
+ * @param {NS} ns
+ * Use where a function is required to check if a script is running and you have
+ * already referenced ns.ps in your script
+ **/
+export function getFnIsAliveViaNsPs(ns) {
+  checkNsInstance(ns);
+  return function (pid, host) {
+    return ns.ps(host).some(process => process.pid === pid)
+  }
+}
+
+/**
+ * Evaluate an arbitrary ns command by writing it to a new script and then
+ * running or executing the new file
+ *
+ * @param {NS} ns - The nestcript instance passed to your script
+ * @param {string} command - The ns command that should be invoked to get the
+ *                 desired data (e.g. "ns.getServer('home')" )
+ * @param {string=} fileName - (default "/Temp/{commandhash}-data.txt") The name
+ *                  of the file to which data will be written to disk by a
+ *                  temporary process
+ * @param {bool=} verbose - (default false) If set to true, the evaluation
+ *                result of the command is printed to the terminal
+ * @param {...args} args - args to be passed in as arguments to command being
+ *                  run as a new script.
  */
 export async function runCommand(ns, command, fileName, verbose, ...args) {
   checkNsInstance(ns)
   if (!verbose) disableLogs(ns, ['run', 'sleep'])
-  return await runCommand_Custom(ns, ns.run, command, fileName, verbose, ...args)
+  return await runCommand_Custom(ns, ns.run, command,fileName, verbose, ...args)
 }
 
 /**
- * Evaluate an arbitrary ns command by writing it to a new script and running it
+ * Evaluate an arbitrary ns command by writing it to a new script, running the
+ * script, then waiting for it to complete running.
  *
  * @param {NS} ns - The nestcript instance passed to your script
  * @param {string} command - The ns command that should be invoked to get the
@@ -213,9 +245,9 @@ export async function runCommand(ns, command, fileName, verbose, ...args) {
  */
 export async function runCommandAndWait(ns, command, fileName, verbose, ...args) {
   checkNsInstance(ns)
-  if (!verbose) disableLogs(ns, ['run', 'sleep']);
+  if (!verbose) disableLogs(ns, ['run', 'sleep'])
 
-  const pid = await runCommand_Custom(ns, ns.run, command, fileName, verbose, ...args)
+  const pid = await runCommand_Custom(ns,ns.run,command,fileName,verbose,...args)
   if (pid === 0) {
     throw (`runCommand returned no pid. (Insufficient RAM, or bad command?) ` +
       `Destination: ${fNameCommand} Command: ${commandToFile}`)
@@ -224,10 +256,25 @@ export async function runCommandAndWait(ns, command, fileName, verbose, ...args)
 }
 
 /**
- * An advanced version of runCommand that lets you pass your own "isAlive" test to reduce RAM requirements (e.g. to avoid referencing ns.isRunning)
- * Importing incurs 0 GB RAM (assuming fnRun, fnWrite are implemented using another ns function you already reference elsewhere like ns.exec)
- * @param {NS} ns - The nestcript instance passed to your script's main entry point
- * @param {function} fnRun - A single-argument function used to start the new sript, e.g. `ns.run` or `(f,...args) => ns.exec(f, "home", ...args)`
+ * An advanced version of runCommand that lets you pass your own "isAlive" test
+ * to reduce RAM requirements (e.g. to avoid referencing ns.isRunning)
+ *
+ * Importing incurs 0 GB RAM (assuming fnRun, fnWrite are implemented using
+ * another ns function you already reference elsewhere like ns.exec)
+ *
+ * @param {NS} ns - The nestcript instance passed to your script
+ * @param {function} fnRun - A single-argument function used to start the new
+ *                   script, e.g. `ns.run` or
+ *                   `(f,...args) => ns.exec(f, "home", ...args)`
+ * @param {string} command - The ns command that should be invoked to get the
+ *                 desired data (e.g. "ns.getServer('home')" )
+ * @param {string=} fileName - (default "/Temp/{commandhash}-data.txt") The name
+ *                  of the file to which data will be written to disk by a
+ *                  temporary process
+ * @param {bool=} verbose - (default false) If set to true, the evaluation
+ *                result of the command is printed to the terminal
+ * @param {...args} args - args to be passed in as arguments to command being
+ *                  run as a new script.
  **/
 export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, ...args) {
     checkNsInstance(ns);
@@ -235,59 +282,94 @@ export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, .
         (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
         `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
     fileName = fileName || `/Temp/${hashCode(command)}-command.js`;
-    // To improve performance and save on garbage collection, we can skip writing this exact same script was previously written (common for repeatedly-queried data)
-    if (ns.read(fileName) != script) await ns.write(fileName, script, "w");
-    return fnRun(fileName, ...args);
+    // To improve performance and save on garbage collection, we can skip
+    // writing this exact same script was previously written (common for
+    // repeatedly-queried data)
+    if (ns.read(fileName) != script) await ns.write(fileName, script, "w")
+    return fnRun(fileName, ...args)
 }
 
 /**
  * Wait for a process id to complete running
  * Importing incurs a maximum of 0.1 GB RAM (for ns.isRunning)
- * @param {NS} ns - The nestcript instance passed to your script's main entry point
+ * @param {NS} ns - The nestcript instance passed to your script
  * @param {int} pid - The process id to monitor
- * @param {bool=} verbose - (default false) If set to true, pid and result of command are logged.
+ * @param {bool=} verbose - (default false) If set to true, pid and result of
+ *                command are logged.
  **/
 export async function waitForProcessToComplete(ns, pid, verbose) {
-    checkNsInstance(ns);
-    if (!verbose) disableLogs(ns, ['isRunning']);
-    return await waitForProcessToComplete_Custom(ns, ns.isRunning, pid, verbose);
+    checkNsInstance(ns)
+    if (!verbose) disableLogs(ns, ['isRunning'])
+    return await waitForProcessToComplete_Custom(ns, ns.isRunning, pid, verbose)
 }
 /**
- * An advanced version of waitForProcessToComplete that lets you pass your own "isAlive" test to reduce RAM requirements (e.g. to avoid referencing ns.isRunning)
- * Importing incurs 0 GB RAM (assuming fnIsAlive is implemented using another ns function you already reference elsewhere like ns.ps)
- * @param {NS} ns - The nestcript instance passed to your script's main entry point
- * @param {function} fnIsAlive - A single-argument function used to start the new sript, e.g. `ns.isRunning` or `pid => ns.ps("home").some(process => process.pid === pid)`
+ * An advanced version of waitForProcessToComplete that lets you pass your own
+ * "isAlive" test to reduce RAM requirements (e.g. to avoid referencing
+ * ns.isRunning)
+ *
+ * Importing incurs 0 GB RAM (assuming fnIsAlive is implemented using another ns
+ * function you already reference elsewhere like ns.ps)
+ *
+ * @param {NS} ns - The nestcript instance passed to your script
+ * @param {function} fnIsAlive - A single-argument function used to test, e.g.
+ *                   `ns.isRunning` or
+ *                   `pid => ns.ps("home").some(process => process.pid === pid)`
  **/
 export async function waitForProcessToComplete_Custom(ns, fnIsAlive, pid, verbose) {
-    checkNsInstance(ns);
-    if (!verbose) disableLogs(ns, ['sleep']);
-    // Wait for the PID to stop running (cheaper than e.g. deleting (rm) a possibly pre-existing file and waiting for it to be recreated)
-    for (var retries = 0; retries < 1000; retries++) {
-        if (!fnIsAlive(pid)) break; // Script is done running
-        if (verbose && retries % 100 === 0) ns.print(`Waiting for pid ${pid} to complete... (${retries})`);
-        await ns.sleep(10);
+  checkNsInstance(ns);
+  if (!verbose) disableLogs(ns, ['sleep']);
+  // Wait for the PID to stop running (cheaper than e.g. deleting (rm) a
+  // possibly pre-existing file and waiting for it to be recreated)
+  for (var retries = 0; retries < 1000; retries++) {
+    if (!fnIsAlive(pid)) break; // Script is done running
+    if (verbose && retries % 100 === 0) {
+      ns.print(`Waiting for pid ${pid} to complete... (${retries})`)
     }
-    // Make sure that the process has shut down and we haven't just stopped retrying
-    if (fnIsAlive(pid)) {
-        let errorMessage = `run-command pid ${pid} is running much longer than expected. Max retries exceeded.`;
-        ns.print(errorMessage);
-        throw errorMessage;
-    }
+    await ns.sleep(10);
+  }
+  // Make sure that the process has shut down and we haven't just stopped retrying
+  if (fnIsAlive(pid)) {
+    let error = `run-command pid ${pid} is running much longer than expected. `+
+      `Max retries exceeded.`
+    ns.print(error)
+    throw error
+  }
 }
 
 /**
- * Retrieve the result of an ns command by executing it in a temporary .js script, writing the result to a file, then shuting it down
- * Importing incurs a maximum of 1.1 GB RAM (0 GB for ns.read, 1 GB for ns.run, 0.1 GB for ns.isRunning).
- * Has the capacity to retry if there is a failure (e.g. due to lack of RAM available). Not recommended for performance-critical code.
- * @param {NS} ns - The nestcript instance passed to your script's main entry point
- * @param {string} command - The ns command that should be invoked to get the desired data (e.g. "ns.getServer('home')" )
- * @param {string=} fName - (default "/Temp/{commandhash}-data.txt") The name of the file to which data will be written to disk by a temporary process
- * @param {bool=} verbose - (default false) If set to true, pid and result of command are logged.
+ * Retrieve the result of an ns command by executing it in a temporary .js
+ * script, writing the result to a file, then shuting it down
+ *
+ * Importing incurs a maximum of 1.1 GB RAM (0 GB for ns.read, 1 GB for ns.run,
+ * 0.1 GB for ns.isRunning).
+ *
+ * Has the capacity to retry if there is a failure (e.g. due to lack of RAM
+ * available). Not recommended for performance-critical code.
+ *
+ * @param {NS} ns - The nestcript instance passed to your script
+ * @param {string} command - The ns command that should be invoked to get the
+ *                 desired data (e.g. "ns.getServer('home')" )
+ * @param {string=} fName - (default "/Temp/{commandhash}-data.txt") The name
+ *                  of the file to which data will be written to disk by a
+ *                  temporary process
+ * @param {bool=} verbose - (default false) If set to true, pid and result of
+ *                command are logged.
+ * @param {integer} maxRetries - (default 5) How many times to retry for not
+ *                  more RAM before throwing an error
+ * @param {integer} retryDelayMs - (default 50) How many milliseconds to wait
+ *                  before retrying
  **/
 export async function getNsDataThroughFile(ns, command, fName, verbose, maxRetries = 5, retryDelayMs = 50) {
-    checkNsInstance(ns);
-    if (!verbose) disableLogs(ns, ['run', 'isRunning']);
-    return await getNsDataThroughFile_Custom(ns, ns.run, ns.isRunning, command, fName, verbose, maxRetries, retryDelayMs);
+    checkNsInstance(ns)
+    if (!verbose) disableLogs(ns, ['run', 'isRunning'])
+    return await getNsDataThroughFile_Custom(ns,
+                                             ns.run,
+                                             ns.isRunning,
+                                             command,
+                                             fName,
+                                             verbose,
+                                             maxRetries,
+                                             retryDelayMs)
 }
 /**
  * An advanced version of getNsDataThroughFile that lets you pass your own
@@ -299,36 +381,71 @@ export async function getNsDataThroughFile(ns, command, fName, verbose, maxRetri
  * Has the capacity to retry if there is a failure (e.g. due to lack of RAM
  * available). Not recommended for performance-critical code.
  *
- * @param {NS} ns - The nestcript instance passed to your script's main entry point
- * @param {function} fnRun - A single-argument function used to start the new sript, e.g. `ns.run` or `(f,...args) => ns.exec(f, "home", ...args)`
- * @param {function} fnIsAlive - A single-argument function used to start the new sript, e.g. `ns.isRunning` or `pid => ns.ps("home").some(process => process.pid === pid)`
+ * @param {NS} ns - The nestcript instance passed to your script
+ * @param {function} fnRun - A single-argument function used to start the new
+ *                   script, e.g. `ns.run` or
+ *                   `(f,...args) => ns.exec(f, "home", ...args)`
+ * @param {function} fnIsAlive - A single-argument function used to test if the
+ *                   script has completed, e.g. `ns.isRunning` or
+ *                   `pid => ns.ps("home").some(process => process.pid === pid)`
+ * @param {string} command - The ns command that should be invoked to get the
+ *                 desired data (e.g. "ns.getServer('home')" )
+ * @param {string=} fName - (default "/Temp/{commandhash}-data.txt") The name
+ *                  of the file to which data will be written to disk by a
+ *                  temporary process
+ * @param {bool=} verbose - (default false) If set to true, pid and result of
+ *                command are logged.
+ * @param {integer} maxRetries - (default 5) How many times to retry for not
+ *                  more RAM before throwing an error
+ * @param {integer} retryDelayMs - (default 50) How many milliseconds to wait
+ *                  before retrying
  **/
 export async function getNsDataThroughFile_Custom(ns, fnRun, fnIsAlive, command, fName, verbose, maxRetries = 5, retryDelayMs = 50) {
   checkNsInstance(ns);
-  if (!verbose) disableLogs(ns, ['read']);
-  const commandHash = hashCode(command);
-  fName = fName || `/Temp/${commandHash}-data.txt`;
+  if (!verbose) disableLogs(ns, ['read'])
+  const commandHash = hashCode(command)
+  fName = fName || `/Temp/${commandHash}-data.txt`
   const fNameCommand = (fName || `/Temp/${commandHash}-command`) + '.js'
-  // Prepare a command that will write out a new file containing the results of the command unless it already exists with the same contents (saves time/ram to check first)
-  const commandToFile = `const result = JSON.stringify(${command}); if (ns.read("${fName}") != result) await ns.write("${fName}", result, 'w')`;
+  // Prepare a command that will write out a new file containing the results of
+  // the command unless it already exists with the same contents
+  // (saves time/ram to check first)
+  const commandToFile = `const result = JSON.stringify(${command}); ` +
+    `if (ns.read("${fName}") != result) await ns.write("${fName}", result, 'w')`
   while (maxRetries-- > 0) {
     try {
-      const pid = await runCommand_Custom(ns, fnRun, commandToFile, fNameCommand, false);
-      if (pid === 0) throw (`runCommand returned no pid. (Insufficient RAM, or bad command?) Destination: ${fNameCommand} Command: ${commandToFile}`);
-      await waitForProcessToComplete_Custom(ns, fnIsAlive, pid, verbose);
-      if (verbose) ns.print(`Process ${pid} is done. Reading the contents of ${fName}...`);
-      const fileData = ns.read(fName); // Read the output of the other script
-      if (fileData === undefined) throw (`ns.read('${fName}') somehow returned undefined`);
-      if (fileData === "") throw (`The expected output file ${fName} is empty.`);
-      if (verbose) ns.print(`Read the following data for command ${command}:\n${fileData}`);
-      return JSON.parse(fileData); // Deserialize it back into an object/array and return
+      const pid = await runCommand_Custom(ns, fnRun, commandToFile, fNameCommand, false)
+      if (pid === 0) {
+        throw (`runCommand returned no pid. (Insufficient RAM, or bad command?) `
+          +`Destination: ${fNameCommand} Command: ${commandToFile}`)
+      }
+      await waitForProcessToComplete_Custom(ns, fnIsAlive, pid, verbose)
+      if (verbose) {
+        ns.print(`Process ${pid} is done. Reading the contents of ${fName}...`)
+      }
+
+      // Read the output of the other script
+      const fileData = ns.read(fName)
+      if (fileData === undefined) {
+        throw (`ns.read('${fName}') somehow returned undefined`)
+      }
+      if (fileData === "") {
+        throw (`The expected output file ${fName} is empty.`)
+      }
+      if (verbose) {
+        ns.print(`Read the following data for command ${command}:\n${fileData}`)
+      }
+      // Deserialize it back into an object/array and return
+      return JSON.parse(fileData)
     }
     catch (error) {
-      const errorLog = `getNsDataThroughFile error (${maxRetries} retries remaining): ${String(error)}`
-      ns.print(errorLog);
-      ns.toast(errorLog, maxRetries > 0 ? 'warning' : 'error');
-      if (maxRetries <= 0) throw error;
-      await ns.sleep(retryDelayMs);
+      const errorLog = `getNsDataThroughFile error (${maxRetries} retries ` +
+        `remaining): ${String(error)}`
+      const type =  maxRetries > 0 ? 'warning' : 'error'
+      announce(ns, errorLog, type)
+      if (maxRetries <= 0) {
+        throw error
+      }
+      await ns.sleep(retryDelayMs)
     }
   }
 }
