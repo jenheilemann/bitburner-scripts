@@ -9,6 +9,8 @@ export async function main(ns) {
 
   // if I set the working key within the last hour, don't change anything
   if ( getLSItem('working') < Date.now() - hour ) {
+    ns.kill('crime.js', 'home')
+    ns.kill('workForFactions.js', 'home')
     return
   }
 
