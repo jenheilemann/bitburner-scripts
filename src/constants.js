@@ -24,4 +24,5 @@ export const lsKeys = {
   PLAYER : 'jh_player',
   RESERVE : 'jh_reserve',
   BITNODE : 'jh_bn_multipliers',
+  WORKING : 'jh_working',
 }

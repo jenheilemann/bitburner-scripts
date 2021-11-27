@@ -36,8 +36,14 @@ export async function main(ns) {
     return
   }
 
+  if ( key.toUpperCase() === 'WORKING' ){
+    setLSItem(key, Date.now())
+    ns.tprint(`Set '${safeKey}': ${getLSItem(key)}`)
+    return
+  }
+
   let value = args.v ? args.v : args.value
-  setLSItem(safeKey, JSON.stringify(v))
-  ns.tprint(`Set '${safeKey}': ${getLSItem(safeKey)}`)
+  setLSItem(key, JSON.stringify(v))
+  ns.tprint(`Set '${safeKey}': ${getLSItem(key)}`)
 }
 
