@@ -116,6 +116,18 @@ export function fetchPlayer() {
   return getLSItem('player')
 }
 
+
+/** @param {NS} ns
+ * Prints a message, and also toasts it! */
+export function announce(ns, log, toastVariant = 'info') {
+  // If an error is caught/logged because the script is being killed, ns
+  // becomes undefined
+  if (!ns.print || !ns.toast) return;
+  ns.print(`${toastVariant.toUpperCase()}: ${log}`);
+  ns.toast(log, toastVariant);
+}
+
+
 // yoink: https://gist.github.com/robmathers/1830ce09695f759bf2c4df15c29dd22d
 /**
  * @param {array} data is an array of objects
