@@ -6,7 +6,7 @@ export async function main(ns) {
   const hook0 = doc.getElementById('overview-extra-hook-0')
   const hook1 = doc.getElementById('overview-extra-hook-1')
   // hook0.innerText = "Hashes\nStock\nScrInc\nScrExp"
-  hook0.innerText = "ScrInc\nScrExp"
+  hook0.innerText = "Income\nExper."
 
   // const hashes = await getNsDataThroughFile(ns, '[ns.hacknet.numHashes(), ns.hacknet.hashCapacity()]', '/Temp/hash-stats.txt')
   // const stkSymbols = await getNsDataThroughFile(ns, `ns.stock.getSymbols()`, '/Temp/stock-symbols.txt');
@@ -20,6 +20,6 @@ export async function main(ns) {
   //   `\n${ns.nFormat(ns.getScriptIncome()[0], '$0,0')}/s` +
   //   `\n${ns.nFormat(ns.getScriptExpGain(), 3, 2)}/s`
   hook1.innerText =
-    `${ns.nFormat(ns.getScriptIncome()[0], "$0.00a")}/s` +
-    `\n${ns.nFormat(ns.getScriptExpGain(), "0,0.00")}/s`
+    `${ns.nFormat(ns.getScriptIncome()[0], "$0.0a")}/s` +
+    `\n${ns.nFormat(ns.getScriptExpGain(), "0,0")}/s`
 }
