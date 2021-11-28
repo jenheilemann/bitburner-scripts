@@ -18,10 +18,6 @@ export async function main(ns) {
 
   ns.tprint(`Starting satellites/controller.js`)
   ns.run('/satellites/controller.js')
-  await ns.sleep(1000) // just give it a sec
-
-  ns.tprint(`Starting buyer.js`)
-  await tryRun(ns, () => ns.run('buyer.js'))
 
   ns.tprint(`Startup completed. May your pillow always be cool.`)
 }
