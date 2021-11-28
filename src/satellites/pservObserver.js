@@ -46,7 +46,7 @@ function currentServerSize(pservs) {
 async function nextRamSize(ns, currRam) {
   const limit = await fetch(ns, `ns.getPurchasedServerLimit()`)
   const totIncomePerSecond = await fetch(ns, `ns.getScriptIncome()[0]`)
-  const incomePerPayoffTime = totIncomePerSecond * 30*min
+  const incomePerPayoffTime = totIncomePerSecond * 2*hour
   ns.print(`Total income: ${ns.nFormat(totIncomePerSecond, "$0,0")}`)
   ns.print(`Income per payoff time: ${ns.nFormat(incomePerPayoffTime, "$0,0")}`)
 
