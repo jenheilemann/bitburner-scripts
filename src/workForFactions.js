@@ -1,11 +1,13 @@
 import {
   getNsDataThroughFile,
   runCommand,
+  disableLogs
+} from 'helpers.js'
+import {
   formatDuration,
   formatMoney,
   formatNumber,
-  disableLogs
-} from './insight-helper.js'
+} from '/insight/helper.js'
 
 async function fetch(ns, cmd, filename) {
   return await getNsDataThroughFile(ns, cmd, filename)
@@ -47,7 +49,7 @@ const preferredEarlyFactionOrder = [
   // Cha augs to speed up earning company promotions
   "NiteSec", "Tetrads",
   // Fastest sources of hacking augs after the above companies
-  "BitRunners", "The Black Hand",
+  "The Black Hand", "BitRunners",
   // Once we have all faction_rep boosting augs, there's no reason not to
   // go for Daedalus as soon as it's available so we can buy Red Pill
   "Daedalus",
