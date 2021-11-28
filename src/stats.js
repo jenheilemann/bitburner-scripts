@@ -21,5 +21,5 @@ export async function main(ns) {
   //   `\n${ns.nFormat(ns.getScriptExpGain(), 3, 2)}/s`
   hook1.innerText =
     `${ns.nFormat(ns.getScriptIncome()[0], "$0.0a")}/s` +
-    `\n${ns.nFormat(ns.getScriptExpGain(), "0,0")}/s`
+    `\n${ns.nFormat(ns.getScriptExpGain(), "0.0a")}/s`
 }
