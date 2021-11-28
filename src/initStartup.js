@@ -27,6 +27,7 @@ const filesToDownload = [
   '/satellites/playerObserver.js',
   '/satellites/programBuyer.js',
   '/satellites/programObserver.js',
+  '/satellites/pservObserver.js',
   '/satellites/serversObserver.js',
   '/satellites/torBuyer.js',
   '/startup/run.js',
