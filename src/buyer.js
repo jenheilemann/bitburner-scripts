@@ -25,7 +25,7 @@ async function findTarget(ns, target) {
   }
   const searcher = new BestHack(await networkMap(ns))
   const player = fetchPlayer()
-  return searcher.findBestPerLevel(player)
+  return searcher.findBestPerLevel(ns, player)
 }
 
 /**

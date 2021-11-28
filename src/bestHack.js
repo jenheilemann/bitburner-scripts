@@ -1,6 +1,5 @@
 import { fetchPlayer } from 'helpers.js'
 import { networkMapFree } from 'network.js'
-import { calculateWeakenTime } from '/formulae/hacking.js'
 
 const maxMoneyCoefficient = 1.25
 const growthCoefficient = 1.1
@@ -24,12 +23,17 @@ export class BestHack {
     this.serverData = serverData
     this.calcsRun = false
   }
-  findBestPerLevel(player) {
+
+  /**
+   * @param {NS} ns
+   * @param {object} player
+   */
+  findBestPerLevel(ns, player) {
     let scores = this.calcServerScores()
     let filtered = Object.values(scores)
       .filter((server) => server.hackingLvl <= player.hacking &&
                           server.data.hasAdminRights &&
-                          calculateWeakenTime(server.data, player) < maxWeakenTime)
+                          ns.formulas.hacking.weakenTime(server.data, player) < maxWeakenTime)
     return filtered.reduce((prev, current) => (prev.score > current.score) ? prev : current)
   }
   calcServerScores() {
@@ -47,5 +51,5 @@ export class BestHack {
 
 export async function main(ns) {
   let searcher = new BestHack(await networkMapFree())
-  ns.tprint( searcher.findBestPerLevel(fetchPlayer()) )
+  ns.tprint( searcher.findBestPerLevel(ns, fetchPlayer()) )
 }

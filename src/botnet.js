@@ -27,7 +27,7 @@ export async function main(ns) {
   }
 
   let searcher = new BestHack(await networkMapFree())
-  let target = searcher.findBestPerLevel(fetchPlayer())
+  let target = searcher.findBestPerLevel(ns, fetchPlayer())
 
   ns.tprint("Zombifying " + servers.length + " servers, targeting " + target.name)
   for (let server of servers) {

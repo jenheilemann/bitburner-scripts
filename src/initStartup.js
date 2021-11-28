@@ -14,7 +14,6 @@ const filesToDownload = [
   '/contracts/totalWaysToSumSolver.js',
   '/contracts/uniquePaths1Solver.js',
   '/contracts/uniquePaths2Solver.js',
-  '/formulae/hacking.js',
   '/hacknet/coreUpgrader.js',
   '/hacknet/levelUpgrader.js',
   '/hacknet/ramUpgrader.js',
