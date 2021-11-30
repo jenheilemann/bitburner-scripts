@@ -32,7 +32,13 @@ const xpStats = [
   'intelligence_exp'
 ].concat(combatXPStats)
 
+const opts = [
+  ['focus', 'money'],
+  ['fastCrimes', false],
+]
+
 export function autocomplete(data, args) {
+  data.flags(opts)
   return crimes.concat([
     'money',
     'xp',
@@ -49,7 +55,7 @@ export function autocomplete(data, args) {
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
   ns.tail()
-  let args = ns.flags([['focus', 'money']])
+  let args = ns.flags(opts)
   let time = 1, again = true, crime
   let karma =  ns.heart.break()
 
@@ -78,17 +84,20 @@ async function chooseCrime(ns, args) {
     return args._[0].toLowerCase()
   }
   const stats = []
-  let score = 0
+  let score = 0, data
   for ( let crime of crimes ) {
-    score = await calcScore(ns, args.focus, crime)
+    data = await fetch(ns, `ns.getCrimeStats('${crime}')`, `/Temp/crimeStats.txt`)
+    if ( args.fastCrimes && data.time > 60*1000 ) {
+      continue
+    }
+    score = await calcScore(ns, args.focus, crime, data)
     stats.push({name: crime, score: score})
   }
   let sorted = stats.sort((a, b) =>  b.score - a.score)
   return sorted[0].name
 }
 
-async function calcScore(ns, focus, crime) {
-  let stats = await fetch(ns, `ns.getCrimeStats('${crime}')`, `/Temp/crimeStats.txt`)
+async function calcScore(ns, focus, crime, stats) {
   let value = focusValue(focus, stats)
   let chance = await fetch(ns, `ns.getCrimeChance('${crime}')`,`/Temp/crimeChance.txt`)
 

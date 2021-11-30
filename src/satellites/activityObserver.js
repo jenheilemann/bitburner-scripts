@@ -9,15 +9,15 @@ export async function main(ns) {
 
   // if I set the working key within the last hour, don't change anything
   if ( getLSItem('working') > Date.now() - hour ) {
-    ns.kill('crime.js', 'home')
-    ns.kill('workForFactions.js', 'home')
+    ns.kill(crimePS.pid, 'home')
+    ns.kill(factionPS.pid, 'home')
     return
   }
 
   if ( toolsCount() >= 5 ) {
     if ( crimePS ) {
       announce(ns, 'Switching from crime to grinding faction rep')
-      ns.kill('crime.js', 'home')
+      ns.kill(crimePS.pid, 'home')
     }
     if ( !factionPS ) {
       announce(ns, 'Starting work for factions...')
@@ -27,6 +27,6 @@ export async function main(ns) {
   }
 
   if ( !crimePS ) {
-    ns.run('crime.js')
+    ns.run('crime.js', 1, '--fastCrimes')
   }
 }
