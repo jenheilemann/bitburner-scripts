@@ -1,9 +1,7 @@
 /**
- * Return a formatted representation of the monetary amount using scale sympols
- * (e.g. $6.50M)
+ * Return a formatted representation of the monetary amount using scale sympols (e.g. $6.50M)
  * @param {number} num - The number to format
- * @param {number=} maxSignificantFigures - (default: 6) The maximum significant
- *                  figures you wish to see (e.g. 123, 12.3 and 1.23 all have 3 significant figures)
+ * @param {number=} maxSignificantFigures - (default: 6) The maximum significant figures you wish to see (e.g. 123, 12.3 and 1.23 all have 3 significant figures)
  * @param {number=} maxDecimalPlaces - (default: 3) The maximum decimal places you wish to see, regardless of significant figures. (e.g. 12.3, 1.2, 0.1 all have 1 decimal)
  **/
 export function formatMoney(num, maxSignificantFigures = 6, maxDecimalPlaces = 3) {
@@ -12,14 +10,15 @@ export function formatMoney(num, maxSignificantFigures = 6, maxDecimalPlaces = 3
 }
 
 /**
- * Return a formatted representation of the monetary amount using scale sympols (e.g. 6.50M)
+ * Return a formatted representation of the monetary amount using scale sympols (e.g. 6.50M) 
  * @param {number} num - The number to format
  * @param {number=} maxSignificantFigures - (default: 6) The maximum significant figures you wish to see (e.g. 123, 12.3 and 1.23 all have 3 significant figures)
  * @param {number=} maxDecimalPlaces - (default: 3) The maximum decimal places you wish to see, regardless of significant figures. (e.g. 12.3, 1.2, 0.1 all have 1 decimal)
  **/
 export function formatNumberShort(num, maxSignificantFigures = 6, maxDecimalPlaces = 3) {
-    const symbols = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "E30", "E33", "E36", "E39"];
+    const symbols = ["", "k", "m", "b", "t", "qa", "qi", "sx", "sp", "oc", "e30", "e33", "e36", "e39"];
     for (var i = 0, sign = Math.sign(num), num = Math.abs(num); num >= 1000 && i < symbols.length; i++) num /= 1000;
+    // TODO: A number like 9.999 once rounted to show 3 sig figs, will become 10.00, which is now 4 sig figs.
     return ((sign < 0) ? "-" : "") + num.toFixed(Math.max(0, Math.min(maxDecimalPlaces, maxSignificantFigures - Math.floor(1 + Math.log10(num))))) + symbols[i];
 }
 
@@ -65,11 +64,11 @@ export function formatDuration(duration) {
     return portions.join(' ');
 }
 
-/** @param {NS} ns **/
-export function disableLogs(ns, listOfLogs) { ['disableLog'].concat(...listOfLogs).forEach(log => checkNsInstance(ns).disableLog(log)); }
-
 /** Generate a hashCode for a string that is pretty unique most of the time */
 export function hashCode(s) { return s.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0); }
+
+/** @param {NS} ns **/
+export function disableLogs(ns, listOfLogs) { ['disableLog'].concat(...listOfLogs).forEach(log => checkNsInstance(ns).disableLog(log)); }
 
 // FUNCTIONS THAT PROVIDE ALTERNATIVE IMPLEMENTATIONS TO EXPENSIVE NS FUNCTIONS
 // VARIATIONS ON NS.RUN
@@ -130,7 +129,7 @@ const _cachedTempScripts = [];
 
 /**
  * Wait for a process id to complete running
- * Importing incurs a maximum of 0.1 GB RAM (for ns.isRunning)
+ * Importing incurs a maximum of 0.1 GB RAM (for ns.isRunning) 
  * @param {NS} ns - The nestcript instance passed to your script's main entry point
  * @param {int} pid - The process id to monitor
  * @param {bool=} verbose - (default false) If set to true, pid and result of command are logged.
@@ -142,7 +141,7 @@ export async function waitForProcessToComplete(ns, pid, verbose) {
 }
 /**
  * An advanced version of waitForProcessToComplete that lets you pass your own "isAlive" test to reduce RAM requirements (e.g. to avoid referencing ns.isRunning)
- * Importing incurs 0 GB RAM (assuming fnIsAlive is implemented using another ns function you already reference elsewhere like ns.ps)
+ * Importing incurs 0 GB RAM (assuming fnIsAlive is implemented using another ns function you already reference elsewhere like ns.ps) 
  * @param {NS} ns - The nestcript instance passed to your script's main entry point
  * @param {function} fnIsAlive - A single-argument function used to start the new sript, e.g. `ns.isRunning` or `pid => ns.ps("home").some(process => process.pid === pid)`
  **/
@@ -233,4 +232,4 @@ export function scanAllServers(ns) {
 }
 
 /** @param {NS} ns **/
-export function checkNsInstance(ns) { if (!ns.sleep) throw "The first argument to this function should be a 'ns' instance."; return ns; }
+export function checkNsInstance(ns) { if (!ns.read) throw "The first argument to this function should be a 'ns' instance."; return ns; }

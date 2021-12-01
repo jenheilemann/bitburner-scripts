@@ -188,8 +188,8 @@ export function formatMoney(num, maxSigFigures = 6, maxDecimalPlaces = 3) {
  *                  12.3, 1.2, 0.1 all have 1 decimal)
  **/
 export function formatNumberShort(num, maxSigFigures = 6, maxDecimalPlaces = 3) {
-  const symbols = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc",
-                    "E30", "E33", "E36", "E39"]
+  const symbols = ["", "k", "m", "b", "t", "qa", "qi", "sx", "sp", "oc", "e30",
+                  "e33", "e36", "e39"]
   const sign = Math.sign(num) < 0 ? "-" : ""
   for (var i = 0, num = Math.abs(num); num >= 1000 && i < symbols.length; i++) {
     num /= 1000
@@ -544,7 +544,7 @@ export async function getNsDataThroughFile_Custom(ns, fnRun, fnIsAlive, command,
 
 /** @param {NS} ns **/
 export function checkNsInstance(ns) {
-  if (!ns.sleep)
+  if (!ns.read)
     throw "The first argument to this function should be a 'ns' instance."
   return ns
 }
