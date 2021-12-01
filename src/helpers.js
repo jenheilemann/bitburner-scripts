@@ -31,7 +31,7 @@ export function disableLogs(ns, listOfLogs) {
  * @cost 0.1 GB
  * @returns {integer} player's money available
  */
-function myMoney(ns) {
+export function myMoney(ns) {
   return ns.getServerMoneyAvailable('home')
 }
 
@@ -373,16 +373,23 @@ export async function runCommandAndWait(ns, command, fileName, verbose, ...args)
  *                  run as a new script.
  **/
 export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, ...args) {
-    checkNsInstance(ns);
-    let script = `export async function main(ns) { try { ` +
-        (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
-        `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
-    fileName = fileName || `/Temp/${hashCode(command)}-command.js`;
-    // To improve performance and save on garbage collection, we can skip
-    // writing this exact same script was previously written (common for
-    // repeatedly-queried data)
-    if (ns.read(fileName) != script) await ns.write(fileName, script, "w")
-    return fnRun(fileName, ...args)
+  checkNsInstance(ns)
+  helpers = [
+    'mySleep', 'toolsCount', 'myMoney', 'waitForCash', 'reserve',
+    'tryRun', 'getLSItem', 'setLSItem', 'clearLSItem', 'fetchPlayer',
+    'announce', 'groupBy', 'formatMoney', 'formatNumberShort', 'formatNumber',
+    'formatDuration', 'hashCode',
+  ]
+  let script = `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n\r` +
+    `export async function main(ns) { try { ` +
+    (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
+    `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
+  fileName = fileName || `/Temp/${hashCode(command)}-command.js`;
+  // To improve performance and save on garbage collection, we can skip
+  // writing this exact same script was previously written (common for
+  // repeatedly-queried data)
+  if (ns.read(fileName) != script) await ns.write(fileName, script, "w")
+  return fnRun(fileName, ...args)
 }
 
 /**
