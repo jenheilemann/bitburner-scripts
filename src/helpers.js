@@ -374,13 +374,13 @@ export async function runCommandAndWait(ns, command, fileName, verbose, ...args)
  **/
 export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, ...args) {
   checkNsInstance(ns)
-  helpers = [
+  const helpers = [
     'mySleep', 'toolsCount', 'myMoney', 'waitForCash', 'reserve',
     'tryRun', 'getLSItem', 'setLSItem', 'clearLSItem', 'fetchPlayer',
     'announce', 'groupBy', 'formatMoney', 'formatNumberShort', 'formatNumber',
     'formatDuration', 'hashCode',
   ]
-  let script = `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n\r` +
+  const script = `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n\r` +
     `export async function main(ns) { try { ` +
     (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
     `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
