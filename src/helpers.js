@@ -53,16 +53,20 @@ export async function waitForCash(ns, cost) {
 
 /**
  * Reserve a certain amount for big purchases
+ * You can manually reserve an amount by setting a number in localStorage.
+ *     run lsSet.js reserve 4.5e9
+ *
  * @param {NS} ns
  * @cost 0.1 GB
  */
 export function reserve(ns) {
+  let manualReserve = Number(getLSItem('reserve') || 0)
   for ( const file of purchaseables ) {
     if (!ns.fileExists(file.name, 'home')) {
-      return file.cost
+      return file.cost + manualReserve
     }
   }
-  return 0
+  return manualReserve
 }
 
 
