@@ -28,7 +28,7 @@ const argsSchema = [
     ['noisy', false], // If set to true, tprints and announces each time stocks are bought/soldgetHostnames
     ['disable-shorts', false], // If set to true, will "mock" buy/sell but not actually buy/sell anything
     ['reserve', 0], // A fixed amount of money to not spend
-    ['fracB', 0.3], // Fraction of assets to have as liquid before we consider buying more stock
+    ['fracB', 0.4], // Fraction of assets to have as liquid before we consider buying more stock
     ['fracH', 0.2], // Fraction of assets to retain as cash in hand when buying
     ['buy-threshold', 0.0001], // Buy only stocks forecasted to earn better than a 0.01% return (1 Basis Point)
     ['sell-threshold', 0], // Sell stocks forecasted to earn less than this return (default 0% - which happens when prob hits 50% or worse)
@@ -37,8 +37,8 @@ const argsSchema = [
     // The following settings are related only to tweaking pre-4s stock-market logic
     ['show-pre-4s-forecast', false], // If set to true, will always generate and display the pre-4s forecast (if false, it's only shown while we hold no stocks)
     ['pre-4s-buy-threshold-probability', 0.15], // Before we have 4S data, only buy stocks whose probability is more than this far away from 0.5, to account for imprecision
-    ['pre-4s-buy-threshold-roi', 0.0025], // Before we have 4S data, Buy only stocks forecasted to earn better than this return (default 0.25% or 25 Basis Points)
-    ['pre-4s-sell-threshold-roi', 0.0010], // Before we have 4S data, Sell stocks forecasted to earn less than this return (default 0.15% or 15 Basis Points)
+    ['pre-4s-buy-threshold-return', 0.0025], // Before we have 4S data, Buy only stocks forecasted to earn better than this return (default 0.25% or 25 Basis Points)
+    ['pre-4s-sell-threshold-return', 0.0010], // Before we have 4S data, Sell stocks forecasted to earn less than this return (default 0.15% or 15 Basis Points)
     ['pre-4s-min-tick-history', 21], // This much history must be gathered before we will use pre-4s stock forecasts to make buy/sell decisions. (Default 21)
     ['pre-4s-forecast-window', 51], // This much history will be used to determine the historical probability of the stock (so long as no inversions are detected) (Default 76)
     ['pre-4s-inversion-detection-window', 10], // This much history will be used to detect recent negative trends and act on them immediately. (Default 10)
@@ -50,7 +50,7 @@ export function autocomplete(data, args) {
     return [];
 }
 
-/** Requires access to the TIX API. Purchases access to the 4S Mkt Data API as soon as it can
+/** Requires access to the TIX API. Purchases access to the 4S Mkt Data API as soon as it can 
  * @param {NS} ns */
 export async function main(ns) {
     ns.disableLog("ALL");
@@ -109,8 +109,8 @@ export async function main(ns) {
         if (pre4s && !mock && await tryGet4SApi(ns, playerStats, bitnodeMults, corpus, allStockSymbols))
             continue; // Start the loop over if we just bought 4S API access
         // Be more conservative with our decisions if we don't have 4S data
-        const thresholdToBuy = pre4s ? options['pre-4s-buy-threshold-roi'] : options['buy-threshold'];
-        const thresholdToSell = pre4s ? options['pre-4s-sell-threshold-roi'] : options['sell-threshold'];
+        const thresholdToBuy = pre4s ? options['pre-4s-buy-threshold-return'] : options['buy-threshold'];
+        const thresholdToSell = pre4s ? options['pre-4s-sell-threshold-return'] : options['sell-threshold'];
         if (pre4s && allStocks[0].priceHistory.length < minTickHistory) {
             log(ns, `Building a history of stock prices (${allStocks[0].priceHistory.length}/${minTickHistory})...`);
             await ns.sleep(1000);
@@ -122,9 +122,9 @@ export async function main(ns) {
         // Sell forecasted-to-underperform shares (worse than some expected return threshold)
         let sales = 0;
         for (let stk of myStocks) {
-            if ((stk.sharesLong > 0 && stk.expectedReturn() <= thresholdToSell) || (stk.sharesShort > 0 && stk.expectedReturn() >= -thresholdToSell)) {
+            if (stk.absReturn() <= thresholdToSell) {
                 if (stk.ticksHeld < minHoldTime) {
-                    if (!stk.warnedBadPurchase) log(ns, `WARNING: Thinking of selling ${stk.sym} with ER ${Math.abs(stk.expectedReturn())}, but holding out as it was purchased just ${stk.ticksHeld} ticks ago...`);
+                    if (!stk.warnedBadPurchase) log(ns, `WARNING: Thinking of selling ${stk.sym} with ER ${stk.absReturn()}, but holding out as it was purchased just ${stk.ticksHeld} ticks ago...`);
                     stk.warnedBadPurchase = true; // Hack to ensure we don't spam this warning
                 } else {
                     sales += await doSellAll(ns, stk);
@@ -148,7 +148,7 @@ export async function main(ns) {
                 let budget = cash - (fracH * corpus);
                 if (budget <= 0) break; // Break if we are out of money (i.e. from prior purchases)
                 // Skip if we already own all possible shares in this stock, or if the expected return is below our threshold, or if shorts are disabled and stock is bearish
-                if (stk.ownedShares() == stk.maxShares || stk.absROI() <= thresholdToBuy || (disableShorts && stk.bearish())) continue;
+                if (stk.ownedShares() == stk.maxShares || stk.absReturn() <= thresholdToBuy || (disableShorts && stk.bearish())) continue;
                 // If pre-4s, do not purchase any stock whose last inversion was too recent, or whose probability is too close to 0.5
                 if (pre4s && (stk.lastInversion < minTickHistory || Math.abs(stk.prob - 0.5) < pre4sBuyThresholdProbability)) continue;
 
@@ -158,11 +158,11 @@ export async function main(ns) {
                 let affordableShares = Math.floor((budget - commission) / purchasePrice);
                 let numShares = Math.min(stk.maxShares - stk.ownedShares(), affordableShares);
                 if (numShares <= 0) continue;
-                // Another heuristic to avoid death-by-commission: Don't buy fewer shares than can beat the comission in the next 2 ticks
-                let est10TickProfit = numShares * purchasePrice * (1 + stk.absROI()) ** 2;
+                // Another heuristic to avoid death-by-commission: Don't buy fewer shares than can beat the comission in the next 10 ticks
+                let est10TickProfit = (numShares * purchasePrice * (1 + stk.absReturn()) ** (10 - stk.timeToCoverTheSpread())) /* Exp. Value in 10 ticks */ - (numShares * purchasePrice) /* Minus current value */;
                 if (est10TickProfit <= 2 * commission)
-                    log(ns, `Despite ROI of ${formatBP(stk.absROI())}, ${stk.sym} was not bought. Budget: ${formatMoney(budget)} ` +
-                        `can only buy ${numShares} shares @ ${formatMoney(purchasePrice)}. 10 tick exp. value: ${formatMoney(est10TickProfit)}`);
+                    log(ns, `Despite expected return of ${formatBP(stk.absReturn())}, ${stk.sym} was not bought. Budget: ${formatMoney(budget)} can only buy ${numShares} shares @ ${formatMoney(purchasePrice)}. ` +
+                        `10 tick exp. value: ${formatMoney(est10TickProfit)} (Accounting for req. ticks to recover from the spread: ${stk.timeToCoverTheSpread().toFixed(1)})`);
                 else
                     cash -= await doBuy(ns, stk, numShares);
             }
@@ -172,7 +172,7 @@ export async function main(ns) {
 }
 
 /* A sorting function to put stocks in the order we should prioritize investing in them */
-let purchaseOrder = (a, b) => (Math.ceil(a.timeToCoverTheSpread()) - Math.ceil(b.timeToCoverTheSpread())) || (b.absROI() - a.absROI());
+let purchaseOrder = (a, b) => (Math.ceil(a.timeToCoverTheSpread()) - Math.ceil(b.timeToCoverTheSpread())) || (b.absReturn() - a.absReturn());
 
 /* Generic helper for dodging the hefty RAM requirements of stock functions by spawning a temporary script to collect info for us. */
 let getStockInfoDict = async (ns, stockFuncion) => await getNsDataThroughFile(ns,
@@ -185,8 +185,7 @@ async function initAllStocks(ns, allStockSymbols) {
         sym: s,
         maxShares: dictMaxShares[s], // Value never changes once retrieved
         expectedReturn: function () { return this.vol * (this.prob - 0.5); }, // How much holdings are expected to appreciate (or depreciate) in the future
-        expectedROI: function () { return this.expectedReturn() * (1 - this.spread_pct); }, // Expected return of a purchase including the spread between ask and bid price.
-        absROI: function () { return Math.abs(this.expectedROI()); }, // Appropriate to use when can just as well buy a short position as a long position
+        absReturn: function () { return Math.abs(this.expectedReturn()); }, // Appropriate to use when can just as well buy a short position as a long position
         bullish: function () { return this.prob > 0.5 },
         bearish: function () { return !this.bullish(); },
         ownedShares: function () { return this.sharesLong + this.sharesShort; },
@@ -196,7 +195,7 @@ async function initAllStocks(ns, allStockSymbols) {
         positionValue: function () { return this.positionValueLong() + this.positionValueShort(); },
         // How many stock market ticks must occur at the current expected return before we regain the value lost by the spread between buy and sell prices.
         // This can be derived by taking the compound interest formula (future = current * (1 + expected_return) ^ n) and solving for n
-        timeToCoverTheSpread: function () { return Math.log(this.ask_price / this.bid_price) / Math.log(1 + Math.abs(this.expectedReturn())); },
+        timeToCoverTheSpread: function () { return Math.log(this.ask_price / this.bid_price) / Math.log(1 + this.absReturn()); },
         // We should not buy this stock within this many ticks of a Market cycle, or we risk being forced to sell due to a probability inversion, and losing money due to the spread
         blackoutWindow: function () { return Math.ceil(this.timeToCoverTheSpread()); },
         // Pre-4s properties used for forecasting
@@ -299,12 +298,12 @@ async function updateForecast(ns, allStocks, has4s) {
         stk.longTermForecast = forecast(stk.priceHistory.slice(0, probWindowLength));
         if (!has4s) stk.prob = stk.longTermForecast;
         const signalStrength = 1 + (stk.bullish() ? (stk.nearTermForecast > stk.prob ? 1 : 0) + (stk.prob > 0.8 ? 1 : 0) : (stk.nearTermForecast < stk.prob ? 1 : 0) + (stk.prob < 0.2 ? 1 : 0));
-        if (prepSummary) { // Example: AERO  ++   Prob: 54% (t51: 54%, t10: 67%) tLast⇄:190 Vol:0.640% ER: 2.778BP Spread:1.784% ROI:2.728BP ttProfit: 65 Pos: 14.7M long  (held 189 ticks)
+        if (prepSummary) { // Example: AERO  ++   Prob: 54% (t51: 54%, t10: 67%) tLast⇄:190 Vol:0.640% ER: 2.778BP Spread:1.784% ttProfit: 65 Pos: 14.7M long  (held 189 ticks)
             stk.debugLog = `${stk.sym.padEnd(5, ' ')} ${(stk.bullish() ? '+' : '-').repeat(signalStrength).padEnd(3)} ` +
                 `Prob:${(stk.prob * 100).toFixed(0).padStart(3)}% (t${probWindowLength.toFixed(0).padStart(2)}:${(stk.longTermForecast * 100).toFixed(0).padStart(3)}%, ` +
                 `t${Math.min(stk.priceHistory.length, nearTermForecastWindowLength).toFixed(0).padStart(2)}:${(stk.nearTermForecast * 100).toFixed(0).padStart(3)}%) ` +
                 `tLast⇄:${(stk.lastInversion + 1).toFixed(0).padStart(3)} Vol:${(stk.vol * 100).toFixed(2)}% ER:${formatBP(stk.expectedReturn()).padStart(8)} ` +
-                `Spread:${(stk.spread_pct * 100).toFixed(2)}% ROI:${formatBP(stk.absROI()).padStart(7)} ttProfit:${stk.blackoutWindow().toFixed(0).padStart(3)}`;
+                `Spread:${(stk.spread_pct * 100).toFixed(2)}% ttProfit:${stk.blackoutWindow().toFixed(0).padStart(3)}`;
             if (stk.owned()) stk.debugLog += ` Pos: ${formatNumberShort(stk.ownedShares(), 3, 1)} (${stk.ownedShares() == stk.maxShares ? 'max' :
                 (100 * stk.ownedShares() / stk.maxShares).toFixed(0).padStart(2)}%) ${stk.sharesLong > 0 ? 'long ' : 'short'} (held ${stk.ticksHeld} ticks)`;
             if (stk.possibleInversionDetected) stk.debugLog += ' ⇄⇄⇄';
@@ -328,10 +327,10 @@ let launchSummaryTail = async ns => {
     let summaryTailScript = summaryFile.replace('.txt', '-tail.js');
     //await getNsDataThroughFile(ns, `ns.scriptKill('${summaryTailScript}', ns.getHostname())`, summaryTailScript.replace('.js', '-kill.js')); // Only needed if we're changing the script below
     await runCommand(ns, `ns.disableLog('sleep'); ns.tail(); let lastRead = '';
-        while (true) {
+        while (true) { 
             let read = ns.read('${summaryFile}');
             if (lastRead != read) ns.print(lastRead = read);
-            await ns.sleep(1000);
+            await ns.sleep(1000); 
         }`, summaryTailScript);
 }
 
@@ -342,7 +341,7 @@ let sellStockWrapper = async (ns, sym, numShares) => await transactStock(ns, sym
 let sellShortWrapper = async (ns, sym, numShares) => await transactStock(ns, sym, numShares, 'sellShort'); // ns.stock.sellShort(sym, numShares);
 let transactStock = async (ns, sym, numShares, action) => await getNsDataThroughFile(ns, `ns.stock.${action}('${sym}', ${numShares})`, '/Temp/transact-stock.txt'); // ns.stock.sellShort(sym, numShares);
 
-/** @param {NS} ns
+/** @param {NS} ns 
  * Automatically buys either a short or long position depending on the outlook of the stock. */
 async function doBuy(ns, stk, sharesBought) {
     // We include -2*commission in the "holdings value" of our stock, but if we make repeated purchases of the same stock, we have to track
@@ -369,7 +368,7 @@ async function doBuy(ns, stk, sharesBought) {
     return sharesBought * price + commission; // Return the amount spent on the transaction so it can be subtracted from our cash on hand
 }
 
-/** @param {NS} ns
+/** @param {NS} ns 
  * Sell our current position in this stock. */
 async function doSellAll(ns, stk) {
     let long = stk.sharesLong > 0;
@@ -407,8 +406,8 @@ let log = (ns, message, tprint = false, toastStyle = "") => {
 }
 
 function doStatusUpdate(ns, stocks, myStocks) {
-    let maxReturnBP = 10000 * Math.max(...myStocks.map(s => Math.abs(s.expectedReturn()))); // The largest return (in basis points) in our portfolio
-    let minReturnBP = 10000 * Math.min(...myStocks.map(s => Math.abs(s.expectedReturn()))); // The smallest return (in basis points) in our portfolio
+    let maxReturnBP = 10000 * Math.max(...myStocks.map(s => s.absReturn())); // The largest return (in basis points) in our portfolio
+    let minReturnBP = 10000 * Math.min(...myStocks.map(s => s.absReturn())); // The smallest return (in basis points) in our portfolio
     let est_holdings_cost = myStocks.reduce((sum, stk) => sum + (stk.owned() ? commission : 0) +
         stk.sharesLong * stk.boughtPrice + stk.sharesShort * stk.boughtPriceShort, 0);
     let liquidation_value = myStocks.reduce((sum, stk) => sum - (stk.owned() ? commission : 0) + stk.positionValue(), 0);
