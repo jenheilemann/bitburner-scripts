@@ -1,6 +1,8 @@
-import { getNsDataThroughFile as fetch } from './helpers.js'
+// import { getNsDataThroughFile as fetch } from './helpers.js'
 
-/** @param {NS} ns **/
+/**
+ * @param {NS} ns
+ **/
 export async function main(ns) {
   const doc = eval('document')
   const hook0 = doc.getElementById('overview-extra-hook-0')

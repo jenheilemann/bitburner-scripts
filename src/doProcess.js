@@ -9,7 +9,7 @@
  *
  * You can also alias it (alias do='run doProcess.js') for even more deliciousness:
  *
- *    do ns.tprint(ns.ps('foodnstuff'))
+ *    do ns.ps('foodnstuff')
  **/
 
 import {
@@ -18,5 +18,6 @@ import {
 
 /** @param {NS} ns **/
 export async function main(ns) {
-  await runCommand(ns, ns.args.join(" "))
+  // run the command in verbose mode, since that's usually what I want anyway
+  await runCommand(ns, ns.args.join(" "), undefined, true)
 }
