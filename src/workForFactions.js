@@ -1,7 +1,8 @@
 import {
   getNsDataThroughFile,
   runCommand,
-  disableLogs
+  disableLogs,
+  announce,
 } from 'helpers.js'
 import {
   formatDuration,
@@ -326,23 +327,31 @@ export async function main(ns) {
   }
 }
 
-/** @param {NS} ns
- * Prints a message, and also toasts it! */
-function announce(ns, log, toastVariant = 'info') {
-  if (!ns.print || !ns.toast) return; // If an error is caught/logged because the script is being killed, ns becomes undefined
-  ns.print(`${toastVariant.toUpperCase()}: ${log}`);
-  ns.toast(log, toastVariant);
-}
-
 const requiredMoneyByFaction = {
-  "Tian Di Hui": 1E6, "Sector-12": 15E6, "Chongqing": 20E6, "New Tokyo": 20E6, "Ishima": 30E6, "Aevum": 40E6, "Volhaven": 50E6,
-  "Slum Snakes": 1E6, "Silhouette": 15E6, "The Syndicate": 10E6, "The Covenant": 75E9, "Daedalus": 100E9, "Illuminati": 150E9
-};
-const requiredBackdoorByFaction = { "CyberSec": "CSEC", "NiteSec": "avmnite-02h", "The Black Hand": "I.I.I.I", "BitRunners": "run4theh111z", "Fulcrum Secret Technologies": "fulcrumassets" };
-const requiredHackByFaction = { "Tian Di Hui": 50, "Netburners": 80, "Speakers for the Dead": 100, "The Dark Army": 300, "The Syndicate": 200, "The Covenant": 850, "Daedalus": 2500, "Illuminati": 1500 };
-const requiredCombatByFaction = { "Slum Snakes": 30, "Tetrads": 75, "Speakers for the Dead": 300, "The Dark Army": 300, "The Syndicate": 200, "The Covenant": 850, "Daedalus": 1500, "Illuminati": 1200 };
-const requiredKarmaByFaction = { "Slum Snakes": 9, "Tetrads": 18, "Silhouette": 22, "Speakers for the Dead": 45, "The Dark Army": 45, "The Syndicate": 90 };
-const requiredKillsByFaction = { "Speakers for the Dead": 30, "The Dark Army": 5 };
+  "Tian Di Hui": 1E6, "Sector-12": 15E6, "Chongqing": 20E6, "New Tokyo": 20E6,
+  "Ishima": 30E6, "Aevum": 40E6, "Volhaven": 50E6, "Slum Snakes": 1E6,
+  "Silhouette": 15E6, "The Syndicate": 10E6, "The Covenant": 75E9,
+  "Daedalus": 100E9, "Illuminati": 150E9
+}
+const requiredBackdoorByFaction = {
+  "CyberSec": "CSEC", "NiteSec": "avmnite-02h", "The Black Hand": "I.I.I.I",
+  "BitRunners": "run4theh111z", "Fulcrum Secret Technologies": "fulcrumassets"
+}
+const requiredHackByFaction = {
+  "Tian Di Hui": 50, "Netburners": 80, "Speakers for the Dead": 100,
+  "The Dark Army": 300, "The Syndicate": 200, "The Covenant": 850,
+  "Daedalus": 2500, "Illuminati": 1500
+}
+const requiredCombatByFaction = {
+  "Slum Snakes": 30, "Tetrads": 75, "Speakers for the Dead": 300,
+  "The Dark Army": 300, "The Syndicate": 200, "The Covenant": 850,
+  "Daedalus": 1500, "Illuminati": 1200
+}
+const requiredKarmaByFaction = {
+  "Slum Snakes": 9, "Tetrads": 18, "Silhouette": 22,
+  "Speakers for the Dead": 45, "The Dark Army": 45, "The Syndicate": 90
+}
+const requiredKillsByFaction = {"Speakers for the Dead": 30, "The Dark Army": 5}
 
 /** @param {NS} ns */
 async function earnFactionInvite(ns, factionName) {
@@ -359,7 +368,8 @@ async function earnFactionInvite(ns, factionName) {
   if (["Aevum", "Sector-12"].includes(factionName) && (precludingFaction = ["Chongqing", "New Tokyo", "Ishima", "Volhaven"].find(f => joinedFactions.includes(f))) ||
     ["Chongqing", "New Tokyo", "Ishima"].includes(factionName) && (precludingFaction = ["Aevum", "Sector-12", "Volhaven"].find(f => joinedFactions.includes(f))) ||
     ["Volhaven"].includes(factionName) && (precludingFaction = ["Aevum", "Sector-12", "Chongqing", "New Tokyo", "Ishima"].find(f => joinedFactions.includes(f))))
-    return ns.print(`${reasonPrefix} precluding faction "${precludingFaction}"" has been joined.`);
+    return ns.print(`${reasonPrefix} precluding faction "${precludingFaction}" has been joined.`)
+
   // Skip factions for which money/hack level requirements aren't met. We do not attempt to "train up" for these things (happens automatically outside this script)
   let requirement;
   if ((requirement = requiredMoneyByFaction[factionName]) && player.money < requirement)
@@ -369,7 +379,6 @@ async function earnFactionInvite(ns, factionName) {
   if ((requirement = requiredBackdoorByFaction[factionName]) && player.hacking < ns.getServerRequiredHackingLevel(requirement))
     return ns.print(`${reasonPrefix} you must fist backdoor ${requirement}, which needs hack: ${ns.getServerRequiredHackingLevel(requirement)}, Have: ${player.hacking}`);
   // TODO: Do backdoor if we can but haven't yet?
-  //await fetch(ns, `ns.connect('fulcrumassets'); await ns.installBackdoor(); ns.connect(home)`, '/Temp/backdoor-fulcrum.txt')
 
   // See if we can take action to earn an invite for the next faction under consideration
   let workedForInvite = false;
@@ -719,6 +728,11 @@ async function workForMegacorpFactionInvite(ns, factionName, waitForInvite) {
   if (player.factions.includes(factionName)) {
     // Only return true if we did work to earn a new faction invite
     return false
+  }
+
+  var invitations = await fetch(ns, 'ns.checkFactionInvitations()')
+  if (invitations.includes(factionName)) {
+    return await tryJoinFaction(ns, factionName)
   }
 
   // TODO: In some scenarios, the best career path may require combat stats,

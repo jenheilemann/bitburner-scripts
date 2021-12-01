@@ -120,8 +120,7 @@ export function fetchPlayer() {
 /** @param {NS} ns
  * Prints a message, and also toasts it! */
 export function announce(ns, log, toastVariant = 'info') {
-  // If an error is caught/logged because the script is being killed, ns
-  // becomes undefined
+  // If an error is caught because the script is killed, ns becomes undefined
   if (!ns.print || !ns.toast) return;
   ns.print(`${toastVariant.toUpperCase()}: ${log}`);
   ns.toast(log, toastVariant.toLowerCase());
