@@ -3,12 +3,10 @@ import {
   runCommand,
   disableLogs,
   announce,
-} from 'helpers.js'
-import {
   formatDuration,
   formatMoney,
   formatNumber,
-} from '/insight/helper.js'
+} from 'helpers.js'
 
 async function fetch(ns, cmd, filename) {
   return await getNsDataThroughFile(ns, cmd, filename)

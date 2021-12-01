@@ -117,8 +117,11 @@ export function fetchPlayer() {
 }
 
 
-/** @param {NS} ns
- * Prints a message, and also toasts it! */
+/**
+ * @param {NS} ns
+ * @cost 0 GB
+ * Prints a message, and also toasts it!
+ */
 export function announce(ns, log, toastVariant = 'info') {
   // If an error is caught because the script is killed, ns becomes undefined
   if (!ns.print || !ns.toast) return;
@@ -131,7 +134,7 @@ export function announce(ns, log, toastVariant = 'info') {
 /**
  * @param {array} data is an array of objects
  * @param {string|function} key is the key, property accessor, or callback
- * function to group by
+ *                          function to group by
 **/
 export function groupBy(data, key) {
   // reduce runs this anonymous function on each element of `data`
@@ -153,6 +156,96 @@ export function groupBy(data, key) {
   }, {}); // {} is the initial value of the storage
 };
 
+
+// All of the below functions are stolen & reformatted/refactored from Insight's
+// helper. They are required to make his scripts work.
+
+/**
+ * Return a formatted representation of the monetary amount using scale sympols
+ * (e.g. $6.50M)
+ * @param {number} num - The number to format
+ * @param {number=} maxSigFigures - (default: 6) The maximum significant figures
+ *                  you wish to see (e.g. 123, 12.3 and 1.23 all have 3
+ *                  significant figures)
+ * @param {number=} maxDecimalPlaces - (default: 3) The maximum decimal places
+ *                  you wish to see, regardless of significant figures. (e.g.
+ *                  12.3, 1.2, 0.1 all have 1 decimal)
+ **/
+export function formatMoney(num, maxSigFigures = 6, maxDecimalPlaces = 3) {
+    let numberShort = formatNumberShort(num, maxSigFigures, maxDecimalPlaces)
+    return num >= 0 ? "$" + numberShort : numberShort.replace("-", "-$")
+}
+
+/**
+ * Return a formatted representation of the monetary amount using scale sympols
+ * (e.g. 6.50M)
+ * @param {number} num - The number to format
+ * @param {number=} maxSigFigures - (default: 6) The maximum significant figures
+ *                  you wish to see (e.g. 123, 12.3 and 1.23 all have 3
+ *                  significant figures)
+ * @param {number=} maxDecimalPlaces - (default: 3) The maximum decimal places
+ *                  you wish to see, regardless of significant figures. (e.g.
+ *                  12.3, 1.2, 0.1 all have 1 decimal)
+ **/
+export function formatNumberShort(num, maxSigFigures = 6, maxDecimalPlaces = 3) {
+  const symbols = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc",
+                    "E30", "E33", "E36", "E39"]
+  const sign = Math.sign(num) < 0 ? "-" : ""
+  for (var i = 0, num = Math.abs(num); num >= 1000 && i < symbols.length; i++) {
+    num /= 1000
+  }
+  const sigFigs = maxSigFigures - Math.floor(1 + Math.log10(num))
+  const fixed = num.toFixed(Math.max(0, Math.min(maxDecimalPlaces, sigFigs)))
+  return sign + fixed + symbols[i]
+}
+
+/**
+ * Return a number formatted with the specified number of significatnt figures
+ * or decimal places, whichever is more limiting.
+ * @param {number} num - The number to format
+ * @param {number=} minSigFigures - (default: 6) The minimum significant figures
+ *                  you wish to see (e.g. 123, 12.3 and 1.23 all have 3
+ *                  significant figures)
+ * @param {number=} minDecimalPlaces - (default: 3) The minimum decimal places
+ *                  you wish to see, regardless of significant figures. (e.g.
+ *                  12.3, 1.2, 0.1 all have 1 decimal)
+ **/
+export function formatNumber(num, minSigFigures = 3, minDecimalPlaces = 1) {
+  if ( num == 0.0 )
+    return  num
+
+  let sigFigs = Math.max(0, minSigFigures - Math.ceil(Math.log10(num)))
+  return num.toFixed(Math.max(minDecimalPlaces, sigFigs))
+}
+
+/**
+ * Format a duration (in milliseconds) as e.g. '1h 21m 6s' for big durations or
+ * e.g '12.5s' / '23ms' for small durations
+ **/
+export function formatDuration(duration) {
+    if (duration < 1000) return `${duration.toFixed(0)}ms`
+    const portions = [];
+    const msInHour = 1000 * 60 * 60;
+    const hours = Math.trunc(duration / msInHour);
+    if (hours > 0) {
+        portions.push(hours + 'h');
+        duration -= (hours * msInHour);
+    }
+    const msInMinute = 1000 * 60;
+    const minutes = Math.trunc(duration / msInMinute);
+    if (minutes > 0) {
+        portions.push(minutes + 'm');
+        duration -= (minutes * msInMinute);
+    }
+    let seconds = (duration / 1000.0)
+    // Include millisecond precision if we're on the order of seconds
+    seconds = (hours == 0 && minutes == 0) ? seconds.toPrecision(3) : seconds.toFixed(0);
+    if (seconds > 0) {
+        portions.push(seconds + 's');
+        duration -= (minutes * 1000);
+    }
+    return portions.join(' ');
+}
 
 /** Generate a hashCode for a string that is pretty unique most of the time */
 export function hashCode(s) {
