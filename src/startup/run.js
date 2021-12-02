@@ -3,13 +3,20 @@ import {
         disableLogs,
         getNsDataThroughFile as fetch,
         setLSItem,
+        clearLSItem,
       } from 'helpers.js'
+
+const valuesToRemove = ['nmap', 'reserve', 'player']
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
   disableLogs(ns, ["sleep"])
+
+  valuesToRemove.map((value) => localStorage.removeItem(value))
+  await ns.sleep(5)
+  ns.tprint(`Cleaned up localStorage.`)
 
   ns.tprint(`Fetching bitnode multipliers`)
   const bn = await fetch(ns, `ns.getBitNodeMultipliers()`, '/Temp/bitnode.txt')

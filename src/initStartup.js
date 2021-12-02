@@ -1,4 +1,3 @@
-const valuesToRemove = ['jh_network_map', 'jh_reserve', 'jh_player']
 const filesToDownload = [
   '/contracts/arrayJumpingSolver.js',
   '/contracts/failSolver.js',
@@ -70,10 +69,6 @@ export async function main(ns) {
   ns.tprint('Killed and deleted old scripts.')
   await ns.sleep(50)
   ns.tprint(`Files downloaded.`)
-
-  valuesToRemove.map((value) => localStorage.removeItem(value))
-  await ns.sleep(50)
-  ns.tprint(`Cleaned up localStorage.`)
 
   await ns.sleep(50)
   ns.tprint(`Starting startup/run.js`)
