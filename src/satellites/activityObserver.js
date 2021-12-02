@@ -9,8 +9,8 @@ export async function main(ns) {
 
   // if I set the working key within the last hour, don't change anything
   if ( getLSItem('working') > Date.now() - hour ) {
-    ns.kill(crimePS.pid, 'home')
-    ns.kill(factionPS.pid, 'home')
+    if (crimePS) ns.kill(crimePS.pid, 'home')
+    if (factionPS) ns.kill(factionPS.pid, 'home')
     return
   }
 
