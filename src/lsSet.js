@@ -30,7 +30,7 @@ export async function main(ns) {
     return
   }
 
-  if ( ns.args._.length < 2 ) {
+  if ( ns.args.length < 2 ) {
     ns.tprint(`This script needs a value!`)
     ns.tprint('like: `run lsSet.js reserve 2e6`')
     return
