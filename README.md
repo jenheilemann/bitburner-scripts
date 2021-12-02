@@ -32,3 +32,33 @@ export async function main(ns) {
 ```
 
 Save and exit nano and write in console: `run start.js` then press enter.
+
+## My aliases
+
+```js
+// startup everything. If you want to skip downloading/overwriting files, do `run startup/run.js` instead
+alias start="run start.js"
+
+// run arbitrary ns processes and helper functions, see doProcess for examples
+alias do="run doProcess.js"
+
+// connect to any server by name
+alias find="run find.js"
+
+// get server data about what the best server to hack might be right now
+alias best="run bestHack.js"
+
+// quickly tail the first personal server's moneymaking script
+alias tail0="connect pserv-0; tail breadwinner.js; home"
+
+// manipulate localStorage
+alias get="run lsGet.js"
+alias set="run lsSet.js"
+
+// force crime.js/workForFactions.js to stop, so you can play in-game
+alias working="run lsSet.js working"
+alias done="run lsClear.js working"
+
+// set a reserve amount manually, above reseved money for buying programs
+alias reserve="run lsSet.js reserve"
+```
