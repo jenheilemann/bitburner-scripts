@@ -1,8 +1,8 @@
 import { lsKeys } from 'constants.js'
-import { getLSItem } from 'helpers.js'
+import { getLSItem, formatMoney, formatNumberShort } from 'helpers.js'
 
-export function autocomplete() {
-  return Object.keys(lsKeys)
+export function autocomplete(data) {
+  return Object.keys(lsKeys).concat(data.servers)
 }
 
 /**
@@ -20,17 +20,28 @@ export async function main(ns) {
     return
   }
 
-  let key = args._[0]
+  let keys = args._.slice()
+  let key = keys.shift()
   if ( !lsKeys[key.toUpperCase()] ) {
     ns.tprint(`That is not a recognized key. Use one of: `)
     ns.tprint(Object.keys(lsKeys).join(", "))
     return
   }
 
+  let value = getLSItem(key), nextKey
+  while ( keys.length > 0 ) {
+    key = keys.shift()
+    value = value[key]
+  }
+
+  if (key == 'reserve') value = formatMoney(value)
+  if (key.toLowerCase().includes('money') ) value = formatMoney(value)
+  if (typeof value == 'number') value = formatNumberShort(value, 6, 0)
+
   if ( args.p || args.pretty ) {
-    ns.tprint(`\n\r${JSON.stringify(getLSItem(key), null, 2)}`)
+    ns.tprint(`\n\r${JSON.stringify(value, null, 2)}`)
   } else {
-    ns.tprint(getLSItem(key))
+    ns.tprint(value)
   }
 }
 
