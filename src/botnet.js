@@ -2,6 +2,7 @@ import { networkMapFree } from 'network.js'
 import {
           runCommandAndWait,
           disableLogs,
+          announce,
         } from 'helpers.js'
 // magic number (Ram required to run breadwinner.js)
 const hackingScriptSize = 1.7
@@ -15,7 +16,7 @@ export async function main(ns) {
 
   let servers = Object.values(await networkMapFree())
     .filter(s => s.data.hasAdminRights &&
-                s.maxRam > 0 &&
+                s.name != 'home' &&
                 s.maxRam - s.data.ramUsed >= hackingScriptSize &&
                 !s.files.includes(scripts[0]) )
 
@@ -26,11 +27,10 @@ export async function main(ns) {
 
   ns.tprint("Zombifying " + servers.length + " servers")
   for (let server of servers) {
-    if (server.name !== 'home') {
-      await zombify(ns, server.name)
-      await ns.sleep(200)
-    }
+    await zombify(ns, server.name)
+    await ns.sleep(200)
   }
+  announce(ns, `Zombified servers: ${servers.map(name).join(', ')}`)
 }
 
 async function zombify(ns, server) {

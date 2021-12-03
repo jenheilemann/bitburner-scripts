@@ -62,7 +62,6 @@ async function targetServer(ns, name, nmap) {
   ns.print(`${formatNumber(target.security)} security`)
   ns.print(`${formatMoney(target.data.moneyAvailable)}`)
 
-
   let [hackThreads, hackTime, hackedMoney] = await hackInfo(ns, target)
   if (hackThreads == -1) return
   let [growThreads, growTime] = await growthInfo(ns, target, hackedMoney )
