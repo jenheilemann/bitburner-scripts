@@ -15,9 +15,9 @@ export async function main(ns) {
 
   let servers = Object.values(await networkMapFree())
     .filter(s => s.data.hasAdminRights &&
-                !s.data.purchasedByPlayer &&
                 s.maxRam > 0 &&
-                s.maxRam - s.data.ramUsed >= hackingScriptSize )
+                s.maxRam - s.data.ramUsed >= hackingScriptSize &&
+                !s.files.includes(scripts[0]) )
 
   // early return, if there are no servers no need to do anything else
   if ( servers.length == 0 ) {

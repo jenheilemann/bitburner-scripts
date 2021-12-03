@@ -61,6 +61,7 @@ export class BestHack {
     let filtered = Object.values(scores)
       .filter((server) => server.hackingLvl <= player.hacking &&
                           server.data.hasAdminRights &&
+                          server.maxMoney > 0 &&
                           ns.formulas.hacking.weakenTime(server.data, player) < maxWeakenTime)
     return filtered
   }

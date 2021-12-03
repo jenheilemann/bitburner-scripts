@@ -14,7 +14,7 @@ const valuesToRemove = ['nmap', 'reserve', 'player']
 export async function main(ns) {
   disableLogs(ns, ["sleep"])
 
-  valuesToRemove.map((value) => localStorage.removeItem(value))
+  valuesToRemove.map((value) => clearLSItem(value))
   await ns.sleep(5)
   ns.tprint(`Cleaned up localStorage.`)
 

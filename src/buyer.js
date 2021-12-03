@@ -1,13 +1,9 @@
 import { BestHack } from 'bestHack.js'
 import { networkMap, fetchServer } from 'network.js'
 import { waitForCash,
-         fetchPlayer,
          clearLSItem,
          getNsDataThroughFile as fetch,
-         runCommandAndWait,
          disableLogs } from 'helpers.js'
-import { root } from 'rooter.js'
-const script = "breadwinner.js"
 const scripts = ['hack.js', 'grow.js', 'weaken.js']
 const argsSchema = [
   ['target', 'dynamic'],
@@ -17,20 +13,6 @@ const argsSchema = [
 export function autocomplete(data, args) {
   data.flags(argsSchema)
   return data.servers
-}
-
-/**
- * @param {NS} ns
- * @param {string} target (if selected)
- * @return {object} server data
- */
-async function findTarget(ns, target) {
-  if (target != 'dynamic') {
-    return await fetchServer(ns, target)
-  }
-  const searcher = new BestHack(await networkMap(ns))
-  const player = fetchPlayer()
-  return searcher.findBestPerLevel(ns, player)
 }
 
 /**
@@ -70,11 +52,6 @@ export async function main(ns) {
         ns.print(`${hostname} is large enough, with ${host.maxRam} GB ram`)
       }
     }
-
-    for (let script of scripts) {
-      await runCommandAndWait(ns, `ns.scp('${script}', "home", '${hostname}')`)
-    }
-
     await ns.sleep(2000)
   }
   ns.tprint("I've bought all the servers I can. It's up to you now.")

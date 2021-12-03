@@ -48,7 +48,7 @@ async function targetServer(ns, name) {
     await findThreadsAndRun(ns, nmap, 'weaken.js', weakenThreads, target.name)
   }
   if ( target.data.moneyAvailable < target.maxMoney * 0.1 ) {
-    let multiplier = target.maxMoney/(Math.max(1, target.data.moneyAvailable))
+    let multiplier = target.maxMoney/(Math.max(1.1, target.data.moneyAvailable))
     let growthThreads = Math.ceil(await fetch(ns, `ns.growthAnalyze('${target.name}',${multiplier})`))
     ns.print(`**** Need to grow ${target.name} by ${formatNumber(multiplier * 100)}%, ${growthThreads} threads`)
     await findThreadsAndRun(ns, nmap, 'grow.js', growthThreads, target.name)
@@ -130,7 +130,7 @@ async function hackInfo(ns, target) {
 async function growthInfo(ns, target, amountHacked) {
   const player = fetchPlayer()
   let time = ns.formulas.hacking.growTime(target.data, player) + bufferTime
-  let multiplier = target.maxMoney/(Math.max(1, target.data.moneyAvailable - amountHacked))
+  let multiplier = target.maxMoney/(Math.max(1.1, target.data.moneyAvailable - amountHacked))
   let threads = Math.ceil(await fetch(ns, `ns.growthAnalyze('${target.name}',${multiplier})`))
   let security = await fetch(ns,`ns.growthAnalyzeSecurity(${threads})`)
   ns.print(`Grow time: ${formatDuration(time)} multiplier: ${multiplier} security: ${security}`)
