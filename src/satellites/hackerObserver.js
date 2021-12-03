@@ -27,6 +27,11 @@ export async function main(ns) {
   const player = fetchPlayer()
   const searcher = new BestHack(nmap)
   const targets = searcher.findTopN(ns, player, 5)
+  if ( !targets.some(s => s.name === 'joesguns') ) {
+    targets.splice(1, 0, {name: 'joesGuns'})
+    targets.pop()
+  }
+
   for (let server of targets) {
     ns.print(`Targeting ${server.name} ......................`)
     await targetServer(ns, server.name)
@@ -56,6 +61,7 @@ async function targetServer(ns, name) {
   if ( weakenAmt > 2 || target.data.moneyAvailable < target.maxMoney * 0.1 ) {
     return
   }
+  ns.tail()
   ns.print(`**** No need to weaken or grow ${target.name}`)
   ns.print(`${formatNumber(target.security)} security`)
   ns.print(`${formatMoney(target.data.moneyAvailable)}`)
