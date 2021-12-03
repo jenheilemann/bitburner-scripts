@@ -26,7 +26,6 @@ export async function main(ns) {
   const ram = Math.pow(2, args.size)
   const limit = await fetch(ns, `ns.getPurchasedServerLimit()`)
   const cost = await fetch(ns, `ns.getPurchasedServerCost(${ram})`)
-  const ramRequired = await fetch(ns, `ns.getScriptRam('${script}')`)
   ns.tprint("Buying " + ram + "GB RAM servers")
   ns.tprint(`${limit} servers for ${ns.nFormat(cost, "$0.000a")} each`)
 
