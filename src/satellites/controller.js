@@ -26,11 +26,12 @@ const timers = [
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
-  let first = true
+  let first = true, proc
 
   while(true) {
     for ( const timer of timers) {
-      if ( Date.now() > timer.last + timer.freq ) {
+      proc = ns.ps('home').find(p => p.filename == timer.file)
+      if (!proc && Date.now() > timer.last + timer.freq ) {
         await tryRun(ns, () => ns.run(timer.file, 1))
         timer.last = Date.now()
       }
