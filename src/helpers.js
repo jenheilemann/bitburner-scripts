@@ -223,6 +223,15 @@ export function formatNumber(num, minSigFigures = 3, minDecimalPlaces = 1) {
 }
 
 /**
+ * Formats some RAM amount as a round number of GB with thousands separators
+ * e.g. `1,028 GB`
+ * @param {number} num - the number to format
+ */
+export function formatRam(num) {
+  return `${Math.round(num).toLocaleString()} GB`;
+}
+
+/**
  * Format a duration (in milliseconds) as e.g. '1h 21m 6s' for big durations or
  * e.g '12.5s' / '23ms' for small durations
  **/
