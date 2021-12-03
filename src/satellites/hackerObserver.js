@@ -58,7 +58,6 @@ async function targetServer(ns, name, nmap) {
     ns.print(`INFO: Pre-growing/-weakening ${target.name}`)
     return
   }
-  ns.tail()
   ns.print(`SUCCESS: **** No need to weaken or grow ${target.name}`)
   ns.print(`${formatNumber(target.security)} security`)
   ns.print(`${formatMoney(target.data.moneyAvailable)}`)
