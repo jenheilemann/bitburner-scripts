@@ -29,13 +29,42 @@ export class BestHack {
    * @param {object} player
    */
   findBestPerLevel(ns, player) {
+    let filtered = this.scoreAndFilterServers(ns, player)
+    return filtered.reduce((prev, current) => (prev.score > current.score) ? prev : current)
+  }
+
+  /**
+   * @param {NS} ns
+   * @param {object} player
+   */
+  findTop(ns, player) {
+    let filtered = this.scoreAndFilterServers(ns, player)
+    return filtered.sort((a, b) => b.score - a.score)
+  }
+
+  /**
+   * @param {NS} ns
+   * @param {object} player
+   * @param {number} count
+   */
+  findTopN(ns, player, count) {
+    let filtered = this.findTop(ns, player)
+    return filtered.slice(0, count)
+  }
+
+  /**
+   * @param {NS} ns
+   * @param {object} player
+   */
+  scoreAndFilterServers(ns, player) {
     let scores = this.calcServerScores()
     let filtered = Object.values(scores)
       .filter((server) => server.hackingLvl <= player.hacking &&
                           server.data.hasAdminRights &&
                           ns.formulas.hacking.weakenTime(server.data, player) < maxWeakenTime)
-    return filtered.reduce((prev, current) => (prev.score > current.score) ? prev : current)
+    return filtered
   }
+
   calcServerScores() {
     if (this.calcsRun) {
       return this.serverData
