@@ -1,5 +1,6 @@
 import { findPath } from 'network.js'
 import { factionServers } from 'constants.js'
+import { announce } from 'helpers.js'
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -21,5 +22,6 @@ export async function backdoor(ns, target) {
 
   path.forEach((step) => ns.connect(step))
   await ns.installBackdoor()
+  announce(ns, `Backdoor installed on ${target}`)
   ns.connect('home')
 }
