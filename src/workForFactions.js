@@ -720,7 +720,7 @@ async function workForMegacorpFactionInvite(ns, factionName, waitForInvite) {
   // How much Hack/Cha is needed for promotion above the requirement for the job
   const statModifier = companyConfig?.statModifier || 0
   // Required to unlock the faction
-  const repRequired = companyConfig?.repRequired || 200000
+  const repRequired = companyConfig?.repRequiredForFaction || 200000
 
   let player = ns.getPlayer()
   if (player.factions.includes(factionName)) {
