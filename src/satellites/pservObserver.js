@@ -1,6 +1,7 @@
 import {
   getNsDataThroughFile as fetch,
   runCommand,
+  formatRam,
 } from 'helpers.js'
 import { networkMapFree } from 'network.js'
 
@@ -19,14 +20,14 @@ export async function main(ns) {
 
   const nmap = await networkMapFree(ns)
   const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.data.purchasedByPlayer)
-  const currRam = currentServerSize(pservs)
+  const currRam = smallestCurrentServerSize(pservs)
   const nextRam = await nextRamSize(ns, currRam)
 
   if (nextRam == 0) {
     return
   }
 
-  ns.tprint(`Running buyer.js to purchase ${nextRam}`)
+  ns.tprint(`Running buyer.js to purchase ${formatRam(nextRam)} (currently: ${formatRam(currRam)})`)
   ns.tprint(` ns.spawn('buyer.js', 1, '--size', ${nextRam})`)
   await runCommand(ns, `for (let i = 0,pid = 0; pid == 0 && i < 10; i++) { pid = ns.spawn('buyer.js', 1, '--size', ${nextRam}) }`)
 }
@@ -34,8 +35,11 @@ export async function main(ns) {
 /**
  * @param {array} pservs
  **/
-function currentServerSize(pservs) {
-  return pservs.length > 0 ? pservs[0].maxRam : 0
+function smallestCurrentServerSize(pservs) {
+  if (pservs.length == 0)
+    return 0
+
+  return pservs.reduce(((prev, cur) => prev.maxRam < cur.maxRam ? prev : cur)).maxRam
 }
 
 /**

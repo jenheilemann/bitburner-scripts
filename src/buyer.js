@@ -21,7 +21,7 @@ export function autocomplete(data, args) {
 export async function main(ns) {
   disableLogs(ns, ['getServerMoneyAvailable', 'sleep'])
   const args = ns.flags(argsSchema)
-  let target, hostname, host, threads
+  let hostname, host
 
   const ram = Math.pow(2, args.size)
   const limit = await fetch(ns, `ns.getPurchasedServerLimit()`)
@@ -43,6 +43,9 @@ export async function main(ns) {
         ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram` +
           ` for ${ns.nFormat(cost, "$0.000a")}`)
         await waitForCash(ns, cost)
+        ns.print("Killing scripts on server: " + hostname)
+        await fetch(ns, `ns.killall('${hostname}')`)
+        await ns.sleep(50)
         ns.print("Destroying server: " + hostname)
         await fetch(ns, `ns.deleteServer('${hostname}')`)
         await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
