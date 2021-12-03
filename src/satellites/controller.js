@@ -12,13 +12,14 @@ const timers = [
   { file: '/satellites/serversObserver.js', freq: 0, last: 0 },
   { file: '/satellites/programObserver.js', freq: 2 * min, last: 0 },
   { file: '/satellites/backdoorObserver.js', freq: 30 * sec, last: 0 },
-  { file: '/satellites/contractsObserver.js', freq: 10 * min, last: 0 },
+  { file: '/satellites/contractsObserver.js', freq: 5 * min, last: 0 },
   { file: 'nuker.js', freq: 45 * sec, last: 0 },
   { file: 'botnet.js', freq: 30 * sec, last: 0 },
   { file: 'stats.js', freq: 1 * sec, last: 0 },
   { file: '/satellites/activityObserver.js', freq: 1 * min, last: Date.now() },
   { file: '/satellites/pservObserver.js', freq: 5 * min, last: Date.now() },
   { file: '/satellites/hackerObserver.js', freq: min, last: 0 },
+  { file: '/satellites/homeRamBuyer.js', freq: min, last: Date.now() },
 ]
 
 /**

@@ -23,6 +23,7 @@ const filesToDownload = [
   '/satellites/controller.js',
   '/satellites/factionObserver.js',
   '/satellites/hackerObserver.js',
+  '/satellites/homeRamBuyer.js',
   '/satellites/playerObserver.js',
   '/satellites/programBuyer.js',
   '/satellites/programObserver.js',
