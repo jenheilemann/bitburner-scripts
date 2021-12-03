@@ -351,11 +351,12 @@ export async function runCommand(ns, command, fileName, verbose, ...args) {
 export async function runCommandAndWait(ns, command, fileName, verbose, ...args) {
   checkNsInstance(ns)
   if (!verbose) disableLogs(ns, ['run', 'sleep'])
+  fileName = fileName || `/Temp/${hashCode(command)}-command.js`;
 
   const pid = await runCommand_Custom(ns,ns.run,command,fileName,verbose,...args)
   if (pid === 0) {
     throw (`runCommand returned no pid. (Insufficient RAM, or bad command?) ` +
-      `Destination: ${fileName} Command: ${commandToFile}`)
+      `Destination: ${fileName} Command: ${command}`)
   }
   await waitForProcessToComplete_Custom(ns, ns.isRunning, pid, verbose)
 }
