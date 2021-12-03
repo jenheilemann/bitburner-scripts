@@ -25,6 +25,10 @@ export async function main(ns) {
 
   ns.tprint(`Starting satellites/controller.js`)
   ns.run('/satellites/controller.js')
+  await ns.sleep(200)
+
+  ns.tprint(`Starting satellites/hackerObserver.js`)
+  ns.run('/satellites/hackerObserver.js')
 
   ns.tprint(`Startup completed. May your pillow always be cool.`)
 }

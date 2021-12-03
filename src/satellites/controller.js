@@ -18,7 +18,7 @@ const timers = [
   { file: 'stats.js', freq: 1 * sec, last: 0 },
   { file: '/satellites/activityObserver.js', freq: 1 * min, last: Date.now() },
   { file: '/satellites/pservObserver.js', freq: 5 * min, last: Date.now() },
-  { file: '/satellites/hackerObserver.js', freq: 5 * sec, last: 0 },
+  // { file: '/satellites/hackerObserver.js', freq: 5 * sec, last: 0 },
 ]
 
 /**
