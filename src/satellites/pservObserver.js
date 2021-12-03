@@ -2,6 +2,7 @@ import {
   getNsDataThroughFile as fetch,
   runCommand,
   formatRam,
+  announce,
 } from 'helpers.js'
 import { networkMapFree } from 'network.js'
 
@@ -27,7 +28,9 @@ export async function main(ns) {
     return
   }
 
-  ns.tprint(`Running buyer.js to purchase ${formatRam(nextRam)} (currently: ${formatRam(currRam)})`)
+  let msg = `Running buyer.js to purchase ${formatRam(2**nextRam)} (currently: ${formatRam(currRam)})`
+  announce(ns, msg)
+  ns.tprint(msg)
   ns.tprint(` ns.spawn('buyer.js', 1, '--size', ${nextRam})`)
   await runCommand(ns, `for (let i = 0,pid = 0; pid == 0 && i < 10; i++) { pid = ns.spawn('buyer.js', 1, '--size', ${nextRam}) }`)
 }

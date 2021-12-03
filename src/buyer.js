@@ -1,12 +1,11 @@
-import { BestHack } from 'bestHack.js'
-import { networkMap, fetchServer } from 'network.js'
+import { fetchServer } from 'network.js'
 import { waitForCash,
          clearLSItem,
          getNsDataThroughFile as fetch,
-         disableLogs } from 'helpers.js'
-const scripts = ['hack.js', 'grow.js', 'weaken.js']
+         disableLogs,
+         announce,
+        } from 'helpers.js'
 const argsSchema = [
-  ['target', 'dynamic'],
   ['size', 7],
 ]
 
@@ -28,6 +27,7 @@ export async function main(ns) {
   const cost = await fetch(ns, `ns.getPurchasedServerCost(${ram})`)
   ns.tprint("Buying " + ram + "GB RAM servers")
   ns.tprint(`${limit} servers for ${ns.nFormat(cost, "$0.000a")} each`)
+  let count = 0
 
   for (let i = 0; i < limit; i++) {
     hostname = "pserv-" + i
@@ -38,6 +38,7 @@ export async function main(ns) {
       await waitForCash(ns, cost)
       await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
       clearLSItem('nmap')
+      count++
     } else {
       if (host.maxRam < ram) {
         ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram` +
@@ -50,11 +51,15 @@ export async function main(ns) {
         await fetch(ns, `ns.deleteServer('${hostname}')`)
         await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
         clearLSItem('nmap')
+        count++
       } else {
         ns.print(`${hostname} is large enough, with ${host.maxRam} GB ram`)
       }
     }
     await ns.sleep(2000)
   }
+  let msg = `Buyer.js is finished, purchased ${count} size ${args.size} servers.`
+  announce(ns, msg)
+  ns.tprint(msg)
   ns.tprint("I've bought all the servers I can. It's up to you now.")
 }
