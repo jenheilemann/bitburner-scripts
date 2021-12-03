@@ -30,7 +30,9 @@ export async function main(ns) {
     await zombify(ns, server.name)
     await ns.sleep(200)
   }
-  announce(ns, `Zombified servers: ${servers.map(name).join(', ')}`)
+  msg = `Zombified servers: ${servers.map(s => s.name).join(', ')}`
+  announce(ns, msg)
+  ns.tprint(msg)
 }
 
 async function zombify(ns, server) {
