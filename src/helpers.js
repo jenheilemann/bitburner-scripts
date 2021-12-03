@@ -346,7 +346,7 @@ export async function runCommandAndWait(ns, command, fileName, verbose, ...args)
   const pid = await runCommand_Custom(ns,ns.run,command,fileName,verbose,...args)
   if (pid === 0) {
     throw (`runCommand returned no pid. (Insufficient RAM, or bad command?) ` +
-      `Destination: ${fNameCommand} Command: ${commandToFile}`)
+      `Destination: ${fileName} Command: ${commandToFile}`)
   }
   await waitForProcessToComplete_Custom(ns, ns.isRunning, pid, verbose)
 }
