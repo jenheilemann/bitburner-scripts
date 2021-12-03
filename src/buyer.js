@@ -4,13 +4,18 @@ import { waitForCash,
          fetchPlayer,
          clearLSItem,
          getNsDataThroughFile as fetch,
-         runCommand,
+         runCommandAndWait,
          disableLogs } from 'helpers.js'
 import { root } from 'rooter.js'
 const script = "breadwinner.js"
-
+const scripts = ['hack.js', 'grow.js', 'weaken.js']
+const argsSchema = [
+  ['target', 'dynamic'],
+  ['size', 7],
+]
 
 export function autocomplete(data, args) {
+  data.flags(argsSchema)
   return data.servers
 }
 
@@ -33,13 +38,9 @@ async function findTarget(ns, target) {
  */
 export async function main(ns) {
   disableLogs(ns, ['getServerMoneyAvailable', 'sleep'])
-
-  const args = ns.flags([
-    ['target', 'dynamic'],
-    ['size', 7],
-  ])
-
+  const args = ns.flags(argsSchema)
   let target, hostname, host, threads
+
   const ram = Math.pow(2, args.size)
   const limit = await fetch(ns, `ns.getPurchasedServerLimit()`)
   const cost = await fetch(ns, `ns.getPurchasedServerCost(${ram})`)
@@ -62,28 +63,18 @@ export async function main(ns) {
           ` for ${ns.nFormat(cost, "$0.000a")}`)
         await waitForCash(ns, cost)
         ns.print("Destroying server: " + hostname)
-        await fetch(ns, `ns.scriptKill('${script}', '${hostname}')`)
         await fetch(ns, `ns.deleteServer('${hostname}')`)
         await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
         clearLSItem('nmap')
       } else {
         ns.print(`${hostname} is large enough, with ${host.maxRam} GB ram`)
-        await fetch(ns, `ns.scriptKill('${script}', '${hostname}')`)
       }
     }
 
-    host = await fetchServer(ns, hostname)
-    target = await findTarget(ns, args.target)
+    for (let script of scripts) {
+      await runCommandAndWait(ns, `ns.scp('${script}', "home", '${hostname}')`)
+    }
 
-    ns.print("Targeting " + target.name + ", ensuring sudo first.")
-    root(ns, target)
-
-    await runCommand(ns, `ns.scp('${script}', '${hostname}')`)
-    threads = Math.floor(host.maxRam / ramRequired)
-
-    ns.print(`Starting ${script} on ${host.name}, targeting ${target.name} ` +
-      `with ${threads} threads`)
-    await runCommand(ns, `ns.exec('${script}', '${hostname}', ${threads}, '${target.name}', ${threads})`)
     await ns.sleep(2000)
   }
   ns.tprint("I've bought all the servers I can. It's up to you now.")

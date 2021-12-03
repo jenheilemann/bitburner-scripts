@@ -1,13 +1,11 @@
 import { networkMapFree } from 'network.js'
-import { BestHack } from 'bestHack.js'
 import {
-          tryRun,
-          fetchPlayer,
+          runCommandAndWait,
           disableLogs,
-          toolsCount,
         } from 'helpers.js'
 // magic number (Ram required to run breadwinner.js)
-let hackingScriptSize = 2
+const hackingScriptSize = 1.7
+const scripts = ['hack.js', 'grow.js', 'weaken.js']
 
 /**
  * @param {NS} ns
@@ -26,19 +24,18 @@ export async function main(ns) {
     return
   }
 
-  let searcher = new BestHack(await networkMapFree())
-  let target = searcher.findBestPerLevel(ns, fetchPlayer())
-
-  ns.tprint("Zombifying " + servers.length + " servers, targeting " + target.name)
+  ns.tprint("Zombifying " + servers.length + " servers")
   for (let server of servers) {
     if (server.name !== 'home') {
-      await zombify(ns, server.name, target.name)
+      await zombify(ns, server.name)
       await ns.sleep(200)
     }
   }
 }
 
-async function zombify(ns, server, target) {
-  let pid = await tryRun(ns, () => ns.run("zombifier.js", 1, server, target))
-  ns.tprint("Zombifying " + server + " with PID " + pid)
+async function zombify(ns, server) {
+  for (const script of scripts) {
+    await runCommandAndWait(ns, `ns.scp('${script}', "home", '${server}')`)
+  }
+  ns.print(`Copied ${scripts} to ${server}`)
 }
