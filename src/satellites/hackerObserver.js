@@ -1,6 +1,5 @@
 import {
   disableLogs,
-  getNsDataThroughFile as fetch,
   announce,
   fetchPlayer,
   formatDuration, formatNumber, formatMoney,
@@ -14,101 +13,73 @@ const ramSizes = {
   'grow.js'   : 1.75,
 }
 const reservedRam = 30
-const bufferTime = 50 //ms
+const bufferTime = 20 //ms
 const hackDecimal = 0.6
 const weakenAnlz = 0.05
+const serverFortifyAmount = 0.002
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
   disableLogs(ns, ['exec', 'sleep'])
-  let nmap, player, searcher, targets, result
+  let nmap, player, searcher, targets, start, sStart
 
   while(true) {
+    start = Date.now()
     nmap = await networkMap(ns)
     player = fetchPlayer()
     searcher = new BestHack(nmap)
-    targets = searcher.findTopN(ns, player, 3)
-    if ( !targets.some(s => s.name === 'joesguns') ) {
-      targets.splice(1, 0, {name: 'joesguns'})
-      targets.pop()
+    targets = searcher.findTop(ns, player)
+    if ( targets.some(s => s.name === 'joesguns') && targets[0].name != 'joesguns' ) {
+      targets = targets.filter(s => s.name != 'joesguns')
+      targets.splice(1, 0, await fetchServer(ns, 'joesguns'))
     }
+    ns.print(`INFO: ${formatDuration(Date.now() - start)} (loopInit)`)
+    // ns.toast(`Targets: (${targets.length}) ${targets.map(t => t.name).join(', ')}`)
 
     for (let server of targets) {
+      sStart = Date.now()
       try {
         ns.print(`Targeting ${server.name} ......................`)
-        await targetServer(ns, server.name, nmap)
+        await targetServer(ns, server, nmap)
       }
-      catch {
+      catch(err) {
+        ns.print(`ERROR: ${err}`)
+        ns.print(`INFO: ${formatDuration(Date.now() - sStart)} (${server.name})`)
         break
       }
+      ns.print(`INFO: ${formatDuration(Date.now() - sStart)} (${server.name})`)
     }
+    announce(ns, `********** Round: ${formatDuration(Date.now() - start)}`, 'warning')
     await ns.sleep(1000)
   }
 }
 
 /**
  * @param {NS} ns
- * @param {string} name - server name to attempt to target
+ * @param {object} target - server name to attempt to target
+ * @param {object} nmap - network map of all servers
  **/
-async function targetServer(ns, name, nmap) {
-  const target = await fetchServer(ns, name)
-  if ( await preGrow(ns, target, nmap) || await preWeaken(ns, target, nmap ) ) {
-    ns.print(`INFO: Pre-growing/-weakening ${target.name}`)
-    return
-  }
-  ns.print(`SUCCESS: **** No need to weaken or grow ${target.name}`)
-  ns.print(`${formatNumber(target.security)} security`)
-  ns.print(`${formatMoney(target.data.moneyAvailable)}`)
-
+async function targetServer(ns, target, nmap) {
+  ns.print(`${formatNumber(target.security)} security, ${formatMoney(target.data.moneyAvailable)}`)
   let [hackThreads, hackTime, hackedMoney] = await hackInfo(ns, target)
   if (hackThreads == -1) return
   let [growThreads, growTime] = await growthInfo(ns, target, hackedMoney )
   let [weakThreads, weakTime] = await weakenInfo(ns, target)
+
+  /**
+   * The order below is important. If one `findThreadsAndRun` fails because of
+   * a lack of available ram, the following will be skipped, and all subsequent
+   * servers as well. If they are in a different order, then a hack or a grow
+   * could happen without an accompanying weak. Or a hack could happen without
+   * a grow.
+   * Is it possible to sum all the available ram before this? absolutely. Is
+   * that how I coded this? nope.
+   **/
   await findThreadsAndRun(ns, nmap, 'weaken.js', weakThreads, target.name, 0, Date.now())
   await findThreadsAndRun(ns, nmap, 'grow.js',   growThreads, target.name, (weakTime - growTime), Date.now())
-  await findThreadsAndRun(ns, nmap, 'hack.js',   hackThreads, target.name, (weakTime - hackTime), Date.now())
-}
-
-
-/**
- * @param {NS} ns
- * @param {object} target - server info object
- * @returns {boolean} - whether the server is being weakened before running scripts
- **/
-async function preWeaken(ns, target, nmap) {
-  const weakenAmt = target.security - target.minSecurity
-  if (weakenAmt <= 2 ) {
-    ns.print(`${target.name} security low enough (${target.security}/${target.minSecurity})`)
-    return false
-  }
-
-  let weakenThreads = Math.ceil(weakenAmt/weakenAnlz)
-  ns.print(`**** Need to weaken ${target.name} by ${weakenAmt} (${target.security}/${target.minSecurity}), need ${weakenThreads} threads`)
-  await findThreadsAndRun(ns, nmap, 'weaken.js', weakenThreads, target.name)
-  return true
-}
-
-
-/**
- * @param {NS} ns
- * @param {object} target - server info object
- * @returns {boolean} - whether the server is being grown before running scripts
- **/
-async function preGrow(ns, target, nmap) {
-  if ( target.data.moneyAvailable > target.maxMoney * 0.1 ) {
-    ns.print(`${target.name} money is enough. (${formatMoney(target.data.moneyAvailable)}/${formatMoney(target.maxMoney)})`)
-    return false
-  }
-
-  let multiplier = target.maxMoney/(Math.max(1.1, target.data.moneyAvailable))
-  let threads = Math.ceil(await fetch(ns, `ns.growthAnalyze('${target.name}',${multiplier})`))
-  let security = await fetch(ns,`ns.growthAnalyzeSecurity(${threads})`)
-  ns.print(`**** Need to grow ${target.name} by ${formatNumber(multiplier * 100)}%, ${threads} threads`)
-  await findThreadsAndRun(ns, nmap, 'grow.js', threads, target.name)
-  target.security = target.security + security
-  return true
+  if (hackThreads > 0 ) await findThreadsAndRun(ns, nmap, 'hack.js',   hackThreads, target.name, (weakTime - hackTime), Date.now())
 }
 
 /**
@@ -139,7 +110,7 @@ async function findThreadsAndRun(ns, nmap, file, numThreads, target, wait = 0, r
     if (numThreads <= 0)
       return
   }
-  ns.print(`INFO: Not enough threads available to completely ${file} target ${target}, numThreads needed: ${numThreads}`)
+  ns.print(`INFO: Not enough ram to finish ${file} target ${target}, numThreads needed: ${numThreads}`)
   throw('not enough threads')
 }
 
@@ -148,15 +119,13 @@ async function findThreadsAndRun(ns, nmap, file, numThreads, target, wait = 0, r
  * @param {object} target
  **/
 async function hackInfo(ns, target) {
+  if ( target.data.moneyAvailable/target.maxMoney < 0.1) return [0,0,0]
+
   const player = fetchPlayer()
-  let time = ns.formulas.hacking.hackTime(target.data, player) + bufferTime*2
-  let amountToHack = target.data.moneyAvailable * hackDecimal
-  let threads = Math.floor(await fetch(ns, `ns.hackAnalyzeThreads('${target.name}', ${amountToHack})`))
-  if ( threads == -1 ) {
-    announce(ns, `hackAnalyzeThreads returned -1 for server ${target.name}`, 'error')
-    return [-1, 0, 0]
-  }
-  let security = await fetch(ns, `ns.hackAnalyzeSecurity(${threads})`)
+  const time = ns.formulas.hacking.hackTime(target.data, player) + bufferTime*2
+  const amountToHack = target.data.moneyAvailable * hackDecimal
+  const threads = Math.floor(hackDecimal/ns.formulas.hacking.hackPercent(target.data, player))
+  const security = serverFortifyAmount * threads
   target.security += security
   ns.print(`Hack time: ${formatDuration(time)} amountToHack: ${formatMoney(amountToHack)} `+
     `security: ${security} remaining: ${formatMoney(target.data.moneyAvailable - amountToHack)}`)
@@ -171,11 +140,13 @@ async function hackInfo(ns, target) {
 async function growthInfo(ns, target, amountHacked) {
   const player = fetchPlayer()
   let time = ns.formulas.hacking.growTime(target.data, player) + bufferTime
+
   let multiplier = target.maxMoney/(Math.max(1.1, target.data.moneyAvailable - amountHacked))
-  let threads = Math.ceil(await fetch(ns, `ns.growthAnalyze('${target.name}',${multiplier})`))
-  let security = await fetch(ns,`ns.growthAnalyzeSecurity(${threads})`)
+  multiplier = Math.min(multiplier, 100)
+  let threads = Math.ceil(multiplier/ns.formulas.hacking.growPercent(target.data, 1, player))
+  let security = 2 * serverFortifyAmount * threads
   target.security += security
-  ns.print(`Grow time: ${formatDuration(time)} multiplier: ${multiplier} security: ${security}`)
+  ns.print(`Need to grow ${target.name} by ${formatNumber(multiplier * 100)}%, ${threads} threads, Grow time: ${formatDuration(time)}, security: ${security}`)
   return [threads, time]
 }
 
