@@ -23,10 +23,9 @@ const serverFortifyAmount = 0.002
  **/
 export async function main(ns) {
   disableLogs(ns, ['exec', 'sleep'])
-  let nmap, player, searcher, targets, start, sStart
+  let nmap, player, searcher, targets
 
   while(true) {
-    start = Date.now()
     nmap = await networkMap(ns)
     player = fetchPlayer()
     searcher = new BestHack(nmap)
@@ -35,23 +34,18 @@ export async function main(ns) {
       targets = targets.filter(s => s.name != 'joesguns')
       targets.splice(1, 0, await fetchServer(ns, 'joesguns'))
     }
-    ns.print(`INFO: ${formatDuration(Date.now() - start)} (loopInit)`)
     // ns.toast(`Targets: (${targets.length}) ${targets.map(t => t.name).join(', ')}`)
 
     for (let server of targets) {
-      sStart = Date.now()
       try {
-        ns.print(`Targeting ${server.name} ......................`)
+        ns.print(`INFO: Targeting ${server.name} ......................`)
         await targetServer(ns, server, nmap)
       }
       catch(err) {
         ns.print(`ERROR: ${err}`)
-        ns.print(`INFO: ${formatDuration(Date.now() - sStart)} (${server.name})`)
         break
       }
-      ns.print(`INFO: ${formatDuration(Date.now() - sStart)} (${server.name})`)
     }
-    announce(ns, `********** Round: ${formatDuration(Date.now() - start)}`, 'warning')
     await ns.sleep(1000)
   }
 }
