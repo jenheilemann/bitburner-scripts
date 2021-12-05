@@ -12,7 +12,7 @@ const ramSizes = {
   'weaken.js' : 1.75,
   'grow.js'   : 1.75,
 }
-const reservedRam = 30
+const reservedRam = 60
 const bufferTime = 20 //ms
 const hackDecimal = 0.6
 const weakenAnlz = 0.05
@@ -89,20 +89,21 @@ async function findThreadsAndRun(ns, nmap, file, numThreads, target, wait = 0, r
   let availableRam, availableThreads, threadsToRun, server
 
   for ( const sn in nmap ) {
-    server = nmap[sn]
-    if ( server.maxRam - server.data.ramUsed < ramSizes[file] ||
-      (sn == 'home' && (server.maxRam - server.data.ramUsed - reservedRam) < ramSizes[file]) ) {
+    server = ns.getServer(sn)
+    if ( server.maxRam - server.ramUsed < ramSizes[file] ||
+      (sn == 'home' && (server.maxRam - server.ramUsed - reservedRam) < ramSizes[file]) ) {
       continue
     }
-    availableRam = server.maxRam - server.data.ramUsed
+    availableRam = server.maxRam - server.ramUsed
     availableThreads = Math.floor(availableRam/ramSizes[file])
     threadsToRun = Math.min(availableThreads, numThreads)
     numThreads -= threadsToRun
     ns.print(`ns.exec('${file}', '${sn}', ${threadsToRun}, ${formatDuration(wait)}, '${target}', ${rand})`)
     ns.exec(file, sn, threadsToRun, wait, target, rand)
-    nmap[sn].data.ramUsed = nmap[sn].data.ramUsed + ramSizes[file]*threadsToRun
-    if (numThreads <= 0)
+    // nmap[sn].data.ramUsed = nmap[sn].data.ramUsed + ramSizes[file]*threadsToRun
+    if (numThreads <= 0) {
       return
+    }
   }
   ns.print(`INFO: Not enough ram to finish ${file} target ${target}, numThreads needed: ${numThreads}`)
   throw('not enough threads')
