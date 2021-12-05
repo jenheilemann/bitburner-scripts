@@ -18,7 +18,12 @@ export async function main(ns) {
     .filter(s => s.data.hasAdminRights &&
                 s.name != 'home' &&
                 s.maxRam - s.data.ramUsed >= hackingScriptSize &&
-                !s.files.includes(scripts[0]) )
+                (
+                  !s.files.includes(scripts[0]) ||
+                  !s.files.includes(scripts[1]) ||
+                  !s.files.includes(scripts[2])
+                )
+    )
 
   // early return, if there are no servers no need to do anything else
   if ( servers.length == 0 ) {
