@@ -388,9 +388,11 @@ export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, .
     'mySleep', 'toolsCount', 'myMoney', 'waitForCash', 'reserve',
     'tryRun', 'getLSItem', 'setLSItem', 'clearLSItem', 'fetchPlayer',
     'announce', 'groupBy', 'formatMoney', 'formatNumberShort', 'formatNumber',
-    'formatDuration', 'hashCode',
+    'formatDuration', 'formatRam', 'hashCode',
   ]
-  const script = `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n\r` +
+  const script =
+    `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n\r` +
+    `import { networkMap, fetchServer } fr` + `om 'network.js';\n\r` +
     `export async function main(ns) { try { ` +
     (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
     `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
