@@ -56,7 +56,8 @@ export async function main(ns) {
  * @param {object} nmap - network map of all servers
  **/
 async function targetServer(ns, target, nmap) {
-  ns.print(`${formatNumber(target.security)} security, ${formatMoney(target.data.moneyAvailable)}`)
+  ns.print(`Security: ${formatNumber(target.security)}/${formatNumber(target.minSecurity)} ----- ` +
+    `Money: ${formatMoney(target.data.moneyAvailable)}/${formatMoney(target.maxMoney)}`)
   let [hackThreads, hackTime, hackedMoney] = await hackInfo(ns, target)
   if (hackThreads == -1) return
   let [growThreads, growTime] = await growthInfo(ns, target, hackedMoney )
