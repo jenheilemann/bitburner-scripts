@@ -39,8 +39,7 @@ const argsSchema = [
     ['stat-desired', ['hacking', 'faction_rep', 'company_rep', 'charisma', 'hacknet']], // Augs that give these will be starred
     ['disable-faction', []], // Factions to omit from all data, stats, and calcs, (e.g.) if you do not want to purchase augs from them, or do not want to see them because they are impractical to join at this time
     ['disable-donations', false], // When displaying "obtainable" augs and prices, don't include augs that require a donation to meet their rep requirements
-    ['purchase-desired-augs', false], // Set to true to pull the trigger on purchasing all desired augs in the order specified
-    ['purchase-desired-augs-forced', false], // Set to true to force purchasing augmentations in the prescribed order even if we know we can't afford them all
+    ['purchase', false], // Set to true to pull the trigger on purchasing all desired augs in the order specified
 ];
 
 const stat_multis = ["agility_exp", "agility", "charisma_exp", "charisma", "company_rep", "crime_money", "crime_success", "defense_exp", "defense", "dexterity_exp", "dexterity",
@@ -78,7 +77,6 @@ export async function main(ns) {
     const desiredAugs = options['aug-desired'].map(f => f.replaceAll("_", " "));
     const ignorePlayerData = options.i || options['ignore-player-data'];
     const sort = unshorten(options.sort); // Support the user leaving off the _mult suffix
-    if (options['purchase-desired-augs-forced']) options['purchase-desired-augs'] = true;
     playerData = await getNsDataThroughFile(ns, 'ns.getPlayer()');
     joinedFactions = ignorePlayerData ? [] : playerData.factions;
     log(ns, 'In factions: ' + joinedFactions);
@@ -96,7 +94,7 @@ export async function main(ns) {
     }
     manageUnownedAugmentations(ns, omitAugs, verbose);
     displayFactionSummary(ns, verbose, sort, options.u || options.unique, afterFactions, options['hide-stat']);
-    if (options['purchase-desired-augs'])
+    if (options.purchase)
         await purchaseDesiredAugs(ns);
 }
 
@@ -290,7 +288,7 @@ function sortAugs(ns, augs = []) {
             let testOrder = augs.slice(), moveIndex = i + moved + 1, insertionIndex = i - batchLengh + 1 + moved;
             testOrder.splice(insertionIndex, 0, testOrder.splice(moveIndex, 1)[0]); // Try moving it above the batch
             let newCost = getTotalCost(testOrder);
-            log(ns, `Cost would change by ${((newCost - bestCost) / bestCost * 100).toPrecision(2)}% from ${formatMoney(bestCost)} to ${formatMoney(newCost)} by buying ${augs[moveIndex].name} before ${augs[insertionIndex].name}`);
+            //log(ns, `Cost would change by ${((newCost - bestCost) / bestCost * 100).toPrecision(2)}% from ${formatMoney(bestCost)} to ${formatMoney(newCost)} by buying ${augs[moveIndex].name} before ${augs[insertionIndex].name}`);
             if (bestCost < newCost) break; // If the cost is worse or the same, stop shifting augs
             //log(ns, `Cost reduced by ${formatMoney(bestCost - newCost)} from ${formatMoney(bestCost)} to ${formatMoney(newCost)} by buying ${augs[moveIndex].name} before ${augs[insertionIndex].name}`);
             bestCost = newCost;
@@ -325,21 +323,60 @@ function manageUnownedAugmentations(ns, ignoredAugs, alsoPrintToTerminal) {
 
 /** @param {NS} ns
  * Helper to generate outputs for different subsets of the augmentations, each in optimal sort order */
-function manageFilteredSubset(ns, outputRows, subsetName, subset, purchaseable) {
+function manageFilteredSubset(ns, outputRows, subsetName, subset, purchaseable, forceReprint = false) {
+    subset = subset.slice(); // Take a copy so we don't mess up the original array sent in.
     let subsetLength = subset.length;
     if (subsetLength == 0) return subset;
-    // Remove augs that cannot be purchased because their prerequisites have been filtered out.
+    // Remove augs that cannot be purchased because their prerequisites are not owned and have been filtered out
     do {
         subsetLength = subset.length
         for (const aug of subset.slice())
-            if (aug.prereqs && aug.prereqs.some(prereq => !subset.some(a => a.name === prereq)))
+            if (aug.prereqs.length > 0 && aug.prereqs.some(prereq => !(ownedAugmentations.includes(prereq) || subset.some(a => a.name === prereq))))
                 subset.splice(subset.indexOf(aug), 1);
     } while (subsetLength !== subset.length);
 
     let subsetSorted = sortAugs(ns, subset.slice());
-    // For augmentations that we can only afford by donating rep, find out the optimal set of factions and rep-donations required to access them
+    let repCostByFaction = computeAugsRepReqDonationByFaction(ns, subsetSorted);
+    // Compute the total rep cost for augmentations, including the cost of donating for access
+    let totalRepCost = Object.values(repCostByFaction).reduce((t, r) => t + r, 0);
+    let totalAugCost = getTotalCost(subsetSorted);
+    if (forceReprint || !subset.every((v, i) => v == subsetSorted[i])) // If the purchase order is unchanged aftering filtering out augmentations, don't bother reprinting the full list
+        outputRows.push(`${subset.length} ${subsetName} Augmentations in Optimized Purchase Order (*'s are desired augs and/or stats: ${options['stat-desired'].join(", ")}):\n  ${subsetSorted.join('\n  ')}`);
+    outputRows.push(`Total Cost of ${subset.length} ${subsetName}:`.padEnd(37) + ` ${formatMoney(totalRepCost + totalAugCost)}` +
+        (totalRepCost == 0 ? '' : ` (Augs: ${formatMoney(totalAugCost)} + Rep: ${formatMoney(totalRepCost)})  Donate: ${JSON.stringify(repCostByFaction).replaceAll(",", ", ")}`));
+    if (!purchaseable) return subsetSorted; // The remainder of the logic only applies if we are preparing a purchase order
+
+    // Hack: Set globals that will be purchased by another method as a final action in the main method
+    purchaseableAugs = subsetSorted.slice();
+    purchaseFactionDonations = repCostByFaction;
+    // Ensure we can afford the purchase order
+    if (totalAugCost + totalRepCost <= playerData.money) return subsetSorted;
+    // Remove the most expensive augmentation until we can afford all that remain
+    const dropped = [];
+    while (totalAugCost + totalRepCost > playerData.money) {
+        const mostExpensiveAug = purchaseableAugs.slice().sort((a, b) => b.price - a.price)[0];
+        let costBefore = `${formatMoney(totalRepCost + totalAugCost)} (Augs: ${formatMoney(totalAugCost)} + Rep: ${formatMoney(totalRepCost)})`;
+        purchaseableAugs = sortAugs(ns, purchaseableAugs.filter(aug => aug !== mostExpensiveAug));
+        purchaseFactionDonations = computeAugsRepReqDonationByFaction(ns, purchaseableAugs);
+        totalRepCost = Object.values(purchaseFactionDonations).reduce((t, r) => t + r, 0);
+        totalAugCost = getTotalCost(purchaseableAugs);
+        let costAfter = `${formatMoney(totalRepCost + totalAugCost)} (Augs: ${formatMoney(totalAugCost)} + Rep: ${formatMoney(totalRepCost)})`;
+        dropped.unshift({ aug: mostExpensiveAug, costBefore, costAfter });
+        let dropLog = `Dropping aug from the purchase order: \"${mostExpensiveAug.name}\". New total cost: ${costAfter}`;
+        if (options.purchase) outputRows.push(dropLog); else ns.print(dropLog);
+    }
+    // Recursively call this method one time to display the reduced list of affordable purchases as a separate section
+    manageFilteredSubset(ns, outputRows, 'Affordable', purchaseableAugs, false, true);
+    // Let us know how far away we are from being able to get just one more aug:
+    outputRows.push(`Dropped ${dropped.length} augs to get an affordable list. Cost including last aug dropped \"${dropped[0].aug.name}\" would be: ${dropped[0].costBefore}`);
+    return subsetSorted;
+};
+
+/** @param {NS} ns
+ * Find out the optimal set of factions and rep-donations required to access them */
+function computeAugsRepReqDonationByFaction(ns, augmentations) {
     const repCostByFaction = {};
-    for (const aug of subsetSorted) {
+    for (const aug of augmentations) {
         let faction = factionData[aug.getFromJoined() || aug.getFromAny];
         if (!faction.donationsUnlocked) continue; // getFromJoined() already ensures that we don't resort to faction requiring donations unless we must (and can)
         let reqDonation = getReqDonation(aug, faction);
@@ -358,48 +395,23 @@ function manageFilteredSubset(ns, outputRows, subsetName, subset, purchaseable) 
         if (reqDonation > 0)
             repCostByFaction[faction.name] = Math.max(repCostByFaction[faction.name] || 0, reqDonation);
     }
-    // Compute the total rep cost for augmentations, including the cost of donating for access
-    const totalRepCost = Object.values(repCostByFaction).reduce((t, r) => t + r, 0);
-    const totalAugCost = getTotalCost(subsetSorted);
-    if (!subset.every((v, i) => v == subsetSorted[i])) // If the purchase order is unchanged aftering filtering out augmentations, don't bother reprinting the full list
-        outputRows.push(`${subset.length} ${subsetName} Augmentations in Optimized Purchase Order (*'s are desired augs and/or stats: ${options['stat-desired'].join(", ")}):\n  ${subsetSorted.join('\n  ')}`);
-    outputRows.push(`Total Cost of ${subset.length} ${subsetName}:`.padEnd(37) + ` ${formatMoney(totalRepCost + totalAugCost)}` +
-        (totalRepCost == 0 ? '' : ` (Augs: ${formatMoney(totalAugCost)} + Rep: ${formatMoney(totalRepCost)})  Donate: ${JSON.stringify(repCostByFaction).replaceAll(",", ", ")}`));
-    if (purchaseable) {
-        purchaseableAugs = subsetSorted;
-        purchaseFactionDonations = repCostByFaction
-    }
-    return subsetSorted;
-};
+    return repCostByFaction;
+}
 
 /** @param {NS} ns
  * Donate any required rep and purchase the desired augmentations */
 async function purchaseDesiredAugs(ns) {
     let totalRepCost = Object.values(purchaseFactionDonations).reduce((t, r) => t + r, 0);
     let totalAugCost = getTotalCost(purchaseableAugs);
-    if (totalAugCost + totalRepCost > playerData.money) {
-        if (!options['purchase-desired-augs-forced'])
-            ns.tprint(`ERROR: Cannot purchase augs because player money (${formatMoney(playerData.money)}) is less than total cost of augs (${formatMoney(totalAugCost + totalRepCost)}). ` +
-                `Change --stat-desired, --disable-faction or --omit-aug to remove augs from the purchase order until you can afford it.`)
-        // Remove the most expensive augmentation until we can afford all that remain
-        while (totalAugCost + totalRepCost > playerData.money) {
-            const mostExpensiveAug = purchaseableAugs.slice().sort((a, b) => b.price - a.price)[0];
-            const length = purchaseableAugs.length;
-            manageFilteredSubset(ns, [], "", purchaseableAugs.filter(aug => aug !== mostExpensiveAug), true); // This will reset the set of augs to be purchased and rep cost
-            if (purchaseableAugs.length == length) return ns.tprint("Infinite Loop!");
-            totalRepCost = Object.values(purchaseFactionDonations).reduce((t, r) => t + r, 0);
-            totalAugCost = getTotalCost(purchaseableAugs);
-            ns.tprint(`Dropping aug ${mostExpensiveAug.name} from the purchase order. New cost ${formatMoney(totalRepCost + totalAugCost)} (Augs: ${formatMoney(totalAugCost)} + Rep: ${formatMoney(totalRepCost)})`);
+    if (totalAugCost + totalRepCost > playerData.money)
+        // Donate to factions if necessary (using a ram-dodging script of course)
+        if (Object.keys(purchaseFactionDonations).length > 0 && Object.values(purchaseFactionDonations).some(v => v > 0)) {
+            if (await getNsDataThroughFile(ns, JSON.stringify(Object.keys(purchaseFactionDonations).map(f => ({ faction: f, repDonation: purchaseFactionDonations[f] }))) +
+                '.reduce((success, o) => success && ns.donateToFaction(o.faction, o.repDonation), true)', '/Temp/facman-donate.txt'))
+                ns.tprint(`SUCCESS: Donated to ${Object.keys(purchaseFactionDonations).length} factions to gain access to desired augmentations.`)
+            else
+                ns.tprint(`ERROR: One or more attempts to donate to factions for reputation failed. Go investigate!`);
         }
-    }
-    // Donate to factions if necessary (using a ram-dodging script of course)
-    if (Object.keys(purchaseFactionDonations).length > 0 && Object.values(purchaseFactionDonations).some(v => v > 0)) {
-        if (await getNsDataThroughFile(ns, JSON.stringify(Object.keys(purchaseFactionDonations).map(f => ({ faction: f, repDonation: purchaseFactionDonations[f] }))) +
-            '.reduce((success, o) => success && ns.donateToFaction(o.faction, o.repDonation), true)', '/Temp/facman-donate.txt'))
-            ns.tprint(`SUCCESS: Donated to ${Object.keys(purchaseFactionDonations).length} factions to gain access to desired augmentations.`)
-        else
-            ns.tprint(`ERROR: One or more attempts to donate to factions for reputation failed. Go investigate!`);
-    }
     let freeAugs = purchaseableAugs.filter(aug => aug.price == 0);
     let augsToPurchase = purchaseableAugs.filter(aug => aug.price > 0);
     // Purchase desired augs (using a ram-dodging script of course)
