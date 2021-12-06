@@ -11,7 +11,7 @@ export async function main(ns) {
     return
   }
   // hook0.innerText = "Hashes\nStock\nScrInc\nScrExp"
-  hook0.innerText = "Income\nExper."
+  hook0.innerText = "Income\nExper.\nKarma"
 
   // const hashes = await getNsDataThroughFile(ns, '[ns.hacknet.numHashes(), ns.hacknet.hashCapacity()]', '/Temp/hash-stats.txt')
   // const stkSymbols = await getNsDataThroughFile(ns, `ns.stock.getSymbols()`, '/Temp/stock-symbols.txt');
@@ -26,5 +26,6 @@ export async function main(ns) {
   //   `\n${ns.nFormat(ns.getScriptExpGain(), 3, 2)}/s`
   hook1.innerText =
     `${ns.nFormat(ns.getScriptIncome()[0], "$0.0a")}/s` +
-    `\n${ns.nFormat(ns.getScriptExpGain(), "0.0a")}/s`
+    `\n${ns.nFormat(ns.getScriptExpGain(), "0.0a")}/s` +
+    `\n${ns.nFormat(ns.heart.break(), "0.0a")}`
 }
