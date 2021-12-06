@@ -90,7 +90,7 @@ async function findThreadsAndRun(ns, nmap, file, numThreads, target, wait = 0, r
 
   for ( const sn in nmap ) {
     server = ns.getServer(sn)
-    reserved = server.name == 'home' ? reservedRam : 0
+    reserved = server.hostname == 'home' ? reservedRam : 0
     if ( server.maxRam - server.ramUsed < ramSizes[file] + reserved ||
       !nmap[sn].files.includes(file) ) {
       continue
