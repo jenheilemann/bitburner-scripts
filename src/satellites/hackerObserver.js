@@ -12,7 +12,7 @@ const ramSizes = {
   'weaken.js' : 1.75,
   'grow.js'   : 1.75,
 }
-const reservedRam = 60
+const reservedRam = 100
 const bufferTime = 20 //ms
 const hackDecimal = 0.6
 const weakenAnlz = 0.05
@@ -86,12 +86,13 @@ async function targetServer(ns, target, nmap) {
  * @param {integer} rand - random input, allow a server to have multiple duplicate running simultaneously
  **/
 async function findThreadsAndRun(ns, nmap, file, numThreads, target, wait = 0, rand = 0) {
-  let availableRam, availableThreads, threadsToRun, server
+  let availableRam, availableThreads, threadsToRun, server, reserved
 
   for ( const sn in nmap ) {
     server = ns.getServer(sn)
-    if ( server.maxRam - server.ramUsed < ramSizes[file] ||
-      (sn == 'home' && (server.maxRam - server.ramUsed - reservedRam) < ramSizes[file]) ) {
+    reserved = server.name == 'home' ? reservedRam : 0
+    if ( server.maxRam - server.ramUsed < ramSizes[file] + reserved ||
+      !nmap[sn].files.includes(file) {
       continue
     }
     availableRam = server.maxRam - server.ramUsed
