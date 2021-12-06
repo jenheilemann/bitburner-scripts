@@ -95,7 +95,7 @@ async function findThreadsAndRun(ns, nmap, file, numThreads, target, wait = 0, r
       !nmap[sn].files.includes(file) ) {
       continue
     }
-    availableRam = server.maxRam - server.ramUsed
+    availableRam = server.maxRam - server.ramUsed - reserved
     availableThreads = Math.floor(availableRam/ramSizes[file])
     threadsToRun = Math.min(availableThreads, numThreads)
     numThreads -= threadsToRun
