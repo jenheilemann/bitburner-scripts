@@ -14,7 +14,7 @@ const ramSizes = {
 }
 const reservedRam = 100
 const bufferTime = 20 //ms
-const hackDecimal = 0.6
+const hackDecimal = 0.05
 const weakenAnlz = 0.05
 const serverFortifyAmount = 0.002
 
@@ -139,7 +139,7 @@ async function growthInfo(ns, target, amountHacked) {
 
   let multiplier = target.maxMoney/(Math.max(1.1, target.data.moneyAvailable - amountHacked))
   multiplier = Math.min(multiplier, 100)
-  let threads = Math.ceil(multiplier/ns.formulas.hacking.growPercent(target.data, 1, player))
+  let threads = Math.ceil((multiplier-1)/(ns.formulas.hacking.growPercent(target.data, 1, player)-1))
   let security = 2 * serverFortifyAmount * threads
   target.security += security
   ns.print(`Need to grow ${target.name} by ${formatNumber(multiplier * 100)}%, ${threads} threads, Grow time: ${formatDuration(time)}, security: ${security}`)
