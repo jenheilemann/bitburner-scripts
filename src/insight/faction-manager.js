@@ -94,7 +94,7 @@ export async function main(ns) {
     }
     manageUnownedAugmentations(ns, omitAugs, verbose);
     displayFactionSummary(ns, verbose, sort, options.u || options.unique, afterFactions, options['hide-stat']);
-    if (options.purchase)
+    if (options.purchase && purchaseableAugs)
         await purchaseDesiredAugs(ns);
 }
 
@@ -408,20 +408,20 @@ async function purchaseDesiredAugs(ns) {
         if (Object.keys(purchaseFactionDonations).length > 0 && Object.values(purchaseFactionDonations).some(v => v > 0)) {
             if (await getNsDataThroughFile(ns, JSON.stringify(Object.keys(purchaseFactionDonations).map(f => ({ faction: f, repDonation: purchaseFactionDonations[f] }))) +
                 '.reduce((success, o) => success && ns.donateToFaction(o.faction, o.repDonation), true)', '/Temp/facman-donate.txt'))
-                ns.tprint(`SUCCESS: Donated to ${Object.keys(purchaseFactionDonations).length} factions to gain access to desired augmentations.`)
+                log(ns, `SUCCESS: Donated to ${Object.keys(purchaseFactionDonations).length} factions to gain access to desired augmentations.`, true)
             else
-                ns.tprint(`ERROR: One or more attempts to donate to factions for reputation failed. Go investigate!`);
+                log(ns, `ERROR: One or more attempts to donate to factions for reputation failed. Go investigate!`);
         }
     let freeAugs = purchaseableAugs.filter(aug => aug.price == 0);
     let augsToPurchase = purchaseableAugs.filter(aug => aug.price > 0);
     // Purchase desired augs (using a ram-dodging script of course)
     if (await getNsDataThroughFile(ns, JSON.stringify(augsToPurchase.map(aug => ({ faction: aug.getFromJoined(), augmentation: aug.name }))) +
         '.reduce((success, o) => ns.purchaseAugmentation(o.faction, o.augmentation) && success, true)', '/Temp/facman-purchase-augs.txt'))
-        ns.tprint(`SUCCESS: Purchased ${augsToPurchase.length} desired augmentations in optimal order!`)
+        log(ns, `SUCCESS: Purchased ${augsToPurchase.length} desired augmentations in optimal order!`, true, 'success')
     else
-        ns.tprint(`ERROR: Failed to purchase one or more augmentations.`);
+        log(ns, `ERROR: Failed to purchase one or more augmentations.`, true, 'error');
     if (freeAugs.length > 0) // Safety to not push up the aug multipliers unecessarily. TODO: Automatically inject as many NF levels as possible, then buy this as well.
-        ns.tprint(`WARNING: Did not purchase ${freeAugs.map(a => `"${a.name}"`).join(", ")} because the cost is zero. Buy up any remaining cheap augs or NF before grabbing this last.`);
+        log(ns, `WARNING: Did not purchase ${freeAugs.map(a => `"${a.name}"`).join(", ")} because the cost is zero. Buy up any remaining cheap augs or NF before grabbing this last.`, true);
 }
 
 /** @param {NS} ns **/
