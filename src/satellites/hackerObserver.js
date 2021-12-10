@@ -57,13 +57,28 @@ export async function main(ns) {
         throw err
       }
     }
+    report(ns, targets)
     await ns.sleep(sleepTime)
   }
 }
 
 /**
  * @param {NS} ns
- * @param {object} target - server name to attempt to target
+ * @param {object[]} targets
+ **/
+function report(ns, targets) {
+  for (const target of targets.slice(0, 5) ) {
+    ns.print(`${target.name.padEnd(10)} / ` +
+      `Security: ${formatNumber(target.security).padStart(5)}/${formatNumber(target.minSecurity).padEnd(5)} / ` +
+      `Money: ${formatMoney(target.data.moneyAvailable).padStart(9)}/${formatMoney(target.maxMoney).padEnd(9)} / ` +
+      `Weak time: ${formatDuration(ns.formulas.hacking.hackTime(target.data, fetchPlayer()))}`
+    )
+  }
+}
+
+/**
+ * @param {NS} ns
+ * @param {object} target - server to attempt to target
  * @param {object} nmap - network map of all servers
  * @param {object} processManager - manages what processes are running
  **/
@@ -125,7 +140,7 @@ class Targeter {
 
   hackServer() {
     // if security or money are too far out of bounds, move on to another server
-    if ( this.target.security >= this.target.minSecurity + 4 ) {
+    if ( this.target.security >= this.target.minSecurity + 2 ) {
       return
     }
     if ( this.target.data.moneyAvailable <= this.target.maxMoney * 0.5 ) {
