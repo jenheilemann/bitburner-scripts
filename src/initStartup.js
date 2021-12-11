@@ -53,7 +53,6 @@ const filesToDownload = [
   'stats.js',
   'weaken.js',
   'workForFactions.js',
-  'zombifier.js',
 ]
 const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/main/src'
 
