@@ -36,7 +36,7 @@ export async function main(ns) {
 
   if (key == 'reserve') value = formatMoney(value)
   if (key.toLowerCase().includes('money') ) value = formatMoney(value)
-  if (typeof value == 'number') value = formatNumberShort(value, 6, 0)
+  if (typeof value == 'number') value = formatNumberShort(value, 6, 3)
 
   if ( args.p || args.pretty ) {
     ns.tprint(`\n\r${JSON.stringify(value, null, 2)}`)
