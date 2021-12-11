@@ -251,7 +251,8 @@ class RamFinder {
     const serversWithRam = {}
 
     for ( const sn in this.nmap ) {
-      server = this.ns.getServer(sn)
+      // sometimes pservs are deleted between getting the nmap and here. catch!
+      try { server = this.ns.getServer(sn) } catch { continue }
       reserved = sn == 'home' ? reservedRam : 0
       if ( server.maxRam - server.ramUsed < largestFile + reserved ||
         !this.nmap[sn].files.includes('weaken.js') ) {
