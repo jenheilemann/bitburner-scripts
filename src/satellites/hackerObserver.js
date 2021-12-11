@@ -1,7 +1,7 @@
 import {
   disableLogs,
   fetchPlayer,
-  getLSItem,
+  getLSItem, setLSItem,
   formatDuration, formatNumber, formatMoney,
 } from 'helpers.js'
 import { networkMap, fetchServer } from 'network.js'
@@ -33,6 +33,7 @@ export async function main(ns) {
   disableLogs(ns, ['exec', 'sleep'])
   let nmap, player, searcher, targets
   const processManager = new ProcessManager()
+  setLSItem('hackpercent', hackDecimal)
 
   while(true) {
     nmap = await networkMap(ns)
@@ -213,8 +214,9 @@ class Targeter {
     const player = fetchPlayer()
     const formulas = this.ns.formulas.hacking
     const server = this.target.data
-    const amountToHack = server.moneyAvailable * hackDecimal
-    const threads = Math.floor(hackDecimal/formulas.hackPercent(server, player))
+    const decimal = getLSItem('hackpercent')
+    const amountToHack = server.moneyAvailable * decimal
+    const threads = Math.floor(decimal/formulas.hackPercent(server, player))
 
     this.ns.print(`Hack   : ${formatMoney(amountToHack)} / threads: ${threads} / ` +
       `remaining: ${formatMoney(server.moneyAvailable - amountToHack)} / ` +
