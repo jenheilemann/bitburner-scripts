@@ -1,6 +1,7 @@
 import {
   disableLogs,
   fetchPlayer,
+  getLSItem,
   formatDuration, formatNumber, formatMoney,
 } from 'helpers.js'
 import { networkMap, fetchServer } from 'network.js'
@@ -259,7 +260,8 @@ class RamFinder {
       try { server = this.ns.getServer(sn) } catch { continue }
       reserved = sn == 'home' ? reservedRam : 0
       if ( server.maxRam - server.ramUsed < largestFile + reserved ||
-        !this.nmap[sn].files.includes('weaken.js') ) {
+        !this.nmap[sn].files.includes('weaken.js') ||
+        getLSItem('decommissioned') == sn ) {
         continue
       }
       availableRam = server.maxRam - server.ramUsed - reserved

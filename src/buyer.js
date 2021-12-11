@@ -1,6 +1,7 @@
 import { fetchServer } from 'network.js'
 import { waitForCash,
          clearLSItem,
+         setLSItem,
          getNsDataThroughFile as fetch,
          disableLogs,
          announce,
@@ -31,35 +32,78 @@ export async function main(ns) {
 
   for (let i = 0; i < limit; i++) {
     hostname = "pserv-" + i
-    host = await fetchServer(ns, hostname)
-    if (host === null || host === undefined) {
-      ns.print(`Buying a new server ${hostname} with ${ram} GB ram for ` +
-        `${ns.nFormat(cost, "$0.000a")}`)
-      await waitForCash(ns, cost)
-      await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
-      clearLSItem('nmap')
-      count++
-    } else {
-      if (host.maxRam < ram) {
-        ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram` +
-          ` for ${ns.nFormat(cost, "$0.000a")}`)
-        await waitForCash(ns, cost)
-        ns.print("Killing scripts on server: " + hostname)
-        await fetch(ns, `ns.killall('${hostname}')`)
-        await ns.sleep(50)
-        ns.print("Destroying server: " + hostname)
-        await fetch(ns, `ns.deleteServer('${hostname}')`)
-        await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
-        clearLSItem('nmap')
-        count++
-      } else {
-        ns.print(`${hostname} is large enough, with ${host.maxRam} GB ram`)
-      }
-    }
+    count += await buyNewOrReplaceServer(ns, hostname, cost, ram)
     await ns.sleep(2000)
   }
   let msg = `Buyer.js is finished, purchased ${count} size ${args.size} servers.`
   announce(ns, msg)
   ns.tprint(msg)
   ns.tprint("I've bought all the servers I can. It's up to you now.")
+}
+
+/**
+ * @param {NS} ns
+ * @param {string} hostname
+ * @param {number} cost
+ * @param {number} ram
+ */
+async function buyNewOrReplaceServer(ns, hostname, cost, ram) {
+  let host = await fetchServer(ns, hostname)
+  if (host === null || host === undefined) {
+    ns.print(`Buying a new server ${hostname} with ${ram} GB ram for ` +
+      `${ns.nFormat(cost, "$0.000a")}`)
+    await purchaseNewServer(ns, hostname, cost, ram)
+    return 1
+  }
+
+  if (host.maxRam >= ram) {
+    ns.print(`${hostname} is large enough, with ${host.maxRam} GB ram`)
+    return 0
+  }
+  
+  ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram` +
+    ` for ${ns.nFormat(cost, "$0.000a")}`)
+  await upgradeServer(ns, host, cost, ram)
+  return 1
+}
+
+/**
+ * @param {NS} ns
+ * @param {string} hostname
+ * @param {number} cost
+ * @param {number} ram
+ */
+async function purchaseNewServer(ns, hostname, cost, ram) {
+  await waitForCash(ns, cost)
+  await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
+  clearLSItem('nmap')
+}
+
+/**
+ * @param {NS} ns
+ * @param {object} host
+ * @param {number} cost
+ * @param {number} ram
+ */
+async function upgradeServer(ns, host, cost, ram) {
+  await waitForCash(ns, cost)
+  ns.print("Waiting for scripts to end on " + host.name)
+  setLSItem('decommissioned', host.name)
+  await wrapUpProcesses(ns, host.name)
+  await ns.sleep(50)
+  ns.print("Destroying server: " + host.name)
+  await fetch(ns, `ns.deleteServer('${host.name}')`)
+  await fetch(ns, `ns.purchaseServer('${host.name}', ${ram})`)
+  clearLSItem('decommissioned')
+  clearLSItem('nmap')
+}
+
+/**
+ * @param {NS} ns
+ * @param {string} hostname
+ */
+async function wrapUpProcesses(ns, hostname) {
+  while ( ns.ps(hostname).length > 0 ) {
+    await ns.sleep(200)
+  }
 }

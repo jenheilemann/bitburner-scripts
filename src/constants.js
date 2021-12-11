@@ -25,4 +25,5 @@ export const lsKeys = {
   RESERVE : 'jh_reserve',
   BITNODE : 'jh_bn_multipliers',
   WORKING : 'jh_working',
+  DECOMMISSIONED : 'jh_decommissioned',
 }
