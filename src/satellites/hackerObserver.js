@@ -33,7 +33,7 @@ export async function main(ns) {
   disableLogs(ns, ['exec', 'sleep'])
   let nmap, player, searcher, targets
   const processManager = new ProcessManager()
-  setLSItem('hackpercent', hackDecimal)
+  if ((typeof getLSItem('hackpercent')) != 'number') setLSItem('hackpercent', hackDecimal)
 
   while(true) {
     nmap = await networkMap(ns)
@@ -69,18 +69,60 @@ export async function main(ns) {
  * @param {object[]} targets
  **/
 function report(ns, targets) {
-  const top = targets.slice(0, 5)
-  const nameLength = Math.max(... top.map(t => t.name.length))
-  for (const target of targets.slice(0, 5) ) {
-    ns.print(`${target.name.padEnd(nameLength)} / ` +
-      `Security: ${formatNumber(target.security).padStart(5)}/` +
-      `${formatNumber(target.minSecurity).padEnd(5)} / ` +
-      `Money: ${formatMoney(target.data.moneyAvailable).padStart(9)}/` +
-      `${formatMoney(target.maxMoney).padEnd(9)} / ` +
-      `Weak time: ${formatDuration(ns.formulas.hacking.weakenTime(target.data, fetchPlayer()))}`
+  ns.print(reporter.output(ns, targets))
+  reporter = new Report()
+}
+
+function recordActivity(type, threads) {
+  reporter.record(type, threads)
+}
+
+class Report {
+  constructor() {
+    this.activity = { 
+      w: { type: 'w', threads: 0, servers: 0 },
+      g: { type: 'g', threads: 0, servers: 0 }, 
+      h: { type: 'h', threads: 0, servers: 0 },
+    }
+  }
+  record(type, threads) {
+    type = type[0]
+    this.activity[type].threads += threads
+    this.activity[type].servers += 1
+  }
+  output(ns, servers) {
+    let str = 'SUCCESS: ---------- '
+    str += this.activitySummary()
+    str += this.serverSummary(ns, servers)
+    return str
+  }
+  activitySummary() {
+    let str = '\n\r'
+    const activity = Object.values(this.activity)
+    const totalThreads = activity.reduce((t, a) => { return t + a.threads }, 0)
+    str += `${totalThreads.toString().padStart(6)} threads `
+    activity.forEach( a => 
+      str += `${a.threads.toString().padStart(5)} ${a.type} threads ` +
+        `(${a.servers.toString().padStart(2)} servers) `
     )
+    return str
+  }
+  serverSummary(ns, servers) {
+    let str = ''
+    const top = servers.slice(0,5)
+    const nameLength = Math.max(... top.map(t => t.name.length))
+    for (const server of top ) {
+      str += `\n\r${server.name.padEnd(nameLength)} / ` +
+        `Security: ${formatNumber(server.security).padStart(5)}/` +
+        `${formatNumber(server.minSecurity).padEnd(5)} / ` +
+        `Money: ${formatMoney(server.data.moneyAvailable).padStart(9)}/` +
+        `${formatMoney(server.maxMoney).padEnd(9)} / ` +
+        `Weak time: ${formatDuration(ns.formulas.hacking.weakenTime(server.data, fetchPlayer()))}`
+    }
+    return str 
   }
 }
+let reporter = new Report()
 
 /**
  * @param {NS} ns
@@ -177,20 +219,20 @@ class Targeter {
   findRamAndLaunch(minerManagers, fileType) {
     const ramFinder = new RamFinder(this.ns, this.nmap)
     const [managers, outOfRam] = ramFinder.findMiners(minerManagers)
+    const rand = Date.now()
 
-    managers.forEach(manager => {this.launchMiners(manager, fileType)}, this)
+    managers.forEach(manager => this.launchMiners(manager, fileType, rand))
     if ( outOfRam ) {
       throw new OutOfRamException(`Out of ram, targeting ${this.target.name} ` +
         `while trying to run ${fileType}.`)
     }
   }
 
-  launchMiners(minerManager, record) {
+  launchMiners(minerManager, type, rand) {
     const file = minerManager.type
     const wait = minerManager.delay
-    const rand = Date.now()
+    const record = type == minerManager.type
     let pid
-    record = record == minerManager.type
 
     for ( const miner of minerManager.miners ) {
       this.ns.print(`ns.exec('${file}', '${miner.name}', ${miner.threads}, ` +
@@ -200,8 +242,7 @@ class Targeter {
         this.processManager.addProcess(pid, miner.threads, this.target.name, file)
       }
     }
-
-
+    if (record) recordActivity(file, minerManager.totalThreads)
   }
 
   hackTime() { return this.ns.formulas.hacking.hackTime(this.target.data, fetchPlayer())}
@@ -310,7 +351,6 @@ class RamFinder {
       }
     }
 
-    this.ns.print(`INFO: Not enough ram to run ${file}, additional threads needed: ${numThreads}`)
     return manager
   }
 
