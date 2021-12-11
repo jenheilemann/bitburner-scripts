@@ -86,9 +86,9 @@ async function purchaseNewServer(ns, hostname, cost, ram) {
  * @param {number} ram
  */
 async function upgradeServer(ns, host, cost, ram) {
+  setLSItem('decommissioned', host.name)
   await waitForCash(ns, cost)
   ns.print("Waiting for scripts to end on " + host.name)
-  setLSItem('decommissioned', host.name)
   await wrapUpProcesses(ns, host.name)
   await ns.sleep(50)
   ns.print("Destroying server: " + host.name)
