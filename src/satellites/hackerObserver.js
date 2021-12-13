@@ -26,6 +26,8 @@ const serverFortifyAmount = 0.002
 const growTimeMultiplier = 3.2 // Relative to hacking time. 16/5 = 3.2
 const weakenTimeMultiplier = 4 // Relative to hacking time
 
+let reporter; // bad global, bad!
+
 /**
  * @param {NS} ns
  **/
@@ -33,12 +35,14 @@ export async function main(ns) {
   disableLogs(ns, ['exec', 'sleep'])
   let nmap, player, searcher, targets
   const processManager = new ProcessManager()
+
   if ((typeof getLSItem('hackpercent')) != 'number') setLSItem('hackpercent', hackDecimal)
 
   while(true) {
     nmap = await networkMap(ns)
     player = fetchPlayer()
     processManager.cleanup(ns)
+    reporter = new Report()
     searcher = new BestHack(nmap)
     targets = searcher.findTop(ns, player)
     if ( targets.some(s => s.name === 'joesguns') && targets[0].name != 'joesguns' ) {
@@ -59,18 +63,9 @@ export async function main(ns) {
         throw err
       }
     }
-    report(ns, targets)
+    ns.print(reporter.output(ns, targets, processManager))
     await ns.sleep(sleepTime)
   }
-}
-
-/**
- * @param {NS} ns
- * @param {object[]} targets
- **/
-function report(ns, targets) {
-  ns.print(reporter.output(ns, targets))
-  reporter = new Report()
 }
 
 function recordActivity(type, threads) {
@@ -90,39 +85,59 @@ class Report {
     this.activity[type].threads += threads
     this.activity[type].servers += 1
   }
-  output(ns, servers) {
+  output(ns, servers, processManager) {
     let str = 'SUCCESS: ---------- '
+    str += this.processSummary(processManager)
     str += this.activitySummary()
     str += this.serverSummary(ns, servers)
     return str
   }
+  // N.B.: The threads listed here and in activitySummary are the PRIMARY 
+  // ACTIVITY threads. IE, if the script is weakening the server because 
+  // security is too high, those threads will be counted; if the script is 
+  // weakening the server because it is running an associated grow or hack, 
+  // those weak threads are not counted (only the grow or hack threads).
+  processSummary(processManager) {
+    let str = '\n\r Ongoing:   '
+    const summaryData = processManager.summaryData()
+    const total = summaryData.reduce((t, a) => { return t + a.threads}, 0)
+    str += `${total.toString().padStart(6)} total `
+    summaryData.forEach(d => 
+      str += `${d.threads.toString().padStart(5)}${d.type} threads ` +
+        `(${d.servers.toString().padStart(2)} servers) `
+    )
+    return str 
+  }
+
   activitySummary() {
-    let str = '\n\r'
+    let str = '\n\r This cycle:'
     const activity = Object.values(this.activity)
     const totalThreads = activity.reduce((t, a) => { return t + a.threads }, 0)
-    str += `${totalThreads.toString().padStart(6)} threads `
+    str += `${totalThreads.toString().padStart(6)} total `
     activity.forEach( a => 
-      str += `${a.threads.toString().padStart(5)} ${a.type} threads ` +
+      str += `${a.threads.toString().padStart(5)}${a.type} threads ` +
         `(${a.servers.toString().padStart(2)} servers) `
     )
     return str
   }
+
   serverSummary(ns, servers) {
-    let str = ''
+    let str = '\n\r ---------- Top targets ----------------'
     const top = servers.slice(0,5)
     const nameLength = Math.max(... top.map(t => t.name.length))
+    str += `\n\r ` + `Name`.padEnd(nameLength) 
+    str += ` |  Sec/min    |  Money/max          | wTime `
     for (const server of top ) {
-      str += `\n\r${server.name.padEnd(nameLength)} / ` +
-        `Security: ${formatNumber(server.security).padStart(5)}/` +
-        `${formatNumber(server.minSecurity).padEnd(5)} / ` +
-        `Money: ${formatMoney(server.data.moneyAvailable).padStart(9)}/` +
-        `${formatMoney(server.maxMoney).padEnd(9)} / ` +
-        `Weak time: ${formatDuration(ns.formulas.hacking.weakenTime(server.data, fetchPlayer()))}`
+      str += `\n\r ${server.name.padEnd(nameLength)} | ` +
+        `${formatNumber(server.security).padStart(5)}/` +
+        `${formatNumber(server.minSecurity).padEnd(5)} | ` +
+        `${formatMoney(server.data.moneyAvailable).padStart(9)}/` +
+        `${formatMoney(server.maxMoney).padEnd(9)} | ` +
+        `${formatDuration(ns.formulas.hacking.weakenTime(server.data, fetchPlayer()))}`
     }
     return str 
   }
 }
-let reporter = new Report()
 
 /**
  * @param {NS} ns
@@ -419,6 +434,21 @@ class ProcessManager {
   }
   addProcess(pid, threads, target, type) {
     this.threadList.push(new Process(pid, threads, target, type))
+  }
+  summaryData() {
+    const summary = { 
+      'weaken.js': { type: 'w', threads: 0, servers: 0, serverNames: []}, 
+      'grow.js':   { type: 'g', threads: 0, servers: 0, serverNames: []}, 
+      'hack.js':   { type: 'h', threads: 0, servers: 0, serverNames: []},
+    }
+    this.threadList.forEach(p => {
+      summary[p.type].threads += p.threads
+      if (!summary[p.type].serverNames.includes(p.target)) {
+        summary[p.type].servers++
+        summary[p.type].serverNames.push(p.target)
+      }
+    })
+    return Object.values(summary)
   }
 }
 
