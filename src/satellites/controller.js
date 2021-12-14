@@ -20,6 +20,7 @@ const timers = [
   { file: '/satellites/pservObserver.js', freq: 5 * min, last: Date.now() },
   { file: '/satellites/hackerObserver.js', freq: min, last: 0 },
   { file: '/satellites/homeRamBuyer.js', freq: min, last: Date.now() },
+  { file: '/gang/equipment.js', freq: sec, last: 0 },
 ]
 
 /**

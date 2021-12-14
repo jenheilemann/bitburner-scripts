@@ -391,9 +391,9 @@ export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, .
     'formatDuration', 'formatRam', 'hashCode',
   ]
   const script =
-    `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n\r` +
-    `import { networkMap, fetchServer } fr` + `om 'network.js';\n\r` +
-    `import * as constants fr` + `om 'constants.js';\n\r` +
+    `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n` +
+    `import { networkMap, fetchServer } fr` + `om 'network.js';\n` +
+    `import * as constants fr` + `om 'constants.js';\n` +
     `export async function main(ns) { try { ` +
     (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
     `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
