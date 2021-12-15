@@ -411,7 +411,7 @@ async function earnFactionInvite(ns, factionName) {
       // Change the "Silhouette" company config to be whichever company we have the most favor with (rep will increase fastest). Break ties with Rep.
       .sort((a, b) => (Math.round(ns.getCompanyFavor(b)) - Math.round(ns.getCompanyFavor(a))) || (ns.getCompanyRep(b) - ns.getCompanyRep(a)))[0];
     // Super-hack. Kick off an external script that just loops until it joins the faction, since we can't have concurrent ns calls in here.
-    await runCommand(ns, `while(true) { if(ns.joinFaction('${factionName}')) return; else ns.sleep(1000); }`, '/Temp/join-faction-loop.js');
+    await runCommand(ns, `while(true) { if(ns.joinFaction('${factionName}')) return; else await ns.sleep(1000); }`, '/Temp/join-faction-loop.js');
     workedForInvite = await workForMegacorpFactionInvite(ns, factionName, false); // Work until CTO and the external script joins this faction, triggering an exit condition.
   }
 
