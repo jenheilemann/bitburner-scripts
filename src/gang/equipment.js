@@ -11,6 +11,10 @@ const combatEquipment = [ 'weapons', 'armor', 'vehicles']
 
 /** @param {NS} ns **/
 export async function main(ns) {
+  const inAnyGang = await fetch(ns, `ns.gang.inGang()`, '/Temp/inGang.txt')
+  if ( !inAnyGang )
+    return // can't buy equipment for a gang that doesn't exist
+
   const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`, '/Temp/gangInfo.txt')
   const members  = await fetch(ns, `ns.gang.getMemberNames()`,     '/Temp/gangMembers.txt')
   const equipData = await getEquipmentData(ns, gangInfo.isHacker)
@@ -19,7 +23,7 @@ export async function main(ns) {
     if ( myMoney(ns) < equip.cost*members.length + reserve(ns) )
       return // all done for now
     ns.print(`Attempting to purchase ${equip.name} for gang members...`)
-    var cmd = JSON.stringify(members) +
+    const cmd = JSON.stringify(members) +
       `.forEach(m => ns.print( ns.gang.purchaseEquipment(m, ns.args[0])))`
     await runCommand(ns, cmd, '/Temp/gangEquipPurchase.js', false, 1, equip.name)
   }
