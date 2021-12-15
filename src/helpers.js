@@ -351,7 +351,6 @@ export async function runCommand(ns, command, fileName, verbose, ...args) {
 export async function runCommandAndWait(ns, command, fileName, verbose, ...args) {
   checkNsInstance(ns)
   if (!verbose) disableLogs(ns, ['run', 'sleep'])
-  fileName = fileName || `/Temp/${hashCode(command)}-command.js`;
 
   const pid = await runCommand_Custom(ns,ns.run,command,fileName,verbose,...args)
   if (pid === 0) {
@@ -391,9 +390,9 @@ export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, .
     'formatDuration', 'formatRam', 'hashCode',
   ]
   const script =
-    `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n` +
-    `import { networkMap, fetchServer } fr` + `om 'network.js';\n` +
-    `import * as constants fr` + `om 'constants.js';\n` +
+    // `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n` +
+    // `import { networkMap, fetchServer } fr` + `om 'network.js';\n` +
+    // `import * as constants fr` + `om 'constants.js';\n` +
     `export async function main(ns) { try { ` +
     (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
     `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
@@ -401,7 +400,9 @@ export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, .
   // To improve performance and save on garbage collection, we can skip
   // writing this exact same script was previously written (common for
   // repeatedly-queried data)
-  if (ns.read(fileName) != script) await ns.write(fileName, script, "w")
+  if (ns.read(fileName) != script) {
+    await ns.write(fileName, script, "w")
+  }
   return fnRun(fileName, ...args)
 }
 
