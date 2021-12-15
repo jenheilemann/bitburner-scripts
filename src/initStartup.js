@@ -14,6 +14,7 @@ const filesToDownload = [
   '/contracts/uniquePaths1Solver.js',
   '/contracts/uniquePaths2Solver.js',
   '/gang/equipment.js',
+  '/gang/recruitment.js',
   '/hacknet/coreUpgrader.js',
   '/hacknet/levelUpgrader.js',
   '/hacknet/ramUpgrader.js',
