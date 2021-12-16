@@ -5,6 +5,7 @@ import { waitForCash,
          getNsDataThroughFile as fetch,
          disableLogs,
          announce,
+         formatRam,
         } from 'helpers.js'
 const argsSchema = [
   ['size', 7],
@@ -36,7 +37,7 @@ export async function main(ns) {
     await ns.sleep(2000)
   }
   let msg = `Buyer.js is finished, purchased ${count} size ${args.size} servers.`
-  announce(ns, msg)
+  announce(ns, msg, 'success')
   ns.tprint(msg)
   ns.tprint("I've bought all the servers I can. It's up to you now.")
 }
@@ -52,19 +53,17 @@ async function buyNewOrReplaceServer(ns, hostname, cost, ram) {
   if (host === null || host === undefined) {
     ns.print(`Buying a new server ${hostname} with ${ram} GB ram for ` +
       `${ns.nFormat(cost, "$0.000a")}`)
-    await purchaseNewServer(ns, hostname, cost, ram)
-    return 1
+    return purchaseNewServer(ns, hostname, cost, ram)
   }
 
   if (host.maxRam >= ram) {
     ns.print(`${hostname} is large enough, with ${host.maxRam} GB ram`)
     return 0
   }
-  
+
   ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram` +
     ` for ${ns.nFormat(cost, "$0.000a")}`)
-  await upgradeServer(ns, host, cost, ram)
-  return 1
+  return await upgradeServer(ns, host, cost, ram)
 }
 
 /**
@@ -75,8 +74,13 @@ async function buyNewOrReplaceServer(ns, hostname, cost, ram) {
  */
 async function purchaseNewServer(ns, hostname, cost, ram) {
   await waitForCash(ns, cost)
-  await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
-  clearLSItem('nmap')
+  let result = await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
+  if (result) {
+    announce(ns, `Purchased new server, ${hostname} with ${formatRam(ram)}`)
+    clearLSItem('nmap')
+    return 1
+  }
+  return 0
 }
 
 /**
@@ -93,9 +97,15 @@ async function upgradeServer(ns, host, cost, ram) {
   await ns.sleep(50)
   ns.print("Destroying server: " + host.name)
   await fetch(ns, `ns.deleteServer('${host.name}')`)
-  await fetch(ns, `ns.purchaseServer('${host.name}', ${ram})`)
+  const result = await fetch(ns, `ns.purchaseServer('${host.name}', ${ram})`)
   clearLSItem('decommissioned')
-  clearLSItem('nmap')
+
+  if (result) {
+    announce(ns, `Upgraded server ${host.name} with ${formatRam(ram)}`)
+    clearLSItem('nmap')
+    return 1
+  }
+  return 0
 }
 
 /**
