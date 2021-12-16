@@ -38,7 +38,7 @@ export async function main(ns) {
   }
   let msg = `Buyer.js is finished, purchased ${count} size ${args.size} servers.`
   announce(ns, msg, 'success')
-  ns.tprint(msg)
+  ns.tprint("Success: " + msg)
   ns.tprint("I've bought all the servers I can. It's up to you now.")
 }
 
