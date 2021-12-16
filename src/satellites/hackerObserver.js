@@ -15,7 +15,7 @@ const ramSizes = {
 }
 
 // Configuration. Change these as desired.
-const reservedRam = 40
+const reservedRam = 50
 const bufferTime = 30 //ms
 const hackDecimal = 0.05
 const sleepTime = 1000 //ms
@@ -74,9 +74,9 @@ function recordActivity(type, threads) {
 
 class Report {
   constructor() {
-    this.activity = { 
+    this.activity = {
       w: { type: 'w', threads: 0, servers: 0 },
-      g: { type: 'g', threads: 0, servers: 0 }, 
+      g: { type: 'g', threads: 0, servers: 0 },
       h: { type: 'h', threads: 0, servers: 0 },
     }
   }
@@ -92,21 +92,21 @@ class Report {
     str += this.serverSummary(ns, servers)
     return str
   }
-  // N.B.: The threads listed here and in activitySummary are the PRIMARY 
-  // ACTIVITY threads. IE, if the script is weakening the server because 
-  // security is too high, those threads will be counted; if the script is 
-  // weakening the server because it is running an associated grow or hack, 
+  // N.B.: The threads listed here and in activitySummary are the PRIMARY
+  // ACTIVITY threads. IE, if the script is weakening the server because
+  // security is too high, those threads will be counted; if the script is
+  // weakening the server because it is running an associated grow or hack,
   // those weak threads are not counted (only the grow or hack threads).
   processSummary(processManager) {
     let str = '\n\r Ongoing:   '
     const summaryData = processManager.summaryData()
     const total = summaryData.reduce((t, a) => { return t + a.threads}, 0)
     str += `${total.toString().padStart(6)} total `
-    summaryData.forEach(d => 
+    summaryData.forEach(d =>
       str += `${d.threads.toString().padStart(5)}${d.type} threads ` +
         `(${d.servers.toString().padStart(2)} servers) `
     )
-    return str 
+    return str
   }
 
   activitySummary() {
@@ -114,7 +114,7 @@ class Report {
     const activity = Object.values(this.activity)
     const totalThreads = activity.reduce((t, a) => { return t + a.threads }, 0)
     str += `${totalThreads.toString().padStart(6)} total `
-    activity.forEach( a => 
+    activity.forEach( a =>
       str += `${a.threads.toString().padStart(5)}${a.type} threads ` +
         `(${a.servers.toString().padStart(2)} servers) `
     )
@@ -125,7 +125,7 @@ class Report {
     let str = '\n\r ---------- Top targets ----------------'
     const top = servers.slice(0,5)
     const nameLength = Math.max(... top.map(t => t.name.length))
-    str += `\n\r ` + `Name`.padEnd(nameLength) 
+    str += `\n\r ` + `Name`.padEnd(nameLength)
     str += ` |  Sec/min    |  Money/max          | wTime `
     for (const server of top ) {
       str += `\n\r ${server.name.padEnd(nameLength)} | ` +
@@ -135,7 +135,7 @@ class Report {
         `${formatMoney(server.maxMoney).padEnd(9)} | ` +
         `${formatDuration(ns.formulas.hacking.weakenTime(server.data, fetchPlayer()))}`
     }
-    return str 
+    return str
   }
 }
 
@@ -157,14 +157,14 @@ function targetServer(ns, target, nmap, processManager) {
 
 class Targeter {
   constructor(ns, target, nmap, processManager) {
-    this.ns = ns 
-    this.target = target 
+    this.ns = ns
+    this.target = target
     this.nmap = nmap
     this.processManager = processManager
     ns.print(`H : ${formatDuration(this.hackTime())} / ` +
-      `G : ${formatDuration(this.growTime())} / ` + 
+      `G : ${formatDuration(this.growTime())} / ` +
       `W : ${formatDuration(this.weakTime())}`)
-  } 
+  }
 
   weakenServer() {
     // Start by just ensuring the server is weak enough
@@ -347,14 +347,14 @@ class RamFinder {
     let numThreads = manager.goal
     let file = manager.type
     if (numThreads == 0) {
-      return manager 
+      return manager
     }
     const fileSize = ramSizes[file]
     let availableThreads, threads, server
 
     for ( const sn in this.serversWithRam ) {
       server = this.serversWithRam[sn]
-      if ( server.netRam < fileSize ) 
+      if ( server.netRam < fileSize )
         continue
       availableThreads = Math.floor(server.netRam/fileSize)
       threads = Math.min(availableThreads, numThreads)
@@ -371,7 +371,7 @@ class RamFinder {
 
   resetServers() {
     for (const sn in this.serversWithRam) {
-      this.serversWithRam[sn].netRam = this.serversWithRam[sn].ram 
+      this.serversWithRam[sn].netRam = this.serversWithRam[sn].ram
     }
   }
 
@@ -436,9 +436,9 @@ class ProcessManager {
     this.threadList.push(new Process(pid, threads, target, type))
   }
   summaryData() {
-    const summary = { 
-      'weaken.js': { type: 'w', threads: 0, servers: 0, serverNames: []}, 
-      'grow.js':   { type: 'g', threads: 0, servers: 0, serverNames: []}, 
+    const summary = {
+      'weaken.js': { type: 'w', threads: 0, servers: 0, serverNames: []},
+      'grow.js':   { type: 'g', threads: 0, servers: 0, serverNames: []},
       'hack.js':   { type: 'h', threads: 0, servers: 0, serverNames: []},
     }
     this.threadList.forEach(p => {
@@ -454,7 +454,7 @@ class ProcessManager {
 
 class Process {
   constructor(pid, threads, target, type) {
-    this.pid = pid 
+    this.pid = pid
     this.threads = threads
     this.target = target
     this.type = type
