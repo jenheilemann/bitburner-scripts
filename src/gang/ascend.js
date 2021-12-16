@@ -88,7 +88,8 @@ class Ascender {
     }
 
     if (result)
-      return announce(ns, `Gang member ${member.name} ascended, new multiplier is ${formatNumber(ascResult)}`)
+      return announce(ns, `Gang member ${member.name} ascended, new multiplier ` +
+        `is ${formatNumber(ascResult)}`, 'success')
     ns.tail()
     ns.print(`Member ${member} did not ascend?`)
     ns.print(ascensionResults[i])
