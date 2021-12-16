@@ -19,5 +19,5 @@ import {
 /** @param {NS} ns **/
 export async function main(ns) {
   // run the command in verbose mode, since that's usually what I want anyway
-  await runCommand(ns, ns.args.join(" "), undefined, true)
+  await runCommand(ns, ns.args.join(" "), '/Temp/doThisProcess.js', true)
 }
