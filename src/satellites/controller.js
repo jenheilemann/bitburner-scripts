@@ -22,6 +22,7 @@ const timers = [
   { file: '/satellites/homeRamBuyer.js', freq: min, last: Date.now() },
   { file: '/gang/equipment.js', freq: 5*sec, last: 0 },
   { file: '/gang/recruitment.js', freq: 5*sec, last: 0 },
+  { file: '/gang/ascend.js', freq: 8*sec, last: 0 },
 ]
 
 /**

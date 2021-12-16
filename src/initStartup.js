@@ -13,6 +13,7 @@ const filesToDownload = [
   '/contracts/totalWaysToSumSolver.js',
   '/contracts/uniquePaths1Solver.js',
   '/contracts/uniquePaths2Solver.js',
+  '/gang/ascend.js',
   '/gang/equipment.js',
   '/gang/recruitment.js',
   '/hacknet/coreUpgrader.js',
