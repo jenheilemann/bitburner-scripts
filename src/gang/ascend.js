@@ -63,7 +63,7 @@ class Ascender {
    * @param {object} member
    **/
   async ascendGangMember(ns, member) {
-    if ( member.ascResult === undefined ) {
+    if ( member.ascResult === undefined || member.ascResult === null ) {
       return ns.print(`${member.name} cannot ascend at this time.`)
     }
     const currentMult = member[this.multKey]
