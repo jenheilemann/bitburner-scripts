@@ -1,5 +1,4 @@
 import { findPath } from 'network.js'
-import { factionServers } from 'constants.js'
 import { announce } from 'helpers.js'
 
 /** @param {NS} ns **/
