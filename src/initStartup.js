@@ -36,6 +36,7 @@ const filesToDownload = [
   '/satellites/serversObserver.js',
   '/satellites/torBuyer.js',
   '/startup/run.js',
+  'augPurchaser.js',
   'backdoor.js',
   'bestHack.js',
   'botnet.js',
