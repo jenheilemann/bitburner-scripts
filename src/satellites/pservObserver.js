@@ -32,7 +32,8 @@ export async function main(ns) {
   announce(ns, msg)
   ns.tprint(msg)
   ns.tprint(` ns.spawn('buyer.js', 1, '--size', ${nextRam})`)
-  await runCommand(ns, `for (let i = 0,pid = 0; pid == 0 && i < 10; i++) { pid = ns.spawn('buyer.js', 1, '--size', ${nextRam}) }`, '/Temp/runBuyer.js')
+  await runCommand(ns, `for (let i = 0,pid = 0; pid == 0 && i < 10; i++) { ` +
+    `pid = ns.spawn('buyer.js', 1, '--size', ${nextRam}) }`, '/Temp/spawnBuyer.js')
 }
 
 /**
@@ -61,7 +62,7 @@ async function nextRamSize(ns, currRam) {
 
   let cost, totalCost
   for (var i = 20; 2**i > currRam; i--) {
-    if i < 0 ns.tail() && throw `How is i less than 0? ${i}`
+    if (i < 0) { ns.tail(); throw `How is i less than 0? ${i}` }
     cost = await fetch(ns, `ns.getPurchasedServerCost(${2**i})`,
       `/Temp/getPurchasedServerCost.${i}.txt`)
     totalCost = cost * limit
