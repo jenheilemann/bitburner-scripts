@@ -14,7 +14,7 @@ const min = 60, hour = min * 60
  **/
 export async function main(ns) {
   // if there's already a buyer running, let it finish before starting another
-  const homePS = await fetch(ns, `ns.ps('home')`)
+  const homePS = await fetch(ns, `ns.ps('home')`, '/Temp/ps_home.txt')
   if ( homePS.some(proc => proc.filename === 'buyer.js') ) {
     return
   }
@@ -32,7 +32,7 @@ export async function main(ns) {
   announce(ns, msg)
   ns.tprint(msg)
   ns.tprint(` ns.spawn('buyer.js', 1, '--size', ${nextRam})`)
-  await runCommand(ns, `for (let i = 0,pid = 0; pid == 0 && i < 10; i++) { pid = ns.spawn('buyer.js', 1, '--size', ${nextRam}) }`)
+  await runCommand(ns, `for (let i = 0,pid = 0; pid == 0 && i < 10; i++) { pid = ns.spawn('buyer.js', 1, '--size', ${nextRam}) }`, '/Temp/runBuyer.js')
 }
 
 /**
@@ -51,15 +51,19 @@ function smallestCurrentServerSize(pservs) {
  * @param {array} pservs
  **/
 async function nextRamSize(ns, currRam) {
-  const limit = await fetch(ns, `ns.getPurchasedServerLimit()`)
-  const totIncomePerSecond = await fetch(ns, `ns.getScriptIncome()[0]`)
+  const limit = await fetch(ns, `ns.getPurchasedServerLimit()`,
+    '/Temp/getPurchasedServerLimit.txt')
+  const totIncomePerSecond = await fetch(ns, `ns.getScriptIncome()[0]`,
+    '/Temp/getScriptIncome.txt')
   const incomePerPayoffTime = totIncomePerSecond * 2*hour
   ns.print(`Total income: ${ns.nFormat(totIncomePerSecond, "$0,0")}`)
   ns.print(`Income per payoff time: ${ns.nFormat(incomePerPayoffTime, "$0,0")}`)
 
   let cost, totalCost
   for (var i = 20; 2**i > currRam; i--) {
-    cost = await fetch(ns, `ns.getPurchasedServerCost(${2**i})`)
+    if i < 0 ns.tail() && throw `How is i less than 0? ${i}`
+    cost = await fetch(ns, `ns.getPurchasedServerCost(${2**i})`,
+      `/Temp/getPurchasedServerCost.${i}.txt`)
     totalCost = cost * limit
 
     ns.print(`Total cost for ${2**i}GB ram: ${ns.nFormat(totalCost, "$0,0")}`)

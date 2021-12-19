@@ -61,7 +61,7 @@ export async function main(ns) {
 
   while (again) {
     crime = await chooseCrime(ns, args)
-    time = await fetch(ns, `ns.commitCrime('${crime}')`)
+    time = await fetch(ns, `ns.commitCrime('${crime}')`, `/Temp/commitCrime.txt`)
     ns.print(`Attempting ${crime} in ${ns.tFormat(time)}...`)
     await ns.sleep(time * 0.75)
 

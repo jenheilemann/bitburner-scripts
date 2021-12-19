@@ -23,7 +23,8 @@ export async function main(ns) {
   }
 
   ns.tprint(`Buying ${program.name} for ${ns.nFormat(program.cost, "$0.000a" )}`)
-  let result = await fetch(ns, `ns.purchaseProgram('${program.name}')`)
+  let result = await fetch(ns, `ns.purchaseProgram('${program.name}')`,
+    '/Temp/purchaseProgram.txt')
   if ( result ) {
     ns.tprint(`SUCCESS: ${program.name} purchased.`)
     return

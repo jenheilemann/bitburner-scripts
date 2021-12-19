@@ -9,8 +9,10 @@ export async function main(ns) {
   if (!inAnyGang)
     return // can't buy equipment for a gang that doesn't exist
 
-  const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`, '/Temp/gangInfo.txt')
-  const members = await fetch(ns, `ns.gang.getMemberNames()`, '/Temp/gangMembers.txt')
+  const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`,
+    '/Temp/gangInfo.txt')
+  const members = await fetch(ns, `ns.gang.getMemberNames()`,
+    '/Temp/gangMembers.txt')
   const memberData = await fetch(ns,
     `${JSON.stringify(members)}.map(m => ns.gang.getMemberInformation(m))`,
     '/Temp/gang.getMemberInformation.txt')

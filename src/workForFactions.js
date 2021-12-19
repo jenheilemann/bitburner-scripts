@@ -173,7 +173,8 @@ export async function main(ns) {
   }
 
   // Get some factions augmentations to decide what remains to be purchased
-  const ownedAugs = await fetch(ns, `ns.getOwnedAugmentations(true)`)
+  const ownedAugs = await fetch(ns, `ns.getOwnedAugmentations(true)`,
+    '/Temp/getOwnedAugmentations.txt')
 
   let cmd = dictCommand(factions, 'ns.getAugmentationsFromFaction(o)')
   const factionAugs = await fetch(ns, cmd, '/Temp/factionAugs.txt')
@@ -352,11 +353,12 @@ const requiredKarmaByFaction = {
 const requiredKillsByFaction = {"Speakers for the Dead": 30, "The Dark Army": 5}
 
 /** @param {NS} ns */
-async function earnFactionInvite(ns, factionName) {
+export async function earnFactionInvite(ns, factionName) {
   const player = ns.getPlayer();
   const joinedFactions = player.factions;
   if (joinedFactions.includes(factionName)) return true;
-  var invitations = await fetch(ns, 'ns.checkFactionInvitations()');
+  var invitations = await fetch(ns, 'ns.checkFactionInvitations()',
+    '/Temp/checkFactionInvitations.txt')
   if (invitations.includes(factionName))
     return await tryJoinFaction(ns, factionName);
 
@@ -428,7 +430,7 @@ async function goToCity(ns, cityName) {
     ns.print(`Already in city ${cityName}`);
     return true;
   }
-  if (await fetch(ns, `ns.travelToCity('${cityName}')`, '/Temp/travel.txt')) {
+  if (await fetch(ns, `ns.travelToCity('${cityName}')`, `/Temp/travel.${cityName[0]}.txt`)) {
     lastActionRestart = Date.now();
     announce(ns, `Travelled to ${cityName}`, 'info');
     return true;
@@ -488,10 +490,11 @@ async function studyForCharisma(ns) {
 
 /** @param {NS} ns */
 export async function waitForFactionInvite(ns, factionName, maxWaitTime = 20000) {
-  ns.print(`Waiting for invite from faction "${factionName}"...`);
-  let waitTime = maxWaitTime;
+  ns.print(`Waiting for invite from faction "${factionName}"...`)
+  let waitTime = maxWaitTime
   do {
-    var invitations = await fetch(ns, 'ns.checkFactionInvitations()');
+    var invitations = await fetch(ns, 'ns.checkFactionInvitations()',
+      '/Temp/checkFactionInvitations.txt')
     var joinedFactions = ns.getPlayer().factions;
     if (!invitations.includes(factionName) && !joinedFactions.includes(factionName))
       await ns.sleep(loopSleepInterval);
@@ -551,7 +554,7 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
     return ns.print(`We are not yet part of faction "${factionName}". Skipping working for faction...`);
 
   if (ns.getPlayer().workRepGained > 0) // If we're currently woing faction work, stop to collect reputation and find out how much is remaining
-    await fetch(ns, `ns.stopAction()`);
+    await fetch(ns, `ns.stopAction()`, '/Temp/stopAction.txt');
   let currentReputation = ns.getFactionRep(factionName);
   // If the best faction aug is within 10% of our current rep, grind
   // all the way to it so we can get it immediately, regardless of our
@@ -604,7 +607,7 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
     if (currentReputation + ns.getPlayer().workRepGained >= factionRepRequired) {
       // We're close - stop working so our current rep is accurate when we check
       // the while loop condition
-      await fetch(ns, `ns.stopAction()`)
+      await fetch(ns, `ns.stopAction()`, '/Temp/stopAction.txt')
     }
   }
   if (currentReputation >= factionRepRequired)
@@ -678,7 +681,7 @@ async function tryBuyReputation(ns) {
   if (ns.getPlayer().money > 100E9) {
     let cmd = 'ns.hacknet.numHashes() + ns.hacknet.spendHashes("Generate ' +
               'Coding Contract") - ns.hacknet.numHashes()'
-    let spentHashes = await fetch(ns, cmd);
+    let spentHashes = await fetch(ns, cmd, '/Temp/hacknet.spendHashes.txt');
     if (spentHashes > 0) {
       announce(ns, `Generated a new coding contract for ` +
         `${formatNumber(Math.round(spentHashes / 100) * 100)} hashes`,
@@ -728,7 +731,8 @@ async function workForMegacorpFactionInvite(ns, factionName, waitForInvite) {
     return false
   }
 
-  var invitations = await fetch(ns, 'ns.checkFactionInvitations()')
+  var invitations = await fetch(ns, 'ns.checkFactionInvitations()',
+    '/Temp/checkFactionInvitations.txt')
   if (invitations.includes(factionName)) {
     return await tryJoinFaction(ns, factionName)
   }
@@ -833,8 +837,10 @@ async function workForMegacorpFactionInvite(ns, factionName, waitForInvite) {
         if (await studyForCharisma(ns))
           working = !(studying = true);
       }
-      if (requiredCha - player.charisma > 10) { // Try to spend hacknet-node hashes on university upgrades while we've got a ways to study to make it go faster
-        if (await fetch(ns, 'ns.hacknet.spendHashes("Improve Studying")')) {
+      // Try to spend hacknet-node hashes on university upgrades while we've got
+      // a ways to study to make it go faster
+      if (requiredCha - player.charisma > 10) {
+        if (await fetch(ns, 'ns.hacknet.spendHashes("Improve Studying")', 'T')) {
           announce(ns, 'Bought a "Improve Studying" upgrade.', 'success');
           await studyForCharisma(ns); // We must restart studying for the upgrade to take effect.
         }

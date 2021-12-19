@@ -35,20 +35,22 @@ export async function main(ns) {
 }
 
 async function runContracts(ns, map) {
-  let contract, solverFile, files, type
+  let contract, solverFile, type
+  const serverNames = JSON.stringify(Object.keys(map))
+  let serversData = await fetch(ns,
+    `${serverNames}.map(s => ns.ls(s, '.cct').map(f => { return {file: f, server: s }})).flat()`,
+    '/Temp/ls-cct.txt')
+  ns.print(serversData)
+  let contracts = await fetch(ns,
+    JSON.stringify(serversData) + `.map(s => { ` +
+    `s.type = ns.codingcontract.getContractType(s.file, s.server); return s})`,
+    '/Temp/codingcontract.getContractType.txt')
+  ns.print(contracts)
 
-  for (let serverName in map ) {
-    files = await fetch(ns, `ns.ls('${serverName}', '.cct')`)
-    for ( let file of files ) {
-      type = await fetch(ns, `ns.codingcontract.getContractType('${file}', '${serverName}')`)
-      contract = {
-        file: file,
-        server: serverName,
-        type: type,
-      }
-      ns.print(`Contract ${contract.file} (${type}) found on ${contract.server}`)
-      solverFile = solvers[type] ?? "/contracts/failSolver.js"
-      await tryRun(ns, () => ns.run(solverFile, 1, '--dataString', JSON.stringify(contract)) )
-    }
+  for ( const contract of contracts ) {
+    // Contract needs to be in the format { file: 'name', type: 'type', server: 'server'}
+    ns.print(`Contract ${contract.file} (${contract.type}) found on ${contract.server}`)
+    solverFile = solvers[contract.type] ?? "/contracts/failSolver.js"
+    await tryRun(ns, () => ns.run(solverFile, 1, '--dataString', JSON.stringify(contract)) )
   }
 }

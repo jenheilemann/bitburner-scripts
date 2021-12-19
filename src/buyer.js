@@ -25,8 +25,10 @@ export async function main(ns) {
   let hostname, host
 
   const ram = Math.pow(2, args.size)
-  const limit = await fetch(ns, `ns.getPurchasedServerLimit()`)
-  const cost = await fetch(ns, `ns.getPurchasedServerCost(${ram})`)
+  const limit = await fetch(ns, `ns.getPurchasedServerLimit()`,
+    `/Temp/getPurchasedServerLimit.txt`)
+  const cost = await fetch(ns, `ns.getPurchasedServerCost(${ram})`,
+    `/Temp/getPurchasedServerCost.${ram}.txt`)
   ns.tprint("Buying " + ram + "GB RAM servers")
   ns.tprint(`${limit} servers for ${ns.nFormat(cost, "$0.000a")} each`)
   let count = 0
@@ -74,7 +76,8 @@ async function buyNewOrReplaceServer(ns, hostname, cost, ram) {
  */
 async function purchaseNewServer(ns, hostname, cost, ram) {
   await waitForCash(ns, cost)
-  let result = await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`)
+  let result = await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`,
+    `/Temp/purchaseServer.txt`)
   if (result) {
     announce(ns, `Purchased new server, ${hostname} with ${formatRam(ram)}`)
     clearLSItem('nmap')
@@ -96,8 +99,9 @@ async function upgradeServer(ns, host, cost, ram) {
   await wrapUpProcesses(ns, host.name)
   await ns.sleep(50)
   ns.print("Destroying server: " + host.name)
-  await fetch(ns, `ns.deleteServer('${host.name}')`)
-  const result = await fetch(ns, `ns.purchaseServer('${host.name}', ${ram})`)
+  await fetch(ns, `ns.deleteServer('${host.name}')`, '/Temp/deleteServer.txt')
+  const result = await fetch(ns, `ns.purchaseServer('${host.name}', ${ram})`,
+    '/Temp/purchaseServer.txt')
   clearLSItem('decommissioned')
 
   if (result) {

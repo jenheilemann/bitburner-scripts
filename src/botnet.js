@@ -42,7 +42,8 @@ export async function main(ns) {
 
 async function zombify(ns, server) {
   for (const script of scripts) {
-    await runCommandAndWait(ns, `ns.scp('${script}', "home", '${server}')`)
+    await runCommandAndWait(ns, `ns.scp('${script}', "home", '${server}')`,
+      `/Temp/scp-${script}.js`)
   }
   ns.print(`Copied ${scripts} to ${server}`)
 }

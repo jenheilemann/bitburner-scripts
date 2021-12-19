@@ -8,12 +8,14 @@ const threshholds = [2,3,5,8,13,21]
 
 /** @param {NS} ns **/
 export async function main(ns) {
-  const inAnyGang = await fetch(ns, `ns.gang.inGang()`, '/Temp/inGang.txt')
+  const inAnyGang = await fetch(ns, `ns.gang.inGang()`, '/Temp/gang.inGang.txt')
   if ( !inAnyGang )
     return ns.print('no gang') // can't ascend members for a gang that doesn't exist
 
-  const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`, '/Temp/gangInfo.txt')
-  const members  = await fetch(ns, `ns.gang.getMemberNames()`,     '/Temp/gangMembers.txt')
+  const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`,
+    '/Temp/gang.getGangInformation.txt')
+  const members  = await fetch(ns, `ns.gang.getMemberNames()`,
+    '/Temp/gang.getMemberNames.txt')
   if ( members.length == 0 )
     return ns.print('no members') // can't ascend no members
 
