@@ -5,9 +5,8 @@ import {
   reserve,
 } from 'helpers.js'
 import { gangEquipment } from 'constants.js'
+import { sortForHacking, sortForCombat } from '/gang/equipment.js'
 
-const hackerEquipment = ['rootkits', 'vehicles']
-const combatEquipment = [ 'weapons', 'armor', 'vehicles']
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -17,15 +16,16 @@ export async function main(ns) {
 
   const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`, '/Temp/gangInfo.txt')
   const members  = await fetch(ns, `ns.gang.getMemberNames()`,     '/Temp/gangMembers.txt')
-  const equipData = await getEquipmentData(ns, gangInfo.isHacker)
+  const augData = await getAugData(ns, gangInfo.isHacker)
+  return ns.tprint(augData)
 
-  for (const equip of equipData) {
-    if ( myMoney(ns) < equip.cost*members.length + reserve(ns) )
+  for (const aug of augData) {
+    if ( myMoney(ns) < aug.cost*members.length + reserve(ns) )
       return // all done for now
-    ns.print(`Attempting to purchase ${equip.name} for gang members...`)
+    ns.print(`Attempting to purchase ${aug.name} for gang members...`)
     const cmd = JSON.stringify(members) +
       `.forEach(m => ns.print( ns.gang.purchaseEquipment(m, ns.args[0])))`
-    await runCommand(ns, cmd, '/Temp/gangEquipPurchase.js', false, 1, equip.name)
+    await runCommand(ns, cmd, '/Temp/gangEquipPurchase.js', false, 1, aug.name)
   }
 }
 
@@ -33,8 +33,8 @@ export async function main(ns) {
  * @param {NS} ns
  * @param {boolean} isHacker
  **/
-async function getEquipmentData(ns, isHacker) {
-  const equipTypes = isHacker ? hackerEquipment : combatEquipment
+async function getAugData(ns, isHacker) {
+  const augTypes = isHacker ? gangEquipment.hackAugs : gangEquipment.combatAugs
   let eq, desired = []
   for (const type of equipTypes) {
     eq = gangEquipment[type].map(obj => { return {name: obj, type: type} })
@@ -52,21 +52,4 @@ async function getEquipmentData(ns, isHacker) {
   desired.sort(isHacker ? sortForHacking : sortForCombat)
 
   return desired
-}
-
-/** @param {object} a, b **/
-export function sortForHacking(a, b) {
-  if ( a.stats.hack == b.stats.hack ) {
-    if (b.stats.cha == a.stats.cha)
-      return a.cost - b.cost
-    return (b.stats.cha || 0) - (a.stats.cha || 0)
-  }
-  return (b.stats.hack || 0) - (a.stats.hack || 0)
-}
-
-/** @param {object} a, b **/
-export function sortForCombat(a, b) {
-  if ( a.stats.str == b.stats.str )
-    return a.cost - b.cost
-  return (b.stats.str || 0) - (a.stats.str || 0)
 }

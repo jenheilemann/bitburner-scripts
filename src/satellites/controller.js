@@ -21,8 +21,10 @@ const timers = [
   { file: '/satellites/hackerObserver.js', freq: min, last: 0 },
   { file: '/satellites/homeRamBuyer.js', freq: min, last: Date.now() },
   { file: '/gang/equipment.js', freq: 5*sec, last: 0 },
-  { file: '/gang/recruitment.js', freq: 5*sec, last: 0 },
-  { file: '/gang/ascend.js', freq: 8*sec, last: 0 },
+  { file: '/gang/augments.js', freq: 12.6*sec, last: 0 },
+  { file: '/gang/recruitment.js', freq: 5.1*sec, last: 0 },
+  { file: '/gang/ascend.js', freq: 8.1*sec, last: 0 },
+  { file: '/gang/tasks.js', freq: 30.1*sec, last: 0 },
 ]
 
 /**
