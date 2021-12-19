@@ -24,13 +24,12 @@ export async function main(ns) {
   const args = ns.flags(argsSchema)
   let hostname, host
 
-  const ram = Math.pow(2, args.size)
+  const ram = 2**args.size
   const limit = await fetch(ns, `ns.getPurchasedServerLimit()`,
     `/Temp/getPurchasedServerLimit.txt`)
   const cost = await fetch(ns, `ns.getPurchasedServerCost(${ram})`,
-    `/Temp/getPurchasedServerCost.${ram}.txt`)
-  ns.tprint("Buying " + ram + "GB RAM servers")
-  ns.tprint(`${limit} servers for ${ns.nFormat(cost, "$0.000a")} each`)
+    `/Temp/getPurchasedServerCost.${args.size}.txt`)
+  ns.tprint(`Buying ${limit} ${ram}GB servers for ${ns.nFormat(cost, "$0.000a")} each`)
   let count = 0
 
   for (let i = 0; i < limit; i++) {
