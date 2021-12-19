@@ -73,62 +73,74 @@ export function autocomplete(data, args) {
 // Flags -a for all factions, -v to print to terminal
 /** @param {NS} ns **/
 export async function main(ns) {
-    options = ns.flags(argsSchema);
-    const verbose = options.v || options.verbose;
-    const allFactions = options.a || options.all;
-    const afterFactions = options['after-faction'].map(f => f.replaceAll("_", " "));
-    const omitFactions = options['disable-faction'].map(f => f.replaceAll("_", " "));
-    const omitAugs = options['omit-aug'].map(f => f.replaceAll("_", " "));
-    const desiredAugs = options['aug-desired'].map(f => f.replaceAll("_", " "));
-    const ignorePlayerData = options.i || options['ignore-player-data'];
-    const sort = unshorten(options.sort); // Support the user leaving off the _mult suffix
-    playerData = await getNsDataThroughFile(ns, 'ns.getPlayer()');
-    const sf11Level = ((await getNsDataThroughFile(ns, 'ns.getOwnedSourceFiles()')).find(sf => sf.n == 11) || { lvl: 0 }).lvl;
-    augCountMult = [1.9, 1.824, 1.786, 1.767][sf11Level];
-    log(ns, `Player has sf11Level ${sf11Level}, so the multiplier after each aug purchased is ${augCountMult}.`);
-    joinedFactions = ignorePlayerData ? [] : playerData.factions;
-    log(ns, 'In factions: ' + joinedFactions);
-    // Get owned augmentations (whether they've been installed or not). Ignore strNF because you can always buy more.
-    ownedAugmentations = ignorePlayerData ? [] : (await getNsDataThroughFile(ns, 'ns.getOwnedAugmentations(true)')).filter(a => a != strNF);
-    if (options['neuroflux-disabled']) omitAugs.push(strNF);
-    log(ns, 'Getting all faction data...');
-    await updateFactionData(ns, allFactions, omitFactions);
-    log(ns, 'Getting all augmentation data...');
-    await updateAugmentationData(ns, options['stat-desired'], desiredAugs);
-    //ns.tprint(Object.values(augmentationData).map(a => a.name).sort()); Print a list of all augmentation names
-    if (!ignorePlayerData) {
-        log(ns, 'Joining available factions...');
-        await joinFactions(ns);
-        if (options['join-only']) return;
-        displayJoinedFactionSummary(ns, verbose);
-    }
-    await manageUnownedAugmentations(ns, omitAugs, verbose);
-    displayFactionSummary(ns, verbose, sort, options.u || options.unique, afterFactions, options['hide-stat']);
-    if (options.purchase && purchaseableAugs)
-        await purchaseDesiredAugs(ns, verbose);
+  options = ns.flags(argsSchema);
+  const verbose = options.v || options.verbose;
+  const allFactions = options.a || options.all;
+  const afterFactions = options['after-faction'].map(f => f.replaceAll("_", " "));
+  const omitFactions = options['disable-faction'].map(f => f.replaceAll("_", " "));
+  const omitAugs = options['omit-aug'].map(f => f.replaceAll("_", " "));
+  const desiredAugs = options['aug-desired'].map(f => f.replaceAll("_", " "));
+  const ignorePlayerData = options.i || options['ignore-player-data'];
+  const sort = unshorten(options.sort); // Support the user leaving off the _mult suffix
+  playerData = await getNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/getPlayer.txt');
+  const sf11Level = ((await getNsDataThroughFile(ns, 'ns.getOwnedSourceFiles()',
+    '/Temp/getOwnedSourceFiles.txt')).find(sf => sf.n == 11) || { lvl: 0 }).lvl;
+  augCountMult = [1.9, 1.824, 1.786, 1.767][sf11Level];
+  log(ns, `Player has sf11Level ${sf11Level}, so the multiplier after each aug ` +
+    `purchased is ${augCountMult}.`);
+  joinedFactions = ignorePlayerData ? [] : playerData.factions;
+  log(ns, 'In factions: ' + joinedFactions);
+  // Get owned augmentations (whether they've been installed or not).
+  // Ignore strNF because you can always buy more.
+  ownedAugmentations = ignorePlayerData ? [] :
+    (await getNsDataThroughFile(ns, 'ns.getOwnedAugmentations(true)',
+      '/Temp/getOwnedAugmentations.txt')).filter(a => a != strNF)
+  if (options['neuroflux-disabled']) omitAugs.push(strNF);
+  log(ns, 'Getting all faction data...');
+  await updateFactionData(ns, allFactions, omitFactions);
+  log(ns, 'Getting all augmentation data...');
+  await updateAugmentationData(ns, options['stat-desired'], desiredAugs);
+  if (!ignorePlayerData) {
+      log(ns, 'Joining available factions...');
+      await joinFactions(ns);
+      if (options['join-only']) return;
+      displayJoinedFactionSummary(ns, verbose);
+  }
+  await manageUnownedAugmentations(ns, omitAugs, verbose);
+  displayFactionSummary(ns, verbose, sort, options.u || options.unique,
+    afterFactions, options['hide-stat']);
+  if (options.purchase && purchaseableAugs)
+    await purchaseDesiredAugs(ns, verbose);
 }
 
 function log(ns, log, alsoPrintToTerminal, toastStyle) {
-    ns.print(log);
-    if (alsoPrintToTerminal) ns.tprint(log);
-    if (toastStyle) ns.toast(log, toastStyle);
+  ns.print(log);
+  if (alsoPrintToTerminal) ns.tprint(log);
+  if (toastStyle) ns.toast(log, toastStyle);
 }
 
 // Helper function to make multi names shorter for display in a table
 function shorten(mult) {
-    return mult.replace("_mult", "").replace("company", "cmp").replace("faction", "fac").replace("money", "$").replace("crime", "crm")
-        .replace("agility", "agi").replace("strength", "str").replace("charisma", "cha").replace("defense", "def").replace("dexterity", "dex").replace("hacking", "hack")
-        .replace("hacknet_node", "hn").replace("bladeburner", "bb").replace("stamina", "stam")
-        .replace("success_chance", "success").replace("success", "prob").replace("chance", "prob");
+  return mult.replace("_mult", "").replace("company", "cmp")
+    .replace("faction", "fac").replace("money", "$").replace("crime", "crm")
+    .replace("agility", "agi").replace("strength", "str")
+    .replace("charisma", "cha").replace("defense", "def")
+    .replace("dexterity", "dex").replace("hacking", "hack")
+    .replace("hacknet_node", "hn").replace("bladeburner", "bb")
+    .replace("stamina", "stam").replace("success_chance", "success")
+    .replace("success", "prob").replace("chance", "prob")
 }
 
 // Helper function to take a shortened multi name provided by the user and map it to a real multi
 function unshorten(strMult) {
-    if (stat_multis.includes(strMult)) return strMult + "_mult"; // They just omitted the "_mult" suffix shared by all
-    if (stat_multis.includes(strMult.replace("_mult", ""))) return strMult; // It's fine as is
-    let match = stat_multis.find(m => shorten(m) == strMult);
-    if (find !== undefined) return match + "_mult";
-    throw `The specified stat name '${strMult}' does not match any of the known stat names: ${stat_multis.join(', ')}`;
+  // They just omitted the "_mult" suffix shared by all
+  if (stat_multis.includes(strMult)) return strMult + "_mult";
+  // ... or It's fine as is
+  if (stat_multis.includes(strMult.replace("_mult", ""))) return strMult;
+  let match = stat_multis.find(m => shorten(m) == strMult);
+  if (find !== undefined) return match + "_mult";
+  throw `The specified stat name '${strMult}' does not match any of the known ` +
+    `stat names: ${stat_multis.join(', ')}`;
 }
 
 let factionSortOrder = (a, b) => factionSortValue(a) - factionSortValue(b);
@@ -141,22 +153,39 @@ let factionSortValue = faction => {
 async function updateFactionData(ns, allFactions, factionsToOmit) {
     factionNames = preferredFactionOrder.filter(f => !factionsToOmit.includes(f));
     // Add any player joined factions that may not be in the pre-defined list
-    factionNames.push(...joinedFactions.filter(f => !factionNames.includes(f) && !factionsToOmit.includes(f)));
+    factionNames.push(...joinedFactions.filter(f => !factionNames.includes(f) &&
+      !factionsToOmit.includes(f)));
     // Add any factions that the player has earned an invite to
-    const invitations = await getNsDataThroughFile(ns, 'ns.checkFactionInvitations()');
-    factionNames.push(...invitations.filter(f => !factionNames.includes(f) && !factionsToOmit.includes(f)));
-    // If specified, get info about *all* factions in the game, not just the ones hard-coded in the preferred faction order list.
-    if (allFactions)
-        factionNames.push(...factions.filter(f => !factionNames.includes(f) && !factionsToOmit.includes(f)));
+    const invitations = await getNsDataThroughFile(ns, 'ns.checkFactionInvitations()'.
+      `/Temp/checkFactionInvitations.txt`);
+    factionNames.push(...invitations.filter(f =>
+      !factionNames.includes(f) && !factionsToOmit.includes(f)));
+    // If specified, get info about *all* factions in the game, not just the
+    // ones hard-coded in the preferred faction order list.
+    if (allFactions) {
+        factionNames.push(...factions.filter(f => !factionNames.includes(f) &&
+          !factionsToOmit.includes(f)))
+    }
 
-    let factionsDictCommand = command => `Object.fromEntries(${JSON.stringify(factionNames)}.map(faction => [faction, ${command}]))`;
-    let dictFactionAugs = await getNsDataThroughFile(ns, factionsDictCommand('ns.getAugmentationsFromFaction(faction)'), '/Temp/faction-augs.txt');
-    let dictFactionReps = await getNsDataThroughFile(ns, factionsDictCommand('ns.getFactionRep(faction)'), '/Temp/faction-rep.txt');
-    let dictFactionFavors = await getNsDataThroughFile(ns, factionsDictCommand('ns.getFactionFavor(faction)'), '/Temp/faction-favor.txt');
+    let factionsDictCommand = command => `Object.fromEntries(` +
+      `${JSON.stringify(factionNames)}.map(faction => [faction, ${command}]))`
+    let dictFactionAugs = await getNsDataThroughFile(ns,
+      factionsDictCommand('ns.getAugmentationsFromFaction(faction)'),
+      '/Temp/faction-augs.txt')
+    let dictFactionReps = await getNsDataThroughFile(ns,
+      factionsDictCommand('ns.getFactionRep(faction)'),
+      '/Temp/faction-rep.txt')
+    let dictFactionFavors = await getNsDataThroughFile(ns,
+      factionsDictCommand('ns.getFactionFavor(faction)'),
+      '/Temp/faction-favor.txt')
 
-    // Need information about our gang to work around a TRP bug - gang faction appears to have it available, but it's not
-    const gangFaction = await getNsDataThroughFile(ns, 'ns.gang.inGang() ? ns.gang.getGangInformation().faction : false');
-    if (gangFaction) dictFactionAugs[gangFaction] = dictFactionAugs[gangFaction].filter(a => a != "The Red Pill");
+    // Need information about our gang to work around a TRP bug - gang faction
+    // appears to have it available, but it's not
+    const gangFaction = await getNsDataThroughFile(ns,
+      'ns.gang.inGang() ? ns.gang.getGangInformation().faction : false',
+      '/Temp/gang.inGang.txt');
+    if (gangFaction) dictFactionAugs[gangFaction] = dictFactionAugs[gangFaction]
+      .filter(a => a != "The Red Pill");
 
     factionData = Object.fromEntries(factionNames.map(faction => [faction, {
         name: faction,
@@ -166,23 +195,37 @@ async function updateFactionData(ns, allFactions, factionsToOmit) {
         favor: dictFactionFavors[faction],
         donationsUnlocked: dictFactionFavors[faction] >= ns.getFavorToDonate(),
         augmentations: dictFactionAugs[faction],
-        unownedAugmentations: function (includeNf = false) { return this.augmentations.filter(aug => !ownedAugmentations.includes(aug) && (aug != strNF || includeNf)) },
-        mostExpensiveAugCost: function () { return this.augmentations.map(augName => augmentationData[augName]).reduce((max, aug) => Math.max(max, aug.price), 0) },
+        unownedAugmentations: function (includeNf = false) {
+          return this.augmentations.filter(aug =>
+            !ownedAugmentations.includes(aug) && (aug != strNF || includeNf)) },
+        mostExpensiveAugCost: function () {
+          return this.augmentations.map(augName => augmentationData[augName])
+            .reduce((max, aug) => Math.max(max, aug.price), 0) },
         totalUnownedMults: function () {
-            return this.unownedAugmentations().map(augName => augmentationData[augName])
-                .reduce((arr, aug) => Object.keys(aug.stats).forEach(stat => arr[stat] = ((arr[stat] || 1) * aug.stats[stat])) || arr, new Map);
+          return this.unownedAugmentations().map(
+            augName => augmentationData[augName])
+              .reduce((arr, aug) => Object.keys(aug.stats)
+                .forEach(stat =>
+                  arr[stat] = ((arr[stat] || 1) * aug.stats[stat])) || arr, new Map);
         }
     }]));
 }
 
 /** @param {NS} ns **/
 async function updateAugmentationData(ns, desiredStatsFilters, desiredAugs) {
-    const augmentationNames = [...new Set(Object.values(factionData).flatMap(f => f.augmentations))]; // augmentations.slice();
-    const augsDictCommand = command => `Object.fromEntries(${JSON.stringify(augmentationNames)}.map(aug => [aug, ${command}]))`;
-    const dictAugRepReqs = await getNsDataThroughFile(ns, augsDictCommand('ns.getAugmentationRepReq(aug)'), '/Temp/aug-repreqs.txt');
-    const dictAugPrices = await getNsDataThroughFile(ns, augsDictCommand('ns.getAugmentationPrice(aug)'), '/Temp/aug-prices.txt');
-    const dictAugStats = await getNsDataThroughFile(ns, augsDictCommand('ns.getAugmentationStats(aug)'), '/Temp/aug-stats.txt');
-    const dictAugPrereqs = await getNsDataThroughFile(ns, augsDictCommand('ns.getAugmentationPrereq(aug)'), '/Temp/aug-prereqs.txt');
+    const augmentationNames = [...new Set(Object.values(factionData)
+      .flatMap(f => f.augmentations))]; // augmentations.slice();
+    const augsDictCommand = command =>
+      `Object.fromEntries(${JSON.stringify(augmentationNames)}` +
+      `.map(aug => [aug, ${command}]))`;
+    const dictAugRepReqs = await getNsDataThroughFile(ns,
+      augsDictCommand('ns.getAugmentationRepReq(aug)'), '/Temp/aug-repreqs.txt');
+    const dictAugPrices = await getNsDataThroughFile(ns,
+      augsDictCommand('ns.getAugmentationPrice(aug)'), '/Temp/aug-prices.txt');
+    const dictAugStats = await getNsDataThroughFile(ns,
+      augsDictCommand('ns.getAugmentationStats(aug)'), '/Temp/aug-stats.txt');
+    const dictAugPrereqs = await getNsDataThroughFile(ns,
+      augsDictCommand('ns.getAugmentationPrereq(aug)'), '/Temp/aug-prereqs.txt');
     augmentationData = Object.fromEntries(augmentationNames.map(aug => [aug, {
         name: aug,
         owned: ownedAugmentations.includes(aug),
@@ -190,89 +233,152 @@ async function updateAugmentationData(ns, desiredStatsFilters, desiredAugs) {
         price: dictAugPrices[aug],
         stats: dictAugStats[aug],
         prereqs: dictAugPrereqs[aug] || [],
-        // The best augmentations either have no stats (special effect like no Focus penalty, or Red Pill), or stats in the 'stat-desired' command line options
-        desired: desiredAugs.includes(aug) || Object.keys(dictAugStats[aug]).length == 0 ||
-            Object.keys(dictAugStats[aug]).some(key => desiredStatsFilters.some(filter => key.includes(filter))),
-        // Get the name of the "most-early-game" faction from which we can buy this augmentation. Estimate this by cost of the most expensive aug the offer
-        getFromAny: factionNames.map(f => factionData[f]).sort((a, b) => a.mostExpensiveAugCost - b.mostExpensiveAugCost)
-            .filter(f => f.augmentations.includes(aug))[0]?.name ?? "(unknown)",
+        // The best augmentations either have no stats (special effect like no
+        // Focus penalty, or Red Pill), or stats in the 'stat-desired' command
+        // line options
+        desired: desiredAugs.includes(aug) ||
+          Object.keys(dictAugStats[aug]).length == 0 ||
+            Object.keys(dictAugStats[aug]).some(key =>
+              desiredStatsFilters.some(filter => key.includes(filter))),
+        // Get the name of the "most-early-game" faction from which we can buy
+        // this augmentation. Estimate this by cost of the most expensive aug
+        // the offer
+        getFromAny: factionNames.map(f => factionData[f])
+          .sort((a, b) => a.mostExpensiveAugCost - b.mostExpensiveAugCost)
+          .filter(f => f.augmentations.includes(aug))[0]?.name ?? "(unknown)",
         // Get a list of joined factions that have this augmentation
-        joinedFactionsWithAug: function () { return factionNames.map(f => factionData[f]).filter(f => f.joined && f.augmentations.includes(this.name)); },
-        // Whether there is some joined faction which already has enough reputation to buy this augmentation
-        canAfford: function () { return this.joinedFactionsWithAug().some(f => f.reputation >= this.reputation); },
-        canAffordWithDonation: function () { return this.joinedFactionsWithAug().some(f => f.donationsUnlocked); },
-        // Get the name of the **joined** faction from which we can buy this augmentation (sorted by which is closest to being able to afford it, then by most preferred)
+        joinedFactionsWithAug: function () {
+          return factionNames.map(f => factionData[f])
+            .filter(f => f.joined && f.augmentations.includes(this.name));
+        },
+        // Whether there is some joined faction which already has enough
+        // reputation to buy this augmentation
+        canAfford: function () {
+          return this.joinedFactionsWithAug()
+            .some(f => f.reputation >= this.reputation);
+        },
+        canAffordWithDonation: function () {
+          return this.joinedFactionsWithAug().some(f => f.donationsUnlocked);
+        },
+        // Get the name of the **joined** faction from which we can buy this
+        // augmentation (sorted by which is closest to being able to afford it,
+        // then by most preferred)
         getFromJoined: function () {
-            return (this.joinedFactionsWithAug().filter(f => f.reputation >= this.reputation)[0] ||
-                this.joinedFactionsWithAug().filter(f => f.donationsUnlocked).sort((a, b) => getReqDonationForAug(this, a) - getReqDonationForAug(this, b))[0] ||
-                this.joinedFactionsWithAug()[0])?.name;
+          return (
+            this.joinedFactionsWithAug().filter(f => f.reputation >= this.reputation)[0] ||
+            this.joinedFactionsWithAug().filter(f => f.donationsUnlocked)
+              .sort((a, b) => getReqDonationForAug(this, a) - getReqDonationForAug(this, b))[0] ||
+            this.joinedFactionsWithAug()[0]
+          )?.name
         },
         toString: function () {
-            const factionColWidth = 16, augColWidth = 40, statsColWidth = 60;
-            const statKeys = Object.keys(this.stats);
-            const statsString = `Stats:${statKeys.length.toFixed(0).padStart(2)}` + (statKeys.length == 0 ? '' : ` { ${statKeys.map(prop => shorten(prop) + ': ' + this.stats[prop]).join(', ')} }`);
-            const factionName = this.getFromJoined() || this.getFromAny;
-            const fCreep = Math.max(0, factionName.length - factionColWidth);
-            const augNameShort = this.name.length <= (augColWidth - fCreep) ? this.name :
-                `${this.name.slice(0, Math.ceil(augColWidth / 2 - 3 - fCreep))}...${this.name.slice(this.name.length - Math.floor(augColWidth / 2))}`;
-            return `${this.desired ? '*' : ' '} ${this.canAfford() ? '✓' : this.canAffordWithDonation() ? '$' : '✗'} Price: ${formatMoney(this.price, 4).padEnd(7)}  ` +
-                `Rep: ${formatNumberShort(this.reputation, 4)}  Faction: ${factionName.padEnd(factionColWidth)}  Aug: ${augNameShort.padEnd(augColWidth - fCreep)}` +
-                `  ${statsString.length <= statsColWidth ? statsString : (statsString.substring(0, statsColWidth - 4) + '... }')}`;
+          const factionColWidth = 16, augColWidth = 40, statsColWidth = 60;
+          const statKeys = Object.keys(this.stats)
+          let statsString = `Stats:${statKeys.length.toFixed(0).padStart(2)}` +
+            (statKeys.length == 0 ? '' : ` { ${statKeys.map(prop => shorten(prop) +
+            ': ' + this.stats[prop]).join(', ')} }`)
+          statsString = statsString.length <= statsColWidth ? statsString :
+            (statsString.substring(0, statsColWidth - 4) + '... }')
+          const factionName = this.getFromJoined() || this.getFromAny
+          const fCreep = Math.max(0, factionName.length - factionColWidth)
+          const augNameShort = this.name.length <= (augColWidth - fCreep) ?
+            this.name : `${this.name.slice(0, Math.ceil(augColWidth / 2 - 3 - fCreep))}` +
+            `...${this.name.slice(this.name.length - Math.floor(augColWidth / 2))}`
+          const desired = this.desired ? '*' : ' '
+          const afford = this.canAfford() ? '✓' : this.canAffordWithDonation() ? '$' : '✗'
+          const price = formatMoney(this.price, 4).padEnd(7)
+          return `${desired}${afford} ${price} ` +
+                `${formatNumberShort(this.reputation, 4)} ` +
+                `${factionName.padEnd(factionColWidth)} `+
+                `${augNameShort.padEnd(augColWidth - fCreep)} ` +
+                `${statsString}`;
         }
     }]));
-    // Propagate desired status to any dependencies of desired augs. Note when --all-factions mode is not enabled, it's possible some prereqs are not in our list
+    // Propagate desired status to any dependencies of desired augs.
+    // Note when --all-factions mode is not enabled, it's possible some prereqs
+    // are not in our list
     let propagateDesired = aug => !aug.desired || !aug.prereqs ? null :
-        aug.prereqs.forEach(p => { let pa = augmentationData[p]; if (!pa) return; pa.desired = true; propagateDesired(pa); });
-    Object.values(augmentationData).forEach(a => propagateDesired(a));
-    allAugStats = Object.values(augmentationData).flatMap(aug => Object.keys(aug.stats)).filter((v, i, a) => a.indexOf(v) === i).sort();
+        aug.prereqs.forEach(p => {
+          let pa = augmentationData[p]; if (!pa) return;
+          pa.desired = true;
+          propagateDesired(pa);
+        })
+    Object.values(augmentationData).forEach(a => propagateDesired(a))
+    allAugStats = Object.values(augmentationData).flatMap(aug =>
+      Object.keys(aug.stats)).filter((v, i, a) => a.indexOf(v) === i).sort()
 }
 
 /** @param {NS} ns **/
 async function joinFactions(ns) {
-    let manualJoin = ["Sector-12", "Chongqing", "New Tokyo", "Ishima", "Aevum", "Volhaven"];
-    // If we have already joined one of the "precluding" factions, we are free to join the remainder
-    if (joinedFactions.some(f => manualJoin.includes(f)))
-        manualJoin = [];
-    // Collect the set of augmentations we already have access to given the factions we've joined
-    const accessibleAugmentations = new Set(joinedFactions.flatMap(fac => factionData[fac]?.augmentations ?? []));
-    log(ns, `${accessibleAugmentations.size} augmentations are already accessible from our ${joinedFactions.length} joined factions.`);
-    // Check for faction invitations
-    const invitations = Object.values(factionData).filter(f => f.invited);
-    log(ns, `Outstanding invitations from ${invitations.length} factions: ${JSON.stringify(invitations.map(f => f.name))}`);
-    // Join all factions with remaining augmentations we care about
-    for (const faction of invitations.sort(factionSortOrder)) {
-        let unownedAugs = faction.unownedAugmentations(true); // Filter out augmentations we've already purchased
-        let newAugs = unownedAugs.filter(aug => !accessibleAugmentations.has(aug)); //  Filter out augmentations we can purchase from another faction we've already joined
-        let desiredAugs = newAugs.filter(aug => augmentationData[aug].desired); //  Filter out augmentations we have no interest in
-        log(ns, `${faction.name} has ${faction.augmentations.length} augs, ${unownedAugs.length} unowned, ${newAugs.length} not offered by joined factions, ` +
-            `${desiredAugs.length} with desirable stats` + (desiredAugs.length == 0 ? ' (not joining)' : `: ${JSON.stringify(desiredAugs)}`));
-        if (desiredAugs.length == 0 && !options['force-join'].includes(faction.name)) continue;
-        if (manualJoin.includes(faction.name) && !options['force-join'].includes(faction.name))
-            log(ns, `Faction ${faction.name} must be manually joined.`);
-        else {
-            log(ns, `Joining faction ${faction.name} which has ${desiredAugs.length} desired augmentations: ${desiredAugs}`);
-            let response;
-            if (response = await getNsDataThroughFile(ns, `ns.joinFaction('${faction.name}')`, '/Temp/join-faction.txt')) {
-                faction.joined = true;
-                faction.augmentations.forEach(aug => accessibleAugmentations.add(aug));
-                joinedFactions.push(faction.name);
-                log(ns, `Joined faction ${faction.name} (Response: ${response})`, true, 'success')
-            } else
-                log(ns, `Error joining faction ${faction.name}. Response: ${response}`, false, 'error')
-        }
+  let manualJoin = ["Sector-12", "Chongqing", "New Tokyo", "Ishima", "Aevum", "Volhaven"];
+  // If we have already joined one of the "precluding" factions, we are free
+  // to join the remainder
+  if (joinedFactions.some(f => manualJoin.includes(f)))
+      manualJoin = []
+  // Collect the set of augmentations we already have access to given the
+  // factions we've joined
+  const accessibleAugmentations = new Set(joinedFactions
+    .flatMap(fac => factionData[fac]?.augmentations ?? []))
+  log(ns, `${accessibleAugmentations.size} augmentations are already ` +
+    `accessible from our ${joinedFactions.length} joined factions.`)
+  // Check for faction invitations
+  const invitations = Object.values(factionData).filter(f => f.invited);
+  log(ns, `Outstanding invitations from ${invitations.length} factions: ` +
+    `${JSON.stringify(invitations.map(f => f.name))}`);
+  // Join all factions with remaining augmentations we care about
+  for (const faction of invitations.sort(factionSortOrder)) {
+    // Filter out augmentations we've already purchased
+    let unownedAugs = faction.unownedAugmentations(true);
+    //  Filter out augs we can purchase from another faction we've already joined
+    let newAugs = unownedAugs.filter(aug => !accessibleAugmentations.has(aug));
+    //  Filter out augmentations we have no interest in
+    let desiredAugs = newAugs.filter(aug => augmentationData[aug].desired);
+    log(ns, `${faction.name} has ${faction.augmentations.length} augs, ` +
+      `${unownedAugs.length} unowned, ${newAugs.length} not offered by ` +
+      `joined factions, ${desiredAugs.length} with desirable stats` +
+      (desiredAugs.length == 0 ? ' (not joining)' : `: ${JSON.stringify(desiredAugs)}`));
+    if (desiredAugs.length == 0 && !options['force-join'].includes(faction.name)) continue;
+    if (manualJoin.includes(faction.name) && !options['force-join'].includes(faction.name))
+      log(ns, `Faction ${faction.name} must be manually joined.`);
+    else {
+      log(ns, `Joining faction ${faction.name} which has ${desiredAugs.length} ` +
+        `desired augmentations: ${desiredAugs}`)
+      let response = await getNsDataThroughFile(ns,
+        `ns.joinFaction('${faction.name}')`, '/Temp/join-faction.txt')
+      if (response) {
+        faction.joined = true;
+        faction.augmentations.forEach(aug => accessibleAugmentations.add(aug))
+        joinedFactions.push(faction.name)
+        log(ns, `Joined faction ${faction.name} (Response: ${response})`, true, 'success')
+      } else {
+        log(ns, `Error joining faction ${faction.name}. Response: ${response}`, false, 'error')
+      }
     }
+  }
 }
 
-/** Compute how much money must be donated to the faction to afford an augmentation. Faction can be either a faction object, or faction name */
-let getReqDonationForRep = (rep, faction) => Math.ceil(1e6 * (Math.max(0, rep - (faction.name ? faction : factionData[faction]).reputation)) / (playerData.faction_rep_mult));
-let getReqDonationForAug = (aug, faction) => getReqDonationForRep(aug.reputation, faction);
+/**
+ * Compute how much money must be donated to the faction to afford an
+ * augmentation. Faction can be either a faction object, or faction name
+ **/
+let getReqDonationForRep = (rep, faction) => {
+  const currentRep = (faction.name ? faction : factionData[faction]).reputation
+  return Math.ceil(1e6 * (Math.max(0, rep - currentRep) / playerData.faction_rep_mult);
+}
+let getReqDonationForAug = (aug, faction) => {
+  return getReqDonationForRep(aug.reputation, faction)
+}
+let getTotalCost = (augPurchaseOrder) => {
+  return augPurchaseOrder.reduce((total, aug, i) => total + aug.price * augCountMult ** i, 0)
+}
 
-let getTotalCost = (augPurchaseOrder) => augPurchaseOrder.reduce((total, aug, i) => total + aug.price * augCountMult ** i, 0);
+let augSortOrder = (a, b) => {
+  return (b.price - a.price) || (b.reputation - a.reputation) ||
+    (b.desired != a.desired ? (a.desired ? -1 : 1) : a.name.localeCompare(b.name))
+}
 
-let augSortOrder = (a, b) => (b.price - a.price) || (b.reputation - a.reputation) ||
-    (b.desired != a.desired ? (a.desired ? -1 : 1) : a.name.localeCompare(b.name));
-
-// Sort augmentations such that they are in order of price, except when there are prerequisites to worry about
+// Sort augmentations such that they are in order of price, except when there
+// are prerequisites to worry about
 function sortAugs(ns, augs = []) {
     augs.sort(augSortOrder);
     // Bubble up prerequisites to the top
@@ -471,14 +577,14 @@ function computeAugsRepReqDonationByFaction(ns, augmentations) {
 async function purchaseDesiredAugs(ns, verbose) {
     let totalRepCost = Object.values(purchaseFactionDonations).reduce((t, r) => t + r, 0);
     let totalAugCost = getTotalCost(purchaseableAugs);
-    let money = (await getNsDataThroughFile(ns, 'ns.getPlayer()')).money;
+    let money = (await getNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/getPlayer.txt')).money;
     if (totalAugCost + totalRepCost > money)
         return log(ns, `ERROR: Purchase order total cost (${formatMoney(totalRepCost + totalAugCost)}` + (totalRepCost == 0 ? '' : ` (Augs: ${formatMoney(totalAugCost)} + Rep: ${formatMoney(totalRepCost)}))`) +
             ` is more than current player money (${formatMoney(money)}).`, verbose, 'error')
     // Donate to factions if necessary (using a ram-dodging script of course)
     if (Object.keys(purchaseFactionDonations).length > 0 && Object.values(purchaseFactionDonations).some(v => v > 0)) {
         if (await getNsDataThroughFile(ns, JSON.stringify(Object.keys(purchaseFactionDonations).map(f => ({ faction: f, repDonation: purchaseFactionDonations[f] }))) +
-            '.reduce((success, o) => success && ns.donateToFaction(o.faction, o.repDonation), true)', '/Temp/facman-donate.txt'))
+            '.reduce((success, o) => success && ns.donateToFaction(o.faction, o.repDonation), true)', '/Temp/faction-donate.txt'))
             log(ns, `SUCCESS: Donated to ${Object.keys(purchaseFactionDonations).length} factions to gain access to desired augmentations.`, verbose, 'success')
         else
             log(ns, `ERROR: One or more attempts to donate to factions for reputation failed. Go investigate!`, verbose, 'error');
