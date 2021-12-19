@@ -25,7 +25,8 @@ export const gangEquipment = {
   armor    : ["Bulletproof Vest","Full Body Armor","Liquid Body Armor","Graphene Plating Armor"],
   vehicles : [ "Ford Flex V20","ATX1070 Superbike","Mercedes-Benz S9001","White Ferrari"],
   rootkits : ["NUKE Rootkit","Soulstealer Rootkit","Demon Rootkit","Hmap Node","Jack the Ripper"],
-  augments : ["Bionic Arms","Bionic Legs","Bionic Spine","BrachiBlades","Nanofiber Weave","Synthetic Heart","Synfibril Muscle","BitWire","Neuralstimulator","DataJack","Graphene Bone Lacings"],
+  hackAugs   : ["BitWire","Neuralstimulator","DataJack"],
+  combatAugs : ["Bionic Arms","Bionic Legs","Bionic Spine","BrachiBlades","Nanofiber Weave","Synthetic Heart","Synfibril Muscle","Graphene Bone Lacings"],
 }
 
 export const lsKeys = {
