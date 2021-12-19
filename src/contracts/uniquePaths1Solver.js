@@ -22,7 +22,7 @@ import {
 export async function main(ns) {
   let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
   let data = await fetch(ns,
-    `ns.codingcontract.getData('${args.file}', '${args.server}')`
+    `ns.codingcontract.getData('${args.file}', '${args.server}')`,
     `/Temp/codingcontract.getData.txt`)
 
   ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
