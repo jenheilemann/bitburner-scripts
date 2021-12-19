@@ -19,7 +19,6 @@ export async function main(ns) {
   const members  = await fetch(ns, `ns.gang.getMemberNames()`,
     '/Temp/gang.getMemberNames.txt')
   const augData = await getAugData(ns, gangInfo.isHacker)
-  return ns.tprint(augData)
 
   for (const aug of augData) {
     if ( myMoney(ns) < aug.cost*members.length + reserve(ns) )
@@ -27,7 +26,7 @@ export async function main(ns) {
     ns.print(`Attempting to purchase ${aug.name} for gang members...`)
     const cmd = JSON.stringify(members) +
       `.forEach(m => ns.print( ns.gang.purchaseEquipment(m, ns.args[0])))`
-    await runCommand(ns, cmd, '/Temp/gangEquipPurchase.js', false, 1, aug.name)
+    await runCommand(ns, cmd, '/Temp/gang.purchaseEquipment.js', false, 1, aug.name)
   }
 }
 
@@ -37,11 +36,8 @@ export async function main(ns) {
  **/
 async function getAugData(ns, isHacker) {
   const augTypes = isHacker ? gangEquipment.hackAugs : gangEquipment.combatAugs
-  let eq, desired = []
-  for (const type of equipTypes) {
-    eq = gangEquipment[type].map(obj => { return {name: obj, type: type} })
-    desired.push(...eq)
-  }
+  let desired = augTypes.map(obj => { return {name: obj} })
+
   const command = (arr, prop, cmdString) => {
     return JSON.stringify(arr) +
     `.map(equip => { ` +
@@ -49,8 +45,10 @@ async function getAugData(ns, isHacker) {
       `return equip; ` +
     `})`
   }
-  desired = await fetch(ns, command(desired, 'cost', 'getEquipmentCost' ), '/Temp/gangEquipCost.txt' )
-  desired = await fetch(ns, command(desired, 'stats','getEquipmentStats'), '/Temp/gangEquipStats.txt' )
+  desired = await fetch(ns, command(desired, 'cost', 'getEquipmentCost' ),
+    '/Temp/gang.getEquipmentCost.txt' )
+  desired = await fetch(ns, command(desired, 'stats','getEquipmentStats'),
+    '/Temp/gang.gangEquipStats.txt' )
   desired.sort(isHacker ? sortForHacking : sortForCombat)
 
   return desired
