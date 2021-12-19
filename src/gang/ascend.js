@@ -4,7 +4,7 @@ import {
   formatNumber,
 } from 'helpers.js'
 // i like the fibonacci sequence
-const threshholds = [2,3,5,8,13,21]
+const threshholds = [2,3,5,8,13,21,34,55]
 
 /** @param {NS} ns **/
 export async function main(ns) {
