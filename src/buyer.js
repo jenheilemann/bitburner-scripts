@@ -22,7 +22,7 @@ export function autocomplete(data, args) {
 export async function main(ns) {
   disableLogs(ns, ['getServerMoneyAvailable', 'sleep'])
   const args = ns.flags(argsSchema)
-  let hostname, host
+  let hostname
 
   const ram = 2**args.size
   const limit = await fetch(ns, `ns.getPurchasedServerLimit()`,
