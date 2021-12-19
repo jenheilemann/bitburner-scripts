@@ -59,6 +59,7 @@ async function nextRamSize(ns, currRam) {
   const incomePerPayoffTime = totIncomePerSecond * 2*hour
   ns.print(`Total income: ${ns.nFormat(totIncomePerSecond, "$0,0")}`)
   ns.print(`Income per payoff time: ${ns.nFormat(incomePerPayoffTime, "$0,0")}`)
+  if (incomePerPayoffTime == 0) return 0
 
   let cost, totalCost
   for (var i = 20; 2**i > currRam; i--) {
