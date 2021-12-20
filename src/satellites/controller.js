@@ -8,23 +8,25 @@ const min = 60 * sec
  * time in ms
  **/
 const timers = [
+  // these are all sorted by frequency, except playerObserver which must always
+  // run first
   { file: '/satellites/playerObserver.js',    freq: 20,        last: 0 },
   { file: '/satellites/serversObserver.js',   freq: 0,         last: 0 },
+  { file: 'stats.js',                         freq: 1 * sec,   last: 0 },
   { file: '/satellites/programObserver.js',   freq: 5 * sec,   last: 0 },
+  { file: '/gang/equipment.js',               freq: 5.2*sec,   last: 0 },
+  { file: '/gang/recruitment.js',             freq: 5.3*sec,   last: 0 },
   { file: '/satellites/backdoorObserver.js',  freq: 6 * sec,   last: 0 },
-  { file: '/satellites/contractsObserver.js', freq: 4 * min,   last: 0 },
   { file: 'nuker.js',                         freq: 7 * sec,   last: 0 },
   { file: 'botnet.js',                        freq: 8 * sec,   last: 0 },
-  { file: 'stats.js',                         freq: 1 * sec,   last: 0 },
+  { file: '/gang/ascend.js',                  freq: 8.1*sec,   last: 0 },
+  { file: '/gang/augments.js',                freq: 12 *sec,   last: 0 },
+  { file: '/gang/tasks.js',                   freq: 30 *sec,   last: 0 },
   { file: '/satellites/activityObserver.js',  freq: min,       last: Date.now() },
   { file: '/satellites/pservObserver.js',     freq: min+100,   last: Date.now() },
   { file: '/satellites/hackerObserver.js',    freq: min+200,   last: 0 },
   { file: '/satellites/homeRamBuyer.js',      freq: min+300,   last: Date.now() },
-  { file: '/gang/equipment.js',               freq: 5.2*sec,   last: 0 },
-  { file: '/gang/augments.js',                freq: 12 *sec,   last: 0 },
-  { file: '/gang/recruitment.js',             freq: 5.3*sec,   last: 0 },
-  { file: '/gang/ascend.js',                  freq: 8.1*sec,   last: 0 },
-  { file: '/gang/tasks.js',                   freq: 30 *sec,   last: 0 },
+  { file: '/satellites/contractsObserver.js', freq: 4 * min,   last: 0 },
 ]
 
 /**
