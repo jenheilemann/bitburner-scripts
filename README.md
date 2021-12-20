@@ -11,6 +11,14 @@ Also, be aware, I am not primarily a Javascript programmer, though it is somethi
 
 Good luck, and have fun out there.
 
+### WARNINGS
+
+* This is an unstable repo. I regularly push untested code. I'm a rebel, I know.
+* **This is an unstable repo.** I change method signatures for the hell of it. Depend on nothing.
+* I'm a flake. If I haven't commited in a few weeks, it probably means I'm bored or got stuck and found something else to play with.
+* This **does not work for new players**. This repo uses methods that are locked behind game mechanics.
+* This contains spoilers. If you don't like spoilers, well... I warned you.
+
 ## Installation
 
 Create a new script called `start.js` by issuing the following command: `nano start.js`. Make sure you are on your home server; if you are not you can quickly go home by running `home` in the console.
