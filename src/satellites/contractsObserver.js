@@ -51,6 +51,6 @@ async function runContracts(ns, map) {
     // Contract needs to be in the format { file: 'name', type: 'type', server: 'server'}
     ns.print(`Contract ${contract.file} (${contract.type}) found on ${contract.server}`)
     solverFile = solvers[contract.type] ?? "/contracts/failSolver.js"
-    await tryRun(ns, () => ns.run(solverFile, 1, '--dataString', JSON.stringify(contract)) )
+    await tryRun(() => ns.run(solverFile, 1, '--dataString', JSON.stringify(contract)) )
   }
 }

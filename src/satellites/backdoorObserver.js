@@ -16,7 +16,7 @@ export async function main(ns) {
     if ( !server.data.hasAdminRights )
       continue
 
-    await tryRun(ns, () => { ns.run('backdoor.js', 1, server.name) })
+    await tryRun(() => { ns.run('backdoor.js', 1, server.name) })
     await ns.sleep(100) // give it a sec to spin up
     ns.connect('home')
   }

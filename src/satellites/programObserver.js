@@ -12,7 +12,7 @@ export async function main(ns) {
 
   if ( !player.tor ) {
     if ( player.money > 2e5 ) {
-      await tryRun(ns, () => ns.run('/satellites/torBuyer.js'))
+      await tryRun(() => ns.run('/satellites/torBuyer.js'))
     }
     return
   }
@@ -20,7 +20,7 @@ export async function main(ns) {
   for ( const file of purchaseables ) {
     if ( !player.programs.includes(file.name) ) {
       if ( player.money > file.cost) {
-        await tryRun(ns, () => ns.run('/satellites/programBuyer.js', 1, file.name))
+        await tryRun(() => ns.run('/satellites/programBuyer.js', 1, file.name))
       }
       return
     }

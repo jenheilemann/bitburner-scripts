@@ -3,7 +3,6 @@ import {
           disableLogs,
           toolsCount,
           clearLSItem,
-          tryRun,
         } from 'helpers.js'
 import { root } from 'rooter.js'
 

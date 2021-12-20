@@ -1,5 +1,4 @@
 import {
-        tryRun,
         disableLogs,
         getNsDataThroughFile as fetch,
         setLSItem,

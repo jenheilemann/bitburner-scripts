@@ -38,7 +38,7 @@ export async function main(ns) {
     for ( const timer of timers) {
       proc = ns.ps('home').find(p => p.filename == timer.file)
       if (!proc && Date.now() > timer.last + timer.freq ) {
-        await tryRun(ns, () => ns.run(timer.file, 1))
+        await tryRun(() => ns.run(timer.file, 1))
         timer.last = Date.now()
       }
       // spread out inits so player has time to propigate
