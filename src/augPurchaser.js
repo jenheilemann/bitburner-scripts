@@ -156,7 +156,7 @@ async function updateFactionData(ns, allFactions, factionsToOmit) {
     factionNames.push(...joinedFactions.filter(f => !factionNames.includes(f) &&
       !factionsToOmit.includes(f)));
     // Add any factions that the player has earned an invite to
-    const invitations = await getNsDataThroughFile(ns, 'ns.checkFactionInvitations()'.
+    const invitations = await getNsDataThroughFile(ns, 'ns.checkFactionInvitations()',
       `/Temp/checkFactionInvitations.txt`);
     factionNames.push(...invitations.filter(f =>
       !factionNames.includes(f) && !factionsToOmit.includes(f)));
@@ -363,7 +363,7 @@ async function joinFactions(ns) {
  **/
 let getReqDonationForRep = (rep, faction) => {
   const currentRep = (faction.name ? faction : factionData[faction]).reputation
-  return Math.ceil(1e6 * (Math.max(0, rep - currentRep) / playerData.faction_rep_mult);
+  return Math.ceil(1e6 * (Math.max(0, rep - currentRep) / playerData.faction_rep_mult))
 }
 let getReqDonationForAug = (aug, faction) => {
   return getReqDonationForRep(aug.reputation, faction)
