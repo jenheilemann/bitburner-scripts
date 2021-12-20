@@ -5,7 +5,14 @@ import {
         clearLSItem,
       } from 'helpers.js'
 
-const valuesToRemove = ['nmap', 'reserve', 'player', 'decommissioned', 'hackpercent']
+const valuesToRemove = [
+  'nmap',
+  'reserve',
+  'player',
+  'decommissioned',
+  'hackpercent',
+  'clashtime',
+]
 
 /**
  * @param {NS} ns
