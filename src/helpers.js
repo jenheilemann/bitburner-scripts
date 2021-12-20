@@ -75,7 +75,7 @@ export function reserve(ns) {
  * @param {function} callback
  * @cost 0 GB
  */
-export async function tryRun(ns, callback) {
+export async function tryRun(callback) {
   let pid = callback()
   while (pid == 0) {
     await mySleep(5)
