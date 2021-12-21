@@ -12,6 +12,7 @@ const timers = [
   // run first
   { file: '/satellites/playerObserver.js',    freq: 20,        last: 0 },
   { file: '/satellites/serversObserver.js',   freq: 0,         last: 0 },
+  { file: '/satellites/gangWarObserver.js',   freq: 500,       last: Date.now() },
   { file: 'stats.js',                         freq: 1 * sec,   last: 0 },
   { file: '/satellites/gangClashObserver.js', freq: 1.3*sec,   last: 0 },
   { file: '/satellites/programObserver.js',   freq: 5 * sec,   last: 0 },
