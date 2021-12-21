@@ -62,7 +62,7 @@ async function nextRamSize(ns, currRam) {
   if (incomePerPayoffTime == 0) return 0
 
   let cost, totalCost
-  for (var i = 20; 2**i > currRam; i--) {
+  for (var i = 19; 2**i > currRam; i--) {
     if (i < 0) { ns.tail(); throw `How is i less than 0? ${i}` }
     cost = await fetch(ns, `ns.getPurchasedServerCost(${2**i})`,
       `/Temp/getPurchasedServerCost.${i}.txt`)
