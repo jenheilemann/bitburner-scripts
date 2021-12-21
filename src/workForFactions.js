@@ -573,7 +573,8 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
     `Req: ${favorRepRequired.toLocaleString()}`);
   let lastStatusUpdateTime;
 
-  while ((currentReputation = ns.getFactionRep(factionName)) < factionRepRequired) {
+  currentReputation = ns.getFactionRep(factionName)
+  while (currentReputation < factionRepRequired) {
     const factionWork = await detectBestFactionWork(ns, factionName); // Before each loop - determine what work gives the most rep/second for our current stats
     if (await fetch(ns, `ns.workForFaction('${factionName}', '${factionWork}')`, '/Temp/work-for-faction.txt'))
       lastActionRestart = Date.now();
@@ -581,6 +582,7 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
       announce(ns, `Something went wrong, failed to start working for faction "${factionName}" (Not joined?)`, 'error');
       break;
     }
+    currentReputation = ns.getFactionRep(factionName)
     let status = `Doing '${factionWork}' work for "${factionName}" until ${factionRepRequired.toLocaleString()} rep.`;
     if (lastFactionWorkStatus != status || (Date.now() - lastStatusUpdateTime) > statusUpdateInterval) {
       ns.print((lastFactionWorkStatus = status) + ` Currently at ${Math.round(currentReputation).toLocaleString()}, earning ${(ns.getPlayer().workRepGainRate * 5).toFixed(2)} rep/sec.`);
@@ -604,11 +606,14 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
     // If we explicitly stop working, we immediately get our updated faction rep,
     // otherwise it lags by 1 loop (until after next time we call workForFaction)
     // Note: Actual work rep gained will be subject to early cancellation policy
+
+    currentReputation = ns.getFactionRep(factionName)
     if (currentReputation + ns.getPlayer().workRepGained >= factionRepRequired) {
       // We're close - stop working so our current rep is accurate when we check
       // the while loop condition
       await fetch(ns, `ns.stopAction()`, '/Temp/stopAction.txt')
     }
+    currentReputation = ns.getFactionRep(factionName)
   }
   if (currentReputation >= factionRepRequired)
     ns.print(`Attained ${Math.round(currentReputation).toLocaleString()} rep with "${factionName}" (needed ${factionRepRequired.toLocaleString()}).`);
