@@ -161,39 +161,57 @@ class Targeter {
     this.target = target
     this.nmap = nmap
     this.processManager = processManager
-    ns.print(`H : ${formatDuration(this.hackTime())} / ` +
-      `G : ${formatDuration(this.growTime())} / ` +
-      `W : ${formatDuration(this.weakTime())}`)
+    ns.print(`H: ${formatDuration(this.hackTime())}, ${this.threadCount('hack.js')} threads | ` +
+      `G: ${formatDuration(this.growTime())}, ${this.threadCount('grow.js')} | ` +
+      `W: ${formatDuration(this.weakTime())}, ${this.threadCount('weaken.js')}`)
   }
 
   weakenServer() {
-    // Start by just ensuring the server is weak enough
+    // If the server is weak enough, then don't worry about weakening more
     if ( this.target.security < this.target.minSecurity + 2 ) {
       return
     }
-    let weakThreads = this.weakenInfo(this.target.security - this.target.minSecurity)
-    weakThreads = weakThreads - this.threadCount('weaken.js')
-    if ( weakThreads < 1 )  {
+    const security = this.target.security - this.target.minSecurity
+    let threads = this.weakenInfo(security)
+    threads = threads - this.threadCount('weaken.js')
+    if ( threads < 1 )  {
       return
     }
+
+    this.ns.print(`Weaken : ${formatNumber(security)} | ${threads} threads (+${this.threadCount('weaken.js')} running)`)
     const minerManager = [
-      new MinerManager('weaken.js', weakThreads, 0)
+      new MinerManager('weaken.js', threads, 0)
     ]
     this.findRamAndLaunch(minerManager, 'weaken.js')
   }
 
   growServer() {
+    // If the server has enough money available
     if ( this.target.data.moneyAvailable > this.target.maxMoney * 0.9 ) {
       return
     }
 
-    let growThreads = this.growthInfo(this.target.maxMoney - this.target.data.moneyAvailable)
-    growThreads = growThreads - this.threadCount('grow.js')
-    if ( growThreads < 1 ) {
+    // adjust money available by current threads multiplying the money
+    let adjustedMoney = this.adjustedMoneyAvailable()
+    if ( adjustedMoney >= this.target.maxMoney * 0.99 ) {
       return
     }
 
-    const weakThreads = this.weakenInfo(2 * serverFortifyAmount * growThreads)
+    const replacing = this.target.maxMoney - adjustedMoney
+    let [growThreads, multiplier] = this.growthInfo(replacing)
+    if ( growThreads < 1 ) {
+      return
+    }
+    // cap grow threads at a time so compounding works in our favor
+    growThreads = Math.min(1000, growThreads)
+
+    let security = 2 * serverFortifyAmount * growThreads
+    this.ns.print(`Grow   : ${formatNumber(multiplier * 100)}% ` +
+      `(${formatMoney(replacing)}) | ` +
+      `${growThreads} threads (+${this.threadCount('grow.js')} running) | ` +
+      `security: ${formatNumber(security)}`)
+
+    const weakThreads = this.weakenInfo(security)
     const minerManagers = [
       new MinerManager('grow.js', growThreads, this.weakTime()-this.growTime()+bufferTime),
       new MinerManager('weaken.js', weakThreads, 0)
@@ -211,10 +229,14 @@ class Targeter {
     }
 
     let [hackThreads, hackedMoney] = this.hackInfo()
+    this.ns.print(`Hack   : ${formatMoney(hackedMoney)} | threads: ${hackThreads} | ` +
+      `remaining: ${formatMoney(this.target.data.moneyAvailable - hackedMoney)} | ` +
+      `security: ${formatNumber(serverFortifyAmount*hackThreads)}`)
+
     if (hackThreads < 1) return
     let replace = Math.max(1, hackedMoney)
 
-    let growThreads = this.growthInfo( replace )
+    let [growThreads, _] = this.growthInfo( replace )
     let hWeakThreads = this.weakenInfo(hackThreads * serverFortifyAmount)
     let gWeakThreads = this.weakenInfo(2*growThreads*serverFortifyAmount)
 
@@ -271,13 +293,18 @@ class Targeter {
     const formulas = this.ns.formulas.hacking
     const server = this.target.data
     const decimal = getLSItem('hackpercent')
-    const amountToHack = server.moneyAvailable * decimal
-    const threads = Math.floor(decimal/formulas.hackPercent(server, player))
+    const threads = Math.ceil(decimal/formulas.hackPercent(server, player))
+    const amountHacked = threads * formulas.hackPercent(server, player) * server.moneyAvailable
 
-    this.ns.print(`Hack   : ${formatMoney(amountToHack)} / threads: ${threads} / ` +
-      `remaining: ${formatMoney(server.moneyAvailable - amountToHack)} / ` +
-      `security: ${formatNumber(serverFortifyAmount*threads)}`)
-    return [threads, amountToHack]
+    return [threads, amountHacked]
+  }
+
+  adjustedMoneyAvailable() {
+    const formulas = this.ns.formulas.hacking
+    const player = fetchPlayer()
+    const server = this.target.data
+    const alreadyGrowingBy = formulas.growPercent(server, this.threadCount('grow.js'), player)
+    return this.target.data.moneyAvailable * alreadyGrowingBy
   }
 
   growthInfo(replacing) {
@@ -287,16 +314,11 @@ class Targeter {
 
     let multiplier = server.moneyMax/(Math.max(1, server.moneyMax - replacing))
     let threads = Math.ceil((multiplier-1)/(formulas.growPercent(server, 1, player)-1))
-    let security = 2 * serverFortifyAmount * threads
-    this.ns.print(`Grow   : ${formatNumber(multiplier * 100)}% ` +
-      `(${formatMoney(replacing)}) / ` +
-      `${threads} threads / security: ${formatNumber(security)}`)
-    return threads
+    return [threads, multiplier]
   }
 
   weakenInfo(security) {
     const threads = Math.ceil(security/securityWeakenedPerThread)
-    this.ns.print(`Weaken : ${security} / ${threads} threads`)
     return threads
   }
 }
