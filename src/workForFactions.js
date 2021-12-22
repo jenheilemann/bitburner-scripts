@@ -845,7 +845,8 @@ async function workForMegacorpFactionInvite(ns, factionName, waitForInvite) {
       // Try to spend hacknet-node hashes on university upgrades while we've got
       // a ways to study to make it go faster
       if (requiredCha - player.charisma > 10) {
-        if (await fetch(ns, 'ns.hacknet.spendHashes("Improve Studying")', 'T')) {
+        if (await fetch(ns, 'ns.hacknet.spendHashes("Improve Studying")',
+          '/Temp/hacknet.spendHashes.txt')) {
           announce(ns, 'Bought a "Improve Studying" upgrade.', 'success');
           await studyForCharisma(ns); // We must restart studying for the upgrade to take effect.
         }
