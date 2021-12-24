@@ -1,7 +1,3 @@
-import {
-        getNsDataThroughFile as fetch,
-      } from 'helpers.js'
-
 /**
  * Sanitize Parentheses in Expression
  *
@@ -20,29 +16,14 @@ import {
  *   "(a)())()"  -> ["(a)()()", "(a())()"]
  *   ")(         -> [""]
  *
- * @param {NS} ns
  **/
-export async function main(ns) {
-  let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
-  let data = await fetch(ns,
-    `ns.codingcontract.getData('${args.file}', '${args.server}')`,
-    `/Temp/codingcontract.getData.txt`)
+import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
 
-  ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
-  let answer = solve(data)
-  let result = await fetch(ns, `ns.codingcontract.attempt(
-    '${answer}',
-    '${args.file}',
-    '${args.server}',
-    { returnReward: true }
-  )`)
-  ns.tprint(`${args.file} attempt result: ${result}`)
-  if ( result === '' ) {
-    ns.tprint(`**************** Failure detected! ********************`)
-    ns.tprint(JSON.stringify(args))
-    ns.tprint(`Data: ` + data)
-    ns.tprint(`My answer: ` + answer)
-  }
+/** @param {NS} ns **/
+export async function main(ns) {
+  const codingContractor = new CodingContractWrapper(ns)
+  const answer = solve(await codingContractor.extractData())
+  await codingContractor.sendSolution(answer)
 }
 
 function solve(str) {

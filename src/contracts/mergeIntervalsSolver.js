@@ -1,7 +1,3 @@
-import {
-        getNsDataThroughFile as fetch,
-      } from 'helpers.js'
-
 /**
  * Merge Overlapping Intervals
  *
@@ -17,32 +13,17 @@ import {
  * The intervals must be returned in ASCENDING order. You can assume that in an
  * interval, the first number will always be smaller than the second.
  *
- * @param {NS} ns
  **/
-export async function main(ns) {
-  let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
-  let data = await fetch(ns,
-    `ns.codingcontract.getData('${args.file}', '${args.server}')`,
-    `/Temp/codingcontract.getData.txt`)
+import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
 
-  ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
-  let answer = solve(data.slice())
-  let result = await fetch(ns, `ns.codingcontract.attempt(
-    ${JSON.stringify(answer)},
-    '${args.file}',
-    '${args.server}',
-    { returnReward: true }
-  )`)
-  ns.tprint(`${args.file} attempt result: ${result}`)
-  if ( result === '' ) {
-    ns.tprint(`**************** Failure detected! ********************`)
-    ns.tprint(JSON.stringify(args))
-    ns.tprint(data)
-    ns.tprint(answer)
-  }
+/** @param {NS} ns **/
+export async function main(ns) {
+  const codingContractor = new CodingContractWrapper(ns)
+  const answer = solve(await codingContractor.extractData())
+  await codingContractor.sendSolution(answer)
 }
 
-
+/** @param {array[]} pairs **/
 function solve(pairs) {
   let changed = true
   let focus;
@@ -69,6 +50,10 @@ function solve(pairs) {
   return intervals
 }
 
+/**
+ * @param {any} val
+ * @param {number[]} range
+ **/
 function overlap(val, range) {
   if ( typeof val === 'object' ) {
     return ( overlap(val[0], range) || overlap(val[1], range) || overlap(range[1], val) || overlap(range[0], val))

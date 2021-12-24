@@ -1,7 +1,3 @@
-import {
-        getNsDataThroughFile as fetch,
-      } from 'helpers.js'
-
 /**
  * Spiralize Matrix
  *
@@ -18,31 +14,15 @@ import {
  *
  * Note that the matrix will not always be square.
  *
- * @param {NS} ns
  **/
+import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
+
+/** @param {NS} ns **/
 export async function main(ns) {
-  let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
-  let data = await fetch(ns,
-    `ns.codingcontract.getData('${args.file}', '${args.server}')`,
-    `/Temp/codingcontract.getData.txt`)
-
-  ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
-  let answer = solve(data.slice())
-  let result = await fetch(ns, `ns.codingcontract.attempt(
-    [${answer}],
-    '${args.file}',
-    '${args.server}',
-    { returnReward: true }
-  )`)
-  ns.tprint(`${args.file} attempt result: ${result}`)
-  if ( result === '' ) {
-    ns.tprint(`**************** Failure detected! ********************`)
-    ns.tprint(JSON.stringify(args))
-    ns.tprint(data)
-    ns.tprint(answer)
-  }
+  const codingContractor = new CodingContractWrapper(ns)
+  const answer = solve(await codingContractor.extractData().slice())
+  await codingContractor.sendSolution(answer)
 }
-
 
 /**
  * @param {array []} matrix

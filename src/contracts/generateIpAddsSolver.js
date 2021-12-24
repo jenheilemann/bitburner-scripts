@@ -1,7 +1,3 @@
-import {
-        getNsDataThroughFile as fetch,
-      } from 'helpers.js'
-
 /**
  * Generage IP Addresses
  *
@@ -15,30 +11,15 @@ import {
  *
  * 25525511135 -> [255.255.11.135, 255.255.111.35]
  * 1938718066 -> [193.87.180.66]
- *
- * @param {NS} ns
  **/
-export async function main(ns) {
-  let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
-  let data = await fetch(ns,
-    `ns.codingcontract.getData('${args.file}', '${args.server}')`,
-    `/Temp/codingcontract.getData.txt`)
 
-  ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
-  let answer = solve(data)
-  let result = await fetch(ns, `ns.codingcontract.attempt(
-    '${answer}',
-    '${args.file}',
-    '${args.server}',
-    { returnReward: true }
-  )`)
-  ns.tprint(`${args.file} attempt result: ${result}`)
-  if ( result === '' ) {
-    ns.tprint(`**************** Failure detected! ********************`)
-    ns.tprint(JSON.stringify(args))
-    ns.tprint(data)
-    ns.tprint(answer)
-  }
+import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
+
+/** @param {NS} ns **/
+export async function main(ns) {
+  const codingContractor = new CodingContractWrapper(ns)
+  const answer = solve(await codingContractor.extractData())
+  await codingContractor.sendSolution(answer)
 }
 
 /**

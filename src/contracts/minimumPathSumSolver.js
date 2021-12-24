@@ -1,7 +1,3 @@
-import {
-        getNsDataThroughFile as fetch,
-      } from 'helpers.js'
-
 /**
  * Minimum Path Sum in a Triangle
  *
@@ -24,32 +20,21 @@ import {
  *
  * The minimum path sum is 11 (2 -> 3 -> 5 -> 1).
  *
- * @param {NS} ns
  **/
-export async function main(ns) {
-  let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
-  let data = await fetch(ns,
-    `ns.codingcontract.getData('${args.file}', '${args.server}')`,
-    `/Temp/codingcontract.getData.txt`)
+import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
 
-  ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
-  let answer = solve(data)
-  let result = await fetch(ns, `ns.codingcontract.attempt(
-    ${answer},
-    '${args.file}',
-    '${args.server}',
-    { returnReward: true }
-  )`)
-  ns.tprint(`${args.file} attempt result: ${result}`)
-  if ( result === '' ) {
-    ns.tprint(`**************** Failure detected! ********************`)
-    ns.tprint(JSON.stringify(args))
-    ns.tprint(data)
-    ns.tprint(answer)
-  }
+/** @param {NS} ns **/
+export async function main(ns) {
+  const codingContractor = new CodingContractWrapper(ns)
+  const answer = solve(await codingContractor.extractData())
+  await codingContractor.sendSolution(answer)
 }
 
-function solve(pyramid) {
+/**
+ * @param {array[]} data
+ */
+function solve(data) {
+  const pyramid = data.slice()
   pyramid.forEach((row, level) => {
     if ( level == 0 ) {
       // the top level is its own sum, doesn't need to change
@@ -61,6 +46,11 @@ function solve(pyramid) {
   return Math.min(...pyramid.pop())
 }
 
+/**
+ * @param {array[]} pyramid - the whole pyramid array of arrays
+ * @param {number} level    - the height/row/subarray being evaluated
+ * @param {number} position - the specific location being evaluated
+ */
 function fetchCheapestPath(pyramid, level, position) {
   let higher = pyramid[level-1]
   if ( position == 0 )

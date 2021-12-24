@@ -1,7 +1,3 @@
-import {
-        getNsDataThroughFile as fetch,
-      } from 'helpers.js'
-
 /**
  * Unique Paths in a Grid II
  *
@@ -25,29 +21,15 @@ import {
  * NOTE: The data returned for this contract is an 2D array of numbers
  * representing the grid.
  *
- * @param {NS} ns
  **/
-export async function main(ns) {
-  let args = JSON.parse(ns.flags([['dataString', '']]).dataString)
-  let data = await fetch(ns,
-    `ns.codingcontract.getData('${args.file}', '${args.server}')`,
-    `/Temp/codingcontract.getData.txt`)
+import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
 
-  ns.tprint(`Found ${args.file} (${args.type}) on ${args.server}`)
-  let answer = solve(data)
-  let result = await fetch(ns, `ns.codingcontract.attempt(
-    ${answer},
-    '${args.file}',
-    '${args.server}',
-    { returnReward: true }
-  )`)
-  ns.tprint(`${args.file} attempt result: ${result}`)
-  if ( result === '' ) {
-    ns.tprint(`**************** Failure detected! ********************`)
-    ns.tprint(JSON.stringify(args))
-    ns.tprint(data)
-    ns.tprint(answer)
-  }
+/** @param {NS} ns **/
+export async function main(ns) {
+  const codingContractor = new CodingContractWrapper(ns)
+  const data = await codingContractor.extractData()
+  const answer = solve(expand(data[0], data[1]))
+  await codingContractor.sendSolution(answer)
 }
 
 /**
