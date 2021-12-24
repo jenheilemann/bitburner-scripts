@@ -56,13 +56,17 @@ async function nextRamSize(ns, currRam) {
     '/Temp/getPurchasedServerLimit.txt')
   const totIncomePerSecond = await fetch(ns, `ns.getScriptIncome()[0]`,
     '/Temp/getScriptIncome.txt')
+  const maxServerSize = await fetch(ns, `ns.getPurchasedServerMaxRam()`,
+    '/Temp/getPurchasedServerMaxRam.txt')
   const incomePerPayoffTime = totIncomePerSecond * 2*hour
   ns.print(`Total income: ${ns.nFormat(totIncomePerSecond, "$0,0")}`)
   ns.print(`Income per payoff time: ${ns.nFormat(incomePerPayoffTime, "$0,0")}`)
   if (incomePerPayoffTime == 0) return 0
 
   let cost, totalCost
-  for (var i = 19; 2**i > currRam; i--) {
+  for (var i = 20; 2**i > currRam; i--) {
+    // max server size can vary based on BN
+    if ( 2**i > maxServerSize ) continue
     if (i < 0) { ns.tail(); throw `How is i less than 0? ${i}` }
     cost = await fetch(ns, `ns.getPurchasedServerCost(${2**i})`,
       `/Temp/getPurchasedServerCost.${i}.txt`)
