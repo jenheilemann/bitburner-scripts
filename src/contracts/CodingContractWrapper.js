@@ -13,7 +13,10 @@ function solve(data) {
 
 **/
 
-import { getNsDataThroughFile as fetch } from 'helpers.js'
+import {
+  getNsDataThroughFile as fetch,
+  announce,
+} from 'helpers.js'
 
 export class CodingContractWrapper {
   /** @param {NS} ns **/
@@ -39,7 +42,9 @@ export class CodingContractWrapper {
       '${this.args.server}',
       { returnReward: true })`,
     '/Temp/codingContract.attempt.txt')
-    this.ns.tprint(`${this.args.file} attempt result: ${result}`)
+    const msg = `${this.args.file} attempt result: ${result}`
+    this.ns.tprint(msg)
+    announce(this.ns, msg)
 
     if ( result === '' ) {
       this.ns.tprint(`**************** Failure detected! ********************`)
