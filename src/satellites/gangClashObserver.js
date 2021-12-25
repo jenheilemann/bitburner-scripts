@@ -12,29 +12,39 @@ const sec = 1000
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
 
-  const inAnyGang = await fetch(ns, `ns.gang.inGang()`, '/Temp/gang.inGang.txt')
-  if ( !inAnyGang )
-    return ns.print('no gang') // can't ascend members for a gang that doesn't exist
+  const gangInfo = getLSItem('gangMeta')
+  if ( !gangInfo || !gangInfo.faction )
+    return ns.print('no gang') // can't clash a gang that doesn't exist
 
-  let diff
   let nextClashTime = getLSItem('clashtime')
-  if (nextClashTime < Date.now()) {
-    diff = Date.now() - nextClashTime
+  let diff = Date.now() - nextClashTime
+  ns.print(`Next clash time: ${nextClashTime}`)
+  ns.print(`Diff to now: ${formatDuration(diff)}`)
 
+  if (nextClashTime && nextClashTime < Date.now()) {
     nextClashTime = findNextClashTime(nextClashTime)
     setLSItem('clashtime', nextClashTime)
     ns.print(`WARNING: Missed clashTime by ${formatDuration(diff)}, setting next ` +
       `to ${nextClashTime}`)
   }
 
-  if ( nextClashTime && nextClashTime > Date.now() + 2*sec ) {
+  if ( nextClashTime && nextClashTime > Date.now() + 1*sec ) {
     ns.print(`Next clash time too far away, run again in ${
-      formatDuration(nextClashTime-Date.now() - 2*sec)}.`)
+      formatDuration(nextClashTime-Date.now() - 1*sec)}.`)
     return
   }
 
   ns.print(`Trying to run clashRecorder.js...`)
-  tryRun(ns, () => ns.run('/gang/clashRecorder.js'))
+  ns.run('/gang/clashRecorder.js')
+
+  ns.print(`Waiting for next clash time.. (${nextClashTime - Date.now()}).`)
+  while(nextClashTime - Date.now() > 200 ) {
+    await ns.sleep(5)
+  }
+  ns.print(`Clash time arrived! (${nextClashTime - Date.now()})`)
+
+  ns.print('Trying to run gang/warRunner....')
+  await tryRun(() => ns.run('/gang/warRunner.js'))
 }
 
 function findNextClashTime(curr) {
