@@ -28,7 +28,7 @@ import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
 export async function main(ns) {
   const codingContractor = new CodingContractWrapper(ns)
   const data = await codingContractor.extractData()
-  const answer = solve(expand(data[0], data[1]))
+  const answer = solve(data)
   await codingContractor.sendSolution(answer)
 }
 
