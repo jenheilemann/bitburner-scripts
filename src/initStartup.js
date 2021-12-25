@@ -19,7 +19,7 @@ const filesToDownload = [
   '/gang/clashRecorder.js',
   '/gang/equipment.js',
   '/gang/recruitment.js',
-  '/gang/task.js',
+  '/gang/tasks.js',
   '/gang/warRunner.js',
   '/hacknet/coreUpgrader.js',
   '/hacknet/levelUpgrader.js',

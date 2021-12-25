@@ -1,6 +1,7 @@
 import {
   getNsDataThroughFile as fetch,
-  announce
+  announce,
+  getLSItem,
 } from 'helpers.js'
 
 /** @param {NS} ns **/
