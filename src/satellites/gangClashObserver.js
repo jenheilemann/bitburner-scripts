@@ -44,7 +44,7 @@ export async function main(ns) {
   ns.print(`Clash time arrived! (${nextClashTime - Date.now()})`)
 
   ns.print('Trying to run gang/warRunner....')
-  await tryRun(() => ns.run('/gang/warRunner.js'))
+  await ns.run('/gang/warRunner.js')
 }
 
 function findNextClashTime(curr) {
