@@ -4,10 +4,10 @@ import {
 } from 'helpers.js'
 
 Object.defineProperty(Array.prototype, 'shuffle', {
-    enumerable: false,
-    value: function(b, c, d) {
-      c=this.length;while(c)b=Math.random()*c--|0,d=this[c],this[c]=this[b],this[b]=d
-    }
+  enumerable: false, configurable: true,
+  value: function(b, c, d) {
+    c=this.length;while(c)b=Math.random()*c--|0,d=this[c],this[c]=this[b],this[b]=d
+  }
 });
 
 /** @param {NS} ns **/
