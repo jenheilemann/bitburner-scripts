@@ -112,6 +112,7 @@ let fastCrimesOnly = false;
 let lastActionRestart = 0;
 let mostExpensiveAugByFaction = [];
 let mostExpensiveDesiredAugByFaction = [];
+let favorToDonate;
 
 const argsSchema = [
   // Grind rep with these factions first
@@ -150,6 +151,7 @@ export async function main(ns) {
   const firstFactions = (options.first || []);
   let skipFactions = (options.skip || []);
   fastCrimesOnly = options['fast-crimes-only'];
+  favorToDonate = await fetch(ns, `ns.getFavorToDonate()`, '/Temp/getFavorToDonate.txt')
 
   // Log command line args used
   if (firstFactions.length > 0) {
@@ -538,12 +540,12 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
   const highestRepAug = forceBestAug ? mostExpensiveAugByFaction[factionName] : mostExpensiveDesiredAugByFaction[factionName];
   const repToFavour = (rep) => Math.ceil(25500 * 1.02 ** (rep - 1) - 25000);
   let startingFavor = await getCurrentFactionFavour(ns, factionName);
-  let favorRepRequired = Math.max(0, repToFavour(150) - repToFavour(startingFavor));
+  let favorRepRequired = Math.max(0, repToFavour(favorToDonate) - repToFavour(startingFavor));
   // When to stop grinding faction rep (usually ~467,000 to get 150 favour) Set this lower if there are no augs requiring that much REP
   let factionRepRequired = forceUnlockDonations ? favorRepRequired : Math.min(highestRepAug, favorRepRequired);
   if (highestRepAug == 0)
     return ns.print(`All "${factionName}" augmentations are owned. Skipping working for faction...`);
-  if (startingFavor >= 150) // If we have already got 150+ favor, we've unlocked donations - no need to grind for rep
+  if (startingFavor >= favorToDonate) // If we have already got 150+ favor, we've unlocked donations - no need to grind for rep
     return ns.print(`Donations already unlocked for "${factionName}". You should buy access to augs. Skipping working for faction...`);
   if (forceUnlockDonations && mostExpensiveAugByFaction[factionName] < 0.2 * factionRepRequired) // Special check to avoid pointless donation unlocking
     return ns.print(`The last "${factionName}" aug is only ${mostExpensiveAugByFaction[factionName].toLocaleString()} rep, ` +
@@ -569,7 +571,7 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
       `(Current rep: ${Math.round(currentReputation).toLocaleString()}). Skipping working for faction...`)
 
   ns.print(`Faction "${factionName}" Highest Aug Req: ` +
-    `${highestRepAug.toLocaleString()}, Current Favor (${startingFavor}/150) ` +
+    `${highestRepAug.toLocaleString()}, Current Favor (${startingFavor}/${favorToDonate}) ` +
     `Req: ${favorRepRequired.toLocaleString()}`);
   let lastStatusUpdateTime;
 
@@ -599,7 +601,7 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
     // Detect our rep requirement decreasing (e.g. if we exported for our daily +1 faction rep)
     let currentFavor = await getCurrentFactionFavour(ns, factionName);
     if (currentFavor > startingFavor && !forceBestAug) {
-      favorRepRequired = Math.max(0, repToFavour(150) - repToFavour(startingFavor));
+      favorRepRequired = Math.max(0, repToFavour(favorToDonate) - repToFavour(startingFavor));
       factionRepRequired = forceUnlockDonations ? favorRepRequired : Math.min(highestRepAug, favorRepRequired);
     }
 
