@@ -2,51 +2,45 @@ import {
   getNsDataThroughFile as fetch,
   announce,
   formatNumber,
+  getLSItem,
 } from 'helpers.js'
 // i like the fibonacci sequence
 const threshholds = [2,3,5,8,13,21,34,55]
 
 /** @param {NS} ns **/
 export async function main(ns) {
-  const inAnyGang = await fetch(ns, `ns.gang.inGang()`, '/Temp/gang.inGang.txt')
-  if ( !inAnyGang )
+  const gangInfo = getLSItem('gangMeta')
+  if ( !gangInfo || !gangInfo.faction )
     return ns.print('no gang') // can't ascend members for a gang that doesn't exist
 
-  const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`,
-    '/Temp/gang.getGangInformation.txt')
-  const members  = await fetch(ns, `ns.gang.getMemberNames()`,
-    '/Temp/gang.getMemberNames.txt')
-  if ( members.length == 0 )
+  if ( gangInfo.members.length == 0 )
     return ns.print('no members') // can't ascend no members
 
   const bestSkill = gangInfo.isHacker ? 'hack' : 'str'
-  const memberData = await fetch(ns,
-    `${JSON.stringify(members)}.map(m => ns.gang.getMemberInformation(m))`,
-    '/Temp/gang.getMemberInformation.txt')
+  const memberData = gangInfo.members
+  const names = memberData.map(m => m.name)
   const ascensionResults = await fetch(ns,
-    `${JSON.stringify(members)}.map(m => ns.gang.getAscensionResult(m))`,
+    `${JSON.stringify(names)}.map(m => ns.gang.getAscensionResult(m))`,
     '/Temp/gang.getAscensionResult.txt')
   ns.print(`best skill : ${bestSkill}`)
-  ns.print(`members : ${members}`)
+  ns.print(`members : ${names}`)
 
-  const ascender = new Ascender(members, memberData, ascensionResults, bestSkill)
+  const ascender = new Ascender(memberData, ascensionResults, bestSkill)
   await ascender.ascendGangMembers(ns)
 }
 
 
 class Ascender {
   /**
-   * @param {string[]} members
    * @param {object[]} memberData
    * @param {object[]} ascTheoretical
    * @param {string} skill
    **/
-  constructor(members, memberData, ascTheoretical, skill){
+  constructor(memberData, ascTheoretical, skill){
     this.keySkill = skill
     this.multKey = `${skill}_asc_mult`
     this.members = memberData
     this.members.forEach((d, i) => {
-      d.name = members[i]
       d.ascResult = ascTheoretical[i]
     })
   }
