@@ -1,12 +1,14 @@
 import {
   getNsDataThroughFile as fetch,
   getLSItem,
-  announce,
 } from 'helpers.js'
 
-Array.prototype.shuffle = function(b, c, d) {
-  c=this.length;while(c)b=Math.random()*c--|0,d=this[c],this[c]=this[b],this[b]=d
-}
+Object.defineProperty(Array.prototype, 'shuffle', {
+    enumerable: false,
+    value: function(b, c, d) {
+      c=this.length;while(c)b=Math.random()*c--|0,d=this[c],this[c]=this[b],this[b]=d
+    }
+});
 
 /** @param {NS} ns **/
 export async function main(ns) {
@@ -23,9 +25,12 @@ export async function main(ns) {
   const activityOrganizer = gangInfo.isHacker ? new HackingActivityOrganizer() :
                                                 new CombatActivityOrganizer()
 
+  let result;
   const groupedMembers = membersBySkill(gangInfo.members, activityOrganizer.skill())
-  let result = await setTask(ns, groupedMembers.trainees, activityOrganizer.learning())
-  ns.print(`Trainees assignment result: ${result}`)
+  if ( groupedMembers.trainees.length > 0 ) {
+    result = await setTask(ns, groupedMembers.trainees, activityOrganizer.learning())
+    ns.print(`Trainees assignment result: ${result}`)
+  }
 
   const blackBelts = groupedMembers.blackBelts
   blackBelts.shuffle() // make sure the shit jobs get shared to everybody randomly
@@ -33,11 +38,15 @@ export async function main(ns) {
   const whiteHats = blackBelts.slice(0, nWhiteHats)
   const blackHats = blackBelts.slice(nWhiteHats)
 
-  result = await setTask(ns, whiteHats, activityOrganizer.whiteHat())
-  ns.print(`WhiteHats assignment result: ${result}`)
+  if ( whiteHats.length > 0 ) {
+    result = await setTask(ns, whiteHats, activityOrganizer.whiteHat())
+    ns.print(`WhiteHats assignment result: ${result}`)
+  }
 
-  result = await setTask(ns, blackHats, activityOrganizer.blackHat(gangInfo.taskPhase))
-  ns.print(`BlackHats assignment result: ${result}`)
+  if ( blackHats.length > 0 ) {
+    result = await setTask(ns, blackHats, activityOrganizer.blackHat(gangInfo.taskPhase))
+    ns.print(`BlackHats assignment result: ${result}`)
+  }
 }
 
 class HackingActivityOrganizer {
