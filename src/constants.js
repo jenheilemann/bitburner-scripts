@@ -37,5 +37,6 @@ export const lsKeys = {
   WORKING : 'jh_working',
   DECOMMISSIONED : 'jh_decommissioned',
   HACKPERCENT : 'jh_hack_percent',
-  CLASHTIME: 'jh_next_territory_warefare',
+  CLASHTIME : 'jh_next_territory_warefare',
+  GANGMETA : 'jh_gang_information'
 }

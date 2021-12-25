@@ -12,12 +12,12 @@ const timers = [
   // run first
   { file: '/satellites/playerObserver.js',    freq: 20,        last: 0 },
   { file: '/satellites/serversObserver.js',   freq: 0,         last: 0 },
-  { file: '/satellites/gangWarObserver.js',   freq: 500,       last: Date.now() },
   { file: 'stats.js',                         freq: 1 * sec,   last: 0 },
   { file: '/satellites/gangClashObserver.js', freq: 1.3*sec,   last: 0 },
   { file: '/satellites/programObserver.js',   freq: 5 * sec,   last: 0 },
   { file: '/gang/equipment.js',               freq: 5.2*sec,   last: 0 },
   { file: '/gang/recruitment.js',             freq: 5.3*sec,   last: 0 },
+  { file: '/satellites/gangMetaObserver.js',  freq: 5.4*sec,   last: 0 },
   { file: '/satellites/backdoorObserver.js',  freq: 6 * sec,   last: 0 },
   { file: 'nuker.js',                         freq: 7 * sec,   last: 0 },
   { file: 'botnet.js',                        freq: 8 * sec,   last: 0 },
