@@ -12,6 +12,7 @@ const valuesToRemove = [
   'decommissioned',
   'hackpercent',
   'clashtime',
+  'gangmeta',
 ]
 
 /**
