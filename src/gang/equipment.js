@@ -11,19 +11,20 @@ const combatEquipment = [ 'weapons', 'armor', 'vehicles']
 
 /** @param {NS} ns **/
 export async function main(ns) {
-  const inAnyGang = await fetch(ns, `ns.gang.inGang()`, '/Temp/gang.inGang.txt')
-  if ( !inAnyGang )
-    return // can't buy equipment for a gang that doesn't exist
+  const gangInfo = getLSItem('gangMeta')
+  if ( !gangInfo || !gangInfo.faction )
+    return ns.print('no gang') // can't buy equipment for a gang that doesn't exist
 
-  const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`,
-    '/Temp/gang.getGangInformation.txt')
-  const members  = await fetch(ns, `ns.gang.getMemberNames()`,
-    '/Temp/gang.getMemberNames.txt')
+  const members = gangInfo.members.map(m => m.name)
   const equipData = await getEquipmentData(ns, gangInfo.isHacker)
 
   for (const equip of equipData) {
     if ( myMoney(ns) < equip.cost*members.length + reserve(ns) )
-      return // all done for now
+      return ns.print('not enough money, try again later.')
+    if ( gangInfo.members.every(m => m.upgrades.includes(equip.name))) {
+      ns.print(`All members currently have a '${equip.name},' skipping for now...`)
+      continue
+    }
     ns.print(`Attempting to purchase ${equip.name} for gang members...`)
     const cmd = JSON.stringify(members) +
       `.forEach(m => ns.print( ns.gang.purchaseEquipment(m, ns.args[0])))`

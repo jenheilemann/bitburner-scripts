@@ -3,6 +3,7 @@ import {
   runCommand,
   myMoney,
   reserve,
+  getLSItem,
 } from 'helpers.js'
 import { gangEquipment } from 'constants.js'
 import { sortForHacking, sortForCombat } from '/gang/equipment.js'
@@ -10,19 +11,20 @@ import { sortForHacking, sortForCombat } from '/gang/equipment.js'
 
 /** @param {NS} ns **/
 export async function main(ns) {
-  const inAnyGang = await fetch(ns, `ns.gang.inGang()`, '/Temp/gang.inGang.txt')
-  if ( !inAnyGang )
-    return // can't buy augments for a gang that doesn't exist
+  const gangInfo = getLSItem('gangMeta')
+  if ( !gangInfo || !gangInfo.faction )
+    return ns.print('no gang') // can't buy augments for a gang that doesn't exist
 
-  const gangInfo = await fetch(ns, `ns.gang.getGangInformation()`,
-    '/Temp/gang.getGangInformation.txt')
-  const members  = await fetch(ns, `ns.gang.getMemberNames()`,
-    '/Temp/gang.getMemberNames.txt')
+  const members = gangInfo.members.map(m => m.name)
   const augData = await getAugData(ns, gangInfo.isHacker)
 
   for (const aug of augData) {
     if ( myMoney(ns) < aug.cost*members.length + reserve(ns) )
       return // all done for now
+    if ( gangInfo.members.every(m => m.augmentations.includes(aug.name) ) ) {
+      ns.print(`All gang members have '${aug.name},' skipping for now...`)
+      continue
+    }
     ns.print(`Attempting to purchase ${aug.name} for gang members...`)
     const cmd = JSON.stringify(members) +
       `.forEach(m => ns.print( ns.gang.purchaseEquipment(m, ns.args[0])))`

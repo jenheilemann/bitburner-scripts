@@ -9,10 +9,9 @@ import {
 /** @param {NS} ns **/
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
-  const inAnyGang = await fetch(ns, `ns.gang.inGang()`, '/Temp/gang.inGang.txt')
-  if ( !inAnyGang )
-    return ns.print('no gang') // can't ascend members for a gang that doesn't exist
-
+  const gangInfo = getLSItem('gangMeta')
+  if ( !gangInfo || !gangInfo.faction )
+    return ns.print('no gang') // can't clash a gang that doesn't exist
 
   const nextClashTime = getLSItem('clashtime')
   if ( nextClashTime && nextClashTime > Date.now()+1000 ) {

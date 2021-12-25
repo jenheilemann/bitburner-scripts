@@ -9,7 +9,6 @@ const buffer = 100 //ms
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
   const gangInfo = getLSItem('gangMeta')
-  const bufferedClashTime = getLSItem('clashTime') + buffer
 
   if ( !gangInfo || !gangInfo.faction )
     return ns.print('no gang') // can't war without a gang
@@ -17,6 +16,7 @@ export async function main(ns) {
   if ( gangInfo.warPhase == 'peace' )
     return ns.print('we have conquered all')
 
+  const bufferedClashTime = getLSItem('clashTime') + buffer
   const members = gangInfo.members.map(m => m.name)
   ns.print('Attempting territory warfare with ' + JSON.stringify(members))
   let workingMembers = members.filter(m => ns.gang.setMemberTask(m, 'Territory Warfare'))
