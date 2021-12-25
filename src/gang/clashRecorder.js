@@ -14,13 +14,13 @@ export async function main(ns) {
     return ns.print('no gang') // can't ascend members for a gang that doesn't exist
 
 
-  const currentGangData = ns.gang.getOtherGangInformation()
   const nextClashTime = getLSItem('clashtime')
   if ( nextClashTime && nextClashTime > Date.now()+1000 ) {
     await ns.sleep(nextClashTime - Date.now() - 1000)
   }
 
-  while( gangDataIsTheSame(currentGangData)) {
+  const currentGangData = JSON.stringify(ns.gang.getOtherGangInformation())
+  while( gangDataIsTheSame(ns, currentGangData)) {
     await ns.sleep(10)
   }
 
@@ -29,7 +29,7 @@ export async function main(ns) {
 }
 
 function gangDataIsTheSame(prev) {
-  const curr = ns.gang.getOtherGangInformation()
+  const curr = JSON.stringify(ns.gang.getOtherGangInformation())
 
-  return JSON.stringify(prev) == JSON.stringify(curr)
+  return prev == curr
 }
