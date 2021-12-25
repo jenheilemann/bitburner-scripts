@@ -27,7 +27,7 @@ export async function main(ns) {
   announce(ns, `ClashTime set to ${Date.now()}`)
 }
 
-function gangDataIsTheSame(prev) {
+function gangDataIsTheSame(ns, prev) {
   const curr = JSON.stringify(ns.gang.getOtherGangInformation())
 
   return prev == curr
