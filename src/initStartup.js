@@ -1,5 +1,6 @@
 const filesToDownload = [
   '/contracts/arrayJumpingSolver.js',
+  '/contracts/CodingContractWrapper.js',
   '/contracts/failSolver.js',
   '/contracts/findValidExpressionsSolver.js',
   '/contracts/generateIpAddsSolver.js',
