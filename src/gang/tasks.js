@@ -94,9 +94,13 @@ function membersBySkill(memberData, skill) {
 }
 
 function calculateHats(gangInfo, numMembers) {
-  const penalty = Math.abs(1 - gangInfo.wantedPenalty)
   if ( numMembers == 0 )
     return 0
+
+  if ( gangInfo.wantedLevel < 2 )
+    return 0
+
+  const penalty = Math.abs(1 - gangInfo.wantedPenalty)
 
   // I decided that if wanted gain rate == 50% or more, I want all members
   // working to reduce it, and proportionate down to 0%.
