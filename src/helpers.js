@@ -226,10 +226,14 @@ export function formatNumber(num, minSigFigures = 3, minDecimalPlaces = 1) {
 /**
  * Formats some RAM amount as a round number of GB with thousands separators
  * e.g. `1,028 GB`
- * @param {number} num - the number to format
+ * @param {number} n - the number to format
  */
-export function formatRam(num) {
-  return `${Math.round(num).toLocaleString()} GB`;
+export function formatRam(n) {
+  if (n < 1e3) return formatNumber(n, 3, 0) + 'GB'
+  if (n < 1e6) return formatNumber(n / 1e3, 3, 0) + 'TB'
+  if (n < 1e9) return formatNumber(n / 1e6, 3, 0) + 'PB'
+  if (n < 1e12) return formatNumber(n / 1e9,3, 0) + 'EB'
+  return `${Math.round(n).toLocaleString()} GB`;
 }
 
 /**
