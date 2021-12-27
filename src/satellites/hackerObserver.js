@@ -89,7 +89,7 @@ class Report {
     let str = 'SUCCESS: ---------- '
     str += this.processSummary(processManager)
     str += this.activitySummary()
-    str += this.serverSummary(ns, servers)
+    str += this.serverSummary(ns, servers, processManager)
     return str
   }
   // N.B.: The threads listed here and in activitySummary are the PRIMARY
@@ -121,19 +121,26 @@ class Report {
     return str
   }
 
-  serverSummary(ns, servers) {
-    let str = '\n\r ---------- Top targets ----------------'
+  serverSummary(ns, servers, processManager) {
     const top = servers.slice(0,5)
     const nameLength = Math.max(... top.map(t => t.name.length))
+    let str = '\n\r '
+    str += ''.padStart(nameLength,'-')
+    str += ' Top targets ---------------------------------'
+    str += ' | Ongoing Threads:'
     str += `\n\r ` + `Name`.padEnd(nameLength)
-    str += ` |  Sec/min    |  Money/max          | wTime `
+    str += ` |  Sec/min    |  Money/max          | wTime   |     weak   grow   hack`
     for (const server of top ) {
       str += `\n\r ${server.name.padEnd(nameLength)} | ` +
         `${formatNumber(server.security).padStart(5)}/` +
         `${formatNumber(server.minSecurity).padEnd(5)} | ` +
         `${formatMoney(server.data.moneyAvailable).padStart(9)}/` +
         `${formatMoney(server.maxMoney).padEnd(9)} | ` +
-        `${formatDuration(ns.formulas.hacking.weakenTime(server.data, fetchPlayer()))}`
+        `${formatDuration(ns.formulas.hacking.weakenTime(server.data, fetchPlayer())).padEnd(7)} | ` +
+        `${processManager.runningThreadCount('weaken.js', server.name)}`.padStart(8) +
+        `${processManager.runningThreadCount('grow.js', server.name)}`.padStart(7) +
+        `${processManager.runningThreadCount('hack.js', server.name)}`.padStart(7)
+
     }
     return str
   }
