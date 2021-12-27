@@ -34,9 +34,11 @@ export const lsKeys = {
   PLAYER : 'jh_player',
   RESERVE : 'jh_reserve',
   BITNODE : 'jh_bn_multipliers',
+  SOURCEFILES : 'jh_owned_sourcefiles',
   WORKING : 'jh_working',
   DECOMMISSIONED : 'jh_decommissioned',
   HACKPERCENT : 'jh_hack_percent',
   CLASHTIME : 'jh_next_territory_warefare',
-  GANGMETA : 'jh_gang_information'
+  GANGMETA : 'jh_gang_information',
+  SLEEVEMETA : 'jh_sleeve_information',
 }
