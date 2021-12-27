@@ -17,6 +17,9 @@ export async function main(ns) {
     return ns.print('we have conquered all')
 
   const bufferedClashTime = getLSItem('clashTime') + buffer
+  if ( bufferedClashTime < Date.now() )
+    return ns.print('clash time has passed, whoops!')
+
   const members = gangInfo.members.map(m => m.name)
   ns.print('Attempting territory warfare with ' + JSON.stringify(members))
   let workingMembers = members.filter(m => ns.gang.setMemberTask(m, 'Territory Warfare'))
