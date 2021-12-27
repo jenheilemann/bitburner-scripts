@@ -63,10 +63,8 @@ export function updateData(ns, server) {
     server.security = ns.getServerSecurityLevel(server.name)
     // max ram changes sometimes w/ home, purchased servers
     server.maxRam = ns.getServerMaxRam(server.name)
-    return server
-  } catch {
-    return server
-  }
+  } catch(e) { ns.print(e.message) }
+  return server
 }
 
 
