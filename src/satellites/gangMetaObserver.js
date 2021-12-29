@@ -23,6 +23,8 @@ export async function main(ns) {
     '/Temp/gang.getMemberInformation.txt')
   gangInfo.otherGangs = await fetch(ns, `ns.gang.getOtherGangInformation()`,
     '/Temp/gang.getOtherGangInformation.txt')
+  delete gangInfo.otherGangs[gangInfo.faction]
+
 
   gangInfo.taskPhase = await findTaskPhase(ns, gangInfo)
   gangInfo.warPhase = await findWarPhase(ns, gangInfo)
@@ -34,10 +36,12 @@ export async function main(ns) {
 }
 
 async function findWarPhase(ns, gangInfo) {
-  if ( gangInfo.territory == 1 )
+  // sometimes rounding errors means my gang.territory < 1 but all others == 0
+  const allOthersAtZero = Object.values(gangInfo.otherGangs).every(g => g.territory == 0)
+  if ( gangInfo.territory == 1 || allOthersAtZero )
     return 'peace'
 
-  const otherGangs = Object.keys(gangInfo.otherGangs).filter(g => g != gangInfo.faction)
+  const otherGangs = Object.keys(gangInfo.otherGangs)
   const chances = await fetch(ns,
     `Object.fromEntries(${JSON.stringify(otherGangs)}.map(g => [g, ns.gang.getChanceToWinClash(g)]))`,
     '/Temp/gang.getChanceToWinClash.txt')
