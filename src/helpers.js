@@ -9,6 +9,21 @@ export function mySleep(ms){
 }
 
 /**
+ * @returns {bool} access from a specified source file
+ * @param {number} num - which source file we want to know about
+ * @param {number} level (optional) - sometimes the specific functionality
+ *                       requires the bitnode to be leveled up.
+ * @cost 0 GB
+ */
+export function haveSourceFile(num, level = 1) {
+  if ( fetchPlayer().bitNodeN == num )
+    return true
+
+  let ownedSourceFiles = getLSItem('sourceFiles')
+  return ownedSourceFiles.some(sf => sf.n == num && sf.lvl >= level )
+}
+
+/**
  * @returns {integer} number of exe rootfiles on the player's computer
  * @cost 0 GB
  */
