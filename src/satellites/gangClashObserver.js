@@ -16,6 +16,9 @@ export async function main(ns) {
   if ( !gangInfo || !gangInfo.faction )
     return ns.print('no gang') // can't clash a gang that doesn't exist
 
+  if ( gangInfo.warPhase == 'peace' )
+    return ns.print('peace time, there is no longer need to fight.')
+
   let nextClashTime = getLSItem('clashtime')
   let diff = Date.now() - nextClashTime
   ns.print(`Next clash time: ${nextClashTime}`)
