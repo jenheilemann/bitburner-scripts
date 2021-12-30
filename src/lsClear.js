@@ -25,6 +25,6 @@ export async function main(ns) {
   }
 
   clearLSItem(key)
-  ns.tprint(`Cleared '${safeKey}' ${getLSItem(safeKey)}`)
+  ns.tprint(`Cleared '${safeKey}' ${getLSItem(key)}`)
 }
 
