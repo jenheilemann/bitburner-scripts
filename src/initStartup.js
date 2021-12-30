@@ -40,6 +40,7 @@ const filesToDownload = [
   '/satellites/pservObserver.js',
   '/satellites/serversObserver.js',
   '/satellites/torBuyer.js',
+  '/sleeves/metaObserver.js',
   '/startup/run.js',
   'augPurchaser.js',
   'backdoor.js',
