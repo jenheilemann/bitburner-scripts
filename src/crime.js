@@ -114,8 +114,10 @@ function focusValue(focus, stats) {
       return stats.hacking_exp
     case 'combat':
       return combatXPStats.reduce((p, name) => stats[name] + prev, 0)
-    case 'charisma':
+    case 'charisma', 'cha':
       return stats.charisma_exp
+    case 'intelligence', 'int':
+      return stats.intelligence_exp
     default:
       return stats.money
   }
