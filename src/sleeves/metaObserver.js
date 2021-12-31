@@ -20,6 +20,7 @@ export async function main(ns) {
   const sleeves = await fetchData(ns, 'sleeve.getInformation', counter)
   ns.print(`Found data for ${sleeves.length} sleeves`)
 
+  mergeData(sleeves, 'number', counter)
   mergeData(sleeves, 'augs', await fetchData(ns, 'sleeve.getSleeveAugmentations', counter))
   mergeData(sleeves, 'stats', await fetchData(ns, 'sleeve.getSleeveStats', counter))
   mergeData(sleeves, 'task', await fetchData(ns, 'sleeve.getTask', counter))
