@@ -1,6 +1,5 @@
 import {
   getNsDataThroughFile as fetch,
-  setLSItem,
   getLSItem,
   haveSourceFile,
 } from 'helpers.js'
@@ -31,8 +30,8 @@ async function manageSleeve(ns, sleeve) {
   if ( !gangMeta || !gangMeta.faction )
     return await assistJoiningGang(ns, sleeve)
 
-  if ( sleeve.stats.shock > 0 )
-    return await goToTherapy(ns, sleeve)
+  // if ( sleeve.stats.shock > 0 )
+  //   return await goToTherapy(ns, sleeve)
 
   return await farmIntelligence(ns, sleeve)
 }
