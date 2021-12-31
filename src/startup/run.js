@@ -37,6 +37,7 @@ export async function main(ns) {
   await ns.sleep(200)
 
   ns.tprint(`Running QoL scripts`)
+  ns.run('/qol/add-tab-control-to-editor.js')
   ns.run('/qol/make-boxes-minimisable.js')
   await ns.sleep(200)
 
