@@ -5,7 +5,7 @@ import {
   getLSItem,
 } from 'helpers.js'
 // i like the fibonacci sequence
-const threshholds = [2,3,5,8,13,21,34]
+const threshholds = [2,3,5,8,13,21,34,55,89]
 
 /** @param {NS} ns **/
 export async function main(ns) {
