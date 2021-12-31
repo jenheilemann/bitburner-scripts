@@ -8,13 +8,12 @@ const min = 60 * sec
  * time in ms
  **/
 const timers = [
-  // these are all sorted by frequency, except playerObserver which must always
-  // run first
+  // these are sorted by frequency, except playerObserver which must run first
   { file: '/satellites/playerObserver.js',    freq: 20,        last: 0 },
+
   { file: '/satellites/serversObserver.js',   freq: 0,         last: 0 },
   { file: 'stats.js',                         freq: 1 * sec,   last: 0 },
   { file: '/satellites/gangClashObserver.js', freq: 1.3*sec,   last: 0 },
-  { file: '/sleeves/metaObserver.js',         freq: 4 * sec,   last: 0 },
   { file: '/satellites/programObserver.js',   freq: 5 * sec,   last: 0 },
   { file: '/gang/equipment.js',               freq: 5.2*sec,   last: 0 },
   { file: '/gang/recruitment.js',             freq: 5.3*sec,   last: 0 },
@@ -25,6 +24,8 @@ const timers = [
   { file: '/gang/ascend.js',                  freq: 8.1*sec,   last: 0 },
   { file: '/gang/augments.js',                freq: 12 *sec,   last: 0 },
   { file: '/gang/tasks.js',                   freq: 30 *sec,   last: 0 },
+  { file: '/sleeves/metaObserver.js',         freq: 31 * sec,  last: Date.now() },
+  { file: '/sleeves/manager.js',              freq: 31.1*sec,  last: Date.now() },
   { file: '/satellites/activityObserver.js',  freq: min,       last: Date.now() },
   { file: '/satellites/pservObserver.js',     freq: min+100,   last: Date.now() },
   { file: '/satellites/hackerObserver.js',    freq: min+200,   last: 0 },
