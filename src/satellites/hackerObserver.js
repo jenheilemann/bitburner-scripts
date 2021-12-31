@@ -301,7 +301,7 @@ class Targeter {
     const server = this.target.data
     const decimal = getLSItem('hackpercent')
     const threads = Math.ceil(decimal/formulas.hackPercent(server, player))
-    const amountHacked = threads * formulas.hackPercent(server, player) * server.moneyAvailable
+    const amountHacked = Math.min(this.target.maxMoney, threads * formulas.hackPercent(server, player) * server.moneyAvailable)
 
     return [threads, amountHacked]
   }
@@ -320,8 +320,8 @@ class Targeter {
     const formulas = this.ns.formulas.hacking
 
     let multiplier = server.moneyMax/(Math.max(1, server.moneyMax - replacing))
-    let threads = Math.ceil((multiplier-1)/(formulas.growPercent(server, 1, player)-1))
-    return [threads, multiplier]
+    let threads = Math.log(multiplier)/Math.log(formulas.growPercent(server, 1, player))
+    return [Math.ceil(threads), multiplier]
   }
 
   weakenInfo(security) {
