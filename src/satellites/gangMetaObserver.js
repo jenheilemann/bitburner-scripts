@@ -45,7 +45,7 @@ async function findWarPhase(ns, gangInfo) {
   const chances = await fetch(ns,
     `Object.fromEntries(${JSON.stringify(otherGangs)}.map(g => [g, ns.gang.getChanceToWinClash(g)]))`,
     '/Temp/gang.getChanceToWinClash.txt')
-  const minChance = Math.max(0, ...otherGangs.map(g => chances[g]))
+  const minChance = Math.min(...otherGangs.map(g => chances[g]))
   if ( minChance > 0.7 )
     return 'war'
 
