@@ -13,8 +13,11 @@ export async function main(ns) {
   if ( !gangInfo || !gangInfo.faction )
     return ns.print('no gang') // can't war without a gang
 
-  if ( gangInfo.warPhase == 'peace' )
+  if ( gangInfo.warPhase == 'peace' ) {
+    if ( members[0].task == 'Territory Warfare' )
+      members.map(m => ns.gang.setMemberTask(m, 'Terrorism'))
     return ns.print('we have conquered all')
+  }
 
   const bufferedClashTime = getLSItem('clashTime') + buffer
   if ( bufferedClashTime < Date.now() )
@@ -24,6 +27,10 @@ export async function main(ns) {
   ns.print('Attempting territory warfare with ' + JSON.stringify(members))
   let workingMembers = members.filter(m => ns.gang.setMemberTask(m, 'Territory Warfare'))
   announce(ns, `${workingMembers.length} gang members assigned to territory warfare`)
+
+  if ( ns.gang.getBonusTime() > 10 ) {
+    return ns.print('gang in bonus time right now, just take territory for a while.')
+  }
 
   ns.print('Waiting for clashtime to pass...')
   while(bufferedClashTime > Date.now()) {

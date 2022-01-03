@@ -19,7 +19,7 @@ export async function main(ns) {
   if ( gangInfo.members.length == 0 )
     return ns.print('no gang members')
 
-  if ( gangInfo.members[0].task == 'Territory Warfare' )
+  if ( gangInfo.members[0].task == 'Territory Warfare' && gangInfo.warPhase != 'peace' )
     return ns.print('gang currently defending territory, skip assigning tasks.')
 
   const activityOrganizer = gangInfo.isHacker ? new HackingActivityOrganizer() :
