@@ -65,8 +65,8 @@ export async function main(ns) {
     ns.print(`Attempting ${crime} in ${ns.tFormat(time)}...`)
     await ns.sleep(time * 0.75)
 
-    again = fetchPlayer().busy
-    while (fetchPlayer().busy) {
+    again = ns.isBusy()
+    while (ns.isBusy()) {
       await ns.sleep(50)
     }
 
