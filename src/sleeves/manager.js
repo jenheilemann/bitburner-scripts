@@ -3,6 +3,7 @@ import {
   getLSItem,
   haveSourceFile,
   fetchPlayer,
+  formatNumberShort,
 } from 'helpers.js'
 
 /** @param {NS} ns **/
