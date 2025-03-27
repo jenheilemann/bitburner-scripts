@@ -73,7 +73,7 @@ async function inAnyGang(ns) {
 
 function canJoinGang(ns) {
   const player = fetchPlayer()
-  if ( player.bitNodeN == 2 )
+  if ( player.resetInfo.currentNode == 2 )
     return true
 
   ns.print(`Current karma (${player.karma}) (${player.karma < -54000})`)

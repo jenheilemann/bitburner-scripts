@@ -376,10 +376,10 @@ export async function earnFactionInvite(ns, factionName) {
   let requirement;
   if ((requirement = requiredMoneyByFaction[factionName]) && player.money < requirement)
     return ns.print(`${reasonPrefix} you have insufficient money. Need: ${formatMoney(requirement)}, Have: ${formatMoney(player.money)}`);
-  if ((requirement = requiredHackByFaction[factionName]) && player.hacking < requirement)
-    return ns.print(`${reasonPrefix} you have insufficient hack level. Need: ${requirement}, Have: ${player.hacking}`);
-  if ((requirement = requiredBackdoorByFaction[factionName]) && player.hacking < ns.getServerRequiredHackingLevel(requirement))
-    return ns.print(`${reasonPrefix} you must fist backdoor ${requirement}, which needs hack: ${ns.getServerRequiredHackingLevel(requirement)}, Have: ${player.hacking}`);
+  if ((requirement = requiredHackByFaction[factionName]) && player.skills.hacking < requirement)
+    return ns.print(`${reasonPrefix} you have insufficient hack level. Need: ${requirement}, Have: ${player.skills.hacking}`);
+  if ((requirement = requiredBackdoorByFaction[factionName]) && player.skills.hacking < ns.getServerRequiredHackingLevel(requirement))
+    return ns.print(`${reasonPrefix} you must fist backdoor ${requirement}, which needs hack: ${ns.getServerRequiredHackingLevel(requirement)}, Have: ${player.skills.hacking}`);
   // TODO: Do backdoor if we can but haven't yet?
 
   // See if we can take action to earn an invite for the next faction under consideration
@@ -648,8 +648,8 @@ async function detectBestFactionWork(ns, factionName) {
  **/
 async function workForAllMegacorps(ns, megacorpFactions, workForFaction, oneAtATime) {
   let player = ns.getPlayer()
-  if (player.hacking < 225) {
-    ns.print(`Hacking Skill ${player.hacking} is to low to work for any ` +
+  if (player.skills.hacking < 225) {
+    ns.print(`Hacking Skill ${player.skills.hacking} is to low to work for any ` +
       `megacorps (min req. 225).`);
     return
   }
@@ -750,10 +750,10 @@ async function workForMegacorpFactionInvite(ns, factionName, waitForInvite) {
   const softwareJob = jobs.find(j => j.name == "software")
   // We don't qualify to work for this company yet if we can't meet
   // IT qualifications (lowest there are)
-  if (itJob.reqHack[0] + statModifier > player.hacking) {
+  if (itJob.reqHack[0] + statModifier > player.skills.hacking) {
     ns.print(`Cannot yet work for "${companyName}": ` +
       `Need Hack ${itJob.reqHack[0] + statModifier} to get hired ` +
-      `(current Hack: ${player.hacking});`)
+      `(current Hack: ${player.skills.hacking});`)
     return
   }
 
@@ -765,7 +765,7 @@ async function workForMegacorpFactionInvite(ns, factionName, waitForInvite) {
 
   function getTier(job) {
     let rep = job.reqRep.filter(r => r <= currentReputation).length
-    let hack = job.reqHack.filter(h => h <= player.hacking).length
+    let hack = job.reqHack.filter(h => h <= player.skills.hacking).length
     let cha = job.reqCha.filter(c => c <= player.charisma).length
     return Math.min(rep, hack, cha) - 1
   }

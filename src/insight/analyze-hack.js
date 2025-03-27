@@ -27,20 +27,20 @@ export async function main(ns) {
   ]);
 
   var player = ns.getPlayer();
-  if (flags['at-hack-level']) player.hacking = flags['at-hack-level'];
+  if (flags['at-hack-level']) player.skills.hacking = flags['at-hack-level'];
   var servers = to_scan.map(ns.getServer);
   var ram_total = servers.reduce(function (total, server) {
     if (!(flags['all'] || server.hasAdminRights)) return total;
     return total + server.maxRam;
   }, 0);
-  var server_eval = servers.filter(server => (flags['all'] || server.hasAdminRights && server.requiredHackingSkill <= player.hacking)
+  var server_eval = servers.filter(server => (flags['all'] || server.hasAdminRights && server.requiredHackingSkill <= player.skills.hacking)
     && !server.purchasedByPlayer && server.moneyMax > 0)
     .map(function (server) {
       server.hackDifficulty = server.minDifficulty;
-      let real_player_hack_skill = player.hacking;
+      let real_player_hack_skill = player.skills.hacking;
       // If necessary, temporarily fake the hacking skill to get the numbers for when this server will first be unlocked
       if (server.requiredHackingSkill > real_player_hack_skill)
-        player.hacking = server.requiredHackingSkill;
+        player.skills.hacking = server.requiredHackingSkill;
       var growGain = Math.log(ns.formulas.hacking.growPercent(server, 1, player, 1));
       var growCost = grow_ram * ns.formulas.hacking.growTime(server, player);
       var hackGain = Math.log(ns.formulas.hacking.hackPercent(server, player)) * ns.formulas.hacking.hackAnalyzeChance(server, player);
@@ -50,7 +50,7 @@ export async function main(ns) {
       hackCost += weakenCost * 0.002 / 0.05;
       server.gainRate = server.moneyMax / (growCost / growGain + hackCost / hackGain);
       server.expRate = ns.formulas.hacking.hackExp(server, player) * (1 + 0.002 / 0.05) / (hackCost);
-      player.hacking = real_player_hack_skill; // Restore the real hacking skill if we changed it temporarily
+      player.skills.hacking = real_player_hack_skill; // Restore the real hacking skill if we changed it temporarily
       ns.print(server.hostname, ": Theoretical $", server.gainRate, ", limit ", ns.nFormat(server.moneyMax * 0.1 / ram_total, "$0.000a") , ", exp ", server.expRate);
       server.gainRate = Math.min(server.gainRate, server.moneyMax * 0.1 / ram_total);
       return server;
@@ -59,7 +59,7 @@ export async function main(ns) {
     return b.gainRate - a.gainRate;
   })[0];
   ns.tprint("Best server: ", best_server.hostname, " with ", ns.nFormat(best_server.gainRate, "$0.000a"), " per ram-second");
-  ns.print(`\nServers in order of best to worst hack money at Hack ${player.hacking}:`);
+  ns.print(`\nServers in order of best to worst hack money at Hack ${player.skills.hacking}:`);
   let order = 1;
   for (const server of server_eval) {
     ns.print(` ${order++} ${server.hostname}, with ${ns.nFormat(server.gainRate, "$0.000a")} per ram-second`);

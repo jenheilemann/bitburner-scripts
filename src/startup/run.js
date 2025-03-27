@@ -32,7 +32,7 @@ export async function main(ns) {
   await ns.sleep(200)
 
   ns.tprint(`Fetching source file information`)
-  const sf = await fetch(ns, `ns.getOwnedSourceFiles()`, '/Temp/getOwnedSourceFiles.txt')
+  const sf = await fetch(ns, `ns.singularity.getOwnedSourceFiles()`, '/Temp/getOwnedSourceFiles.txt')
   setLSItem('sourceFiles', sf)
   await ns.sleep(200)
 

@@ -41,7 +41,7 @@ export async function main(ns) {
 }
 ```
 
-Save and exit nano and write in console: `run start.js` then press enter.
+Save and exit nano and write in console: `run start.js` then press enter. Alternatively, to set a specific branch you can `run start.js --branch BRANCH`.
 
 ## My aliases
 

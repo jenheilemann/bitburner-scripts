@@ -7,8 +7,9 @@ import { fetchServer } from 'network.js'
  **/
 export async function main(ns) {
   let player = ns.getPlayer()
-  player.busy = ns.isBusy()
+  player.busy = ns.singularity.isBusy()
   player.karma = ns.heart.break()
+  player.resetInfo = ns.getResetInfo()
 
   if ( isFirstRun() ) {
     player.programs = []

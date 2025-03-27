@@ -16,7 +16,7 @@ export function mySleep(ms){
  * @cost 0 GB
  */
 export function haveSourceFile(num, level = 1) {
-  if ( fetchPlayer().bitNodeN == num )
+  if ( fetchPlayer().resetInfo.currentNode == num )
     return true
 
   let ownedSourceFiles = getLSItem('sourceFiles')

@@ -229,10 +229,10 @@ async function earnFactionInvite(ns, factionName) {
   let requirement;
   if ((requirement = requiredMoneyByFaction[factionName]) && player.money < requirement)
     return ns.print(`${reasonPrefix} you have insufficient money. Need: ${formatMoney(requirement)}, Have: ${formatMoney(player.money)}`);
-  if ((requirement = requiredHackByFaction[factionName]) && player.hacking < requirement)
-    return ns.print(`${reasonPrefix} you have insufficient hack level. Need: ${requirement}, Have: ${player.hacking}`);
-  if ((requirement = requiredBackdoorByFaction[factionName]) && player.hacking < ns.getServerRequiredHackingLevel(requirement))
-    return ns.print(`${reasonPrefix} you must first backdoor ${requirement}, which needs hack: ${ns.getServerRequiredHackingLevel(requirement)}, Have: ${player.hacking}`);
+  if ((requirement = requiredHackByFaction[factionName]) && player.skills.hacking < requirement)
+    return ns.print(`${reasonPrefix} you have insufficient hack level. Need: ${requirement}, Have: ${player.skills.hacking}`);
+  if ((requirement = requiredBackdoorByFaction[factionName]) && player.skills.hacking < ns.getServerRequiredHackingLevel(requirement))
+    return ns.print(`${reasonPrefix} you must first backdoor ${requirement}, which needs hack: ${ns.getServerRequiredHackingLevel(requirement)}, Have: ${player.skills.hacking}`);
   //await getNsDataThroughFile(ns, `ns.connect('fulcrumassets'); await ns.installBackdoor(); ns.connect(home)`, '/Temp/backdoor-fulcrum.txt') // TODO: Do backdoor if we can but haven't yet?
 
   // See if we can take action to earn an invite for the next faction under consideration
@@ -465,8 +465,8 @@ export async function workForSingleFaction(ns, factionName, forceUnlockDonations
  * */
  export async function workForAllMegacorps(ns, megacorpFactionsInPreferredOrder, alsoWorkForCompanyFactions, oneCompanyFactionAtATime) {
   let player = ns.getPlayer();
-  if (player.hacking < 225)
-    return ns.print(`Hacking Skill ${player.hacking} is to low to work for any megacorps (min req. 225).`);
+  if (player.skills.hacking < 225)
+    return ns.print(`Hacking Skill ${player.skills.hacking} is to low to work for any megacorps (min req. 225).`);
   let joinedCompanyFactions = player.factions.filter(f => megacorpFactionsInPreferredOrder.includes(f)); // Company factions we've already joined
   if (joinedCompanyFactions.length > 0)
     ns.print(`${joinedCompanyFactions.length} companies' factions have already been joined: ${joinedCompanyFactions.join(", ")}`)
@@ -507,8 +507,8 @@ export async function workForMegacorpFactionInvite(ns, factionName, waitForInvit
   // TODO: In some scenarios, the best career path may require combat stats, this hard-codes the optimal path for hack stats
   const itJob = jobs.find(j => j.name == "it");
   const softwareJob = jobs.find(j => j.name == "software");
-  if (itJob.reqHack[0] + statModifier > player.hacking) // We don't qualify to work for this company yet if we can't meet IT qualifications (lowest there are)
-    return ns.print(`Cannot yet work for "${companyName}": Need Hack ${itJob.reqHack[0] + statModifier} to get hired (current Hack: ${player.hacking});`);
+  if (itJob.reqHack[0] + statModifier > player.skills.hacking) // We don't qualify to work for this company yet if we can't meet IT qualifications (lowest there are)
+    return ns.print(`Cannot yet work for "${companyName}": Need Hack ${itJob.reqHack[0] + statModifier} to get hired (current Hack: ${player.skills.hacking});`);
   ns.print(`Going to work for Company "${companyName}" next...`)
   let currentReputation, currentRole = "", currentJobTier = -1; // TODO: Derive our current position and promotion index based on player.jobs[companyName]
   let lastStatusUpdateTime, lastStatus = "";
@@ -516,7 +516,7 @@ export async function workForMegacorpFactionInvite(ns, factionName, waitForInvit
   while (((currentReputation = ns.getCompanyRep(companyName)) < repRequiredForFaction) && !player.factions.includes(factionName)) {
     player = ns.getPlayer();
     // Determine the next promotion we're striving for (the sooner we get promoted, the faster we can earn company rep)
-    const getTier = job => Math.min(job.reqRep.filter(r => r <= currentReputation).length, job.reqHack.filter(h => h <= player.hacking).length, job.reqCha.filter(c => c <= player.charisma).length) - 1;
+    const getTier = job => Math.min(job.reqRep.filter(r => r <= currentReputation).length, job.reqHack.filter(h => h <= player.skills.hacking).length, job.reqCha.filter(c => c <= player.charisma).length) - 1;
     // It's generally best to hop back-and-forth between it and software engineer career paths (rep gain is about the same, but better money from software)
     const qualifyingItTier = getTier(itJob), qualifyingSoftwareTier = getTier(softwareJob);
     const bestJobTier = Math.max(qualifyingItTier, qualifyingSoftwareTier); // Go with whatever job promotes us higher
@@ -540,7 +540,7 @@ export async function workForMegacorpFactionInvite(ns, factionName, waitForInvit
     let status = `Next promotion ('${nextJobName}' #${nextJobTier}) at Hack:${requiredHack} Cha:${requiredCha} Rep:${requiredRep?.toLocaleString()}` +
       (repRequiredForFaction > nextJob.reqRep[nextJobTier] ? '' : `, but we won't need it, because we'll sooner hit ${repRequiredForFaction.toLocaleString()} reputation to unlock company faction "${factionName}"!`);
     // We should only study at university if every other requirement is met but Charisma
-    if (currentReputation >= requiredRep && player.hacking >= requiredHack && player.charisma < requiredCha) {
+    if (currentReputation >= requiredRep && player.skills.hacking >= requiredHack && player.charisma < requiredCha) {
       status = `Studying at ZB university until Cha reaches ${requiredCha}...\n` + status;
       if (studying && player.className !== 'taking a Leadership course' && player.className !== 'Leadership' /* In case className is made more intuitive in the future */) {
         announce(ns, `Leadership studies were interrupted. player.className="${player.className}" Restarting in 5 seconds...`, 'warning');
@@ -580,7 +580,7 @@ export async function workForMegacorpFactionInvite(ns, factionName, waitForInvit
     if (lastStatus != status || (Date.now() - lastStatusUpdateTime) > statusUpdateInterval) {
       player = ns.getPlayer();
       ns.print(`Currently a "${player.jobs[companyName]}" ('${currentRole}' #${currentJobTier}) for "${companyName}" earning ${(player.workRepGainRate * 5).toFixed(2)} rep/sec.\n` +
-        `${status}\nCurrent player stats are Hack:${player.hacking} ${player.hacking >= (requiredHack || 0) ? '✓' : '✗'} ` +
+        `${status}\nCurrent player stats are Hack:${player.skills.hacking} ${player.skills.hacking >= (requiredHack || 0) ? '✓' : '✗'} ` +
         `Cha:${player.charisma} ${player.charisma >= (requiredCha || 0) ? '✓' : '✗'} ` +
         `Rep:${Math.round(currentReputation).toLocaleString()} ${currentReputation >= (requiredRep || repRequiredForFaction) ? '✓' : '✗'}`);
       lastStatus = status;
