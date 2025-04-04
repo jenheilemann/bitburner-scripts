@@ -61,7 +61,7 @@ export class BestHack {
   }
 }
 
-export async function findBestTarget() {
+export function findBestTarget() {
   let map = getLSItem('nmap')
   if (! map ) {
     throw new Error("No network map exists, BestHack can't work.")
