@@ -569,7 +569,7 @@ export async function getNsDataThroughFile_Custom(ns, fnRun, fnIsAlive, command,
   // Prepare a command that will write out a new file containing the results of
   // the command unless it already exists with the same contents
   // (saves time/ram to check first)
-  const commandToFile = `const result = JSON.stringify(${command}); ` +
+  const commandToFile = `const result = JSON.stringify(${command}, helpers.jsonStringifyReplacer); ` +
     `if (ns.read("${fName}") != result) await ns.write("${fName}", result, 'w')`
   while (maxRetries-- > 0) {
     try {
@@ -595,7 +595,7 @@ export async function getNsDataThroughFile_Custom(ns, fnRun, fnIsAlive, command,
         ns.print(`Read the following data for command ${command}:\n${fileData}`)
       }
       // Deserialize it back into an object/array and return
-      return JSON.parse(fileData)
+      return JSON.parse(fileData, jsonParseReviver)
     }
     catch (error) {
       const errorLog = `getNsDataThroughFile error (${maxRetries} retries ` +
