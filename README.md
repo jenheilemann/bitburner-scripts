@@ -40,10 +40,10 @@ export async function main(ns) {
 
   await ns.wget(
     `https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/${args.branch}/src/startup/initStartup.js?ts=${new Date().getTime()}`,
-    "startup/initStartup.js"
+    "/startup/initStartup.js"
   );
   ns.tprint('Spawing a new startup process.')
-  ns.spawn("initStartup.js", 1, '--branch', args.branch);
+  ns.spawn("startup/initStartup.js", 1, '--branch', args.branch);
 }
 ```
 
