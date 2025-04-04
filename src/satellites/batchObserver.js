@@ -388,10 +388,11 @@ async function launch(ns, batcher, target) {
  * @returns {num} Next batch ID number, probably unique
  */
 function fetchNextBatchID() {
-  let lastID = parseInt( getLSItem('batchJobId') ?? 0 )
+  let lastID = parseInt( (getLSItem('batchJobId') ?? 0), 16 )
   let nextID = lastID + 1
-  setLSItem('batchJobId', nextID)
-  return nextID
+  if ( nextID > 9_999_999_999_999 ) { nextID = 1 }
+  setLSItem('batchJobId', nextID.toString(16))
+  return nextID.toString(16)
 }
 
 /**
