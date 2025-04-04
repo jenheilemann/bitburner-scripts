@@ -11,14 +11,12 @@ export async function main(ns) {
   disableLogs(ns, ['sleep'])
   let serverName = ns.args[0]
   ns.ui.openTail()
-  ns.ui.resizeTail(480, 250)
+  ns.ui.resizeTail(550, 205)
 
   //@ignore-infinite
   while (true) {
     ns.clearLog();
     let server = fetchServer(ns, serverName)
-    ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");
-    ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");ns.print(" ");
     ns.print(`${serverName} ${runSpinner()}`)
     ns.print(`*** Growth factor : ${server.serverGrowth}`)
     let percent = Math.round((server.moneyAvailable / server.moneyMax) * 100)
@@ -32,8 +30,9 @@ export async function main(ns) {
     let weakThreads = Math.ceil((server.hackDifficulty - server.minDifficulty)/0.05)
     let weakTime = hackTime * 4
     ns.print(`* Weaken          : ${weakThreads.toString().padStart(3," ")} (Time: ${formatTime(weakTime)})`)
-    
-    let growThreads = Math.ceil(ns.growthAnalyze(server.hostname, server.moneyMax / server.moneyAvailable))
+
+    let multiplier = server.moneyMax / Math.max(server.moneyAvailable, 1)
+    let growThreads = Math.ceil(ns.growthAnalyze(server.hostname, multiplier))
     let growTime = hackTime * 3.2
     ns.print(`* Grow            : ${growThreads.toString().padStart(3," ")} (Time: ${formatTime(growTime)})`)
     
