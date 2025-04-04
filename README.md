@@ -26,6 +26,11 @@ Create a new script called `start.js` by issuing the following command: `nano st
 Paste the following content:
 
 ```js
+export function autocomplete(data, args) {
+  data.flags(['branch', 'main'])
+  return ['main', 'start-over']
+}
+
 export async function main(ns) {
   if (ns.getHostname() !== "home") {
     throw new Exception("Run the script from home");
@@ -34,9 +39,10 @@ export async function main(ns) {
   let args = ns.flags([['branch', 'main']])
 
   await ns.wget(
-    `https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/${args.branch}/src/startup/initStartup.js?ts=${new Date().getTime()}`,
-    "startup/initStartup.js"
+    `https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/${args.branch}/src/initStartup.js?ts=${new Date().getTime()}`,
+    "initStartup.js"
   );
+  ns.tprint('Spawing a new startup process.')
   ns.spawn("initStartup.js", 1, '--branch', args.branch);
 }
 ```
