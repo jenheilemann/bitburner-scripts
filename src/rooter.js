@@ -1,5 +1,9 @@
 import { fetchPlayer, toolsCount } from 'helpers.js'
-import { fetchServer } from 'network.js'
+import { fetchServerFree } from 'network.js'
+
+export function autocomplete(data, args) {
+  return data.servers
+}
 
 /**
  * @param {NS} ns
@@ -8,8 +12,8 @@ import { fetchServer } from 'network.js'
 export function root (ns, target) {
   let player = fetchPlayer()
 
-  if (target.data.hasAdminRights) {
-    ns.print("Have root access already")
+  if (target.hasAdminRights) {
+    ns.print("Have root access already: " + target.name)
     return
   }
 
@@ -49,6 +53,11 @@ export async function main(ns) {
     ns.exit()
     return;
   }
-  let target = await fetchServer(ns, targetName)
+  let target = fetchServerFree(targetName)
+  if (!target) {
+    ns.tprint("NMAP is not populated, try again later.")
+    return
+  }
+  ns.print("Target: " + target.hostname)
   root(ns, target)
 }

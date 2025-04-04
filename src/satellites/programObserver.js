@@ -1,4 +1,4 @@
-import { fetchPlayer, tryRun } from 'helpers.js'
+import { fetchPlayer, tryRun, canUseSingularity } from 'helpers.js'
 import { purchaseables } from 'constants.js'
 
 /**
@@ -12,7 +12,12 @@ export async function main(ns) {
 
   if ( !player.tor ) {
     if ( player.money > 2e5 ) {
-      await tryRun(() => ns.run('/satellites/torBuyer.js'))
+      if (!canUseSingularity()) {
+        ns.tprint("WARNING: We haven't yet reached the singularity; purchase Tor darkweb " +
+          "access manually at Alpha Enterprises.")
+        return
+      }
+      await tryRun(() => ns.run('torBuyer.js'))
     }
     return
   }
@@ -20,7 +25,14 @@ export async function main(ns) {
   for ( const file of purchaseables ) {
     if ( !player.programs.includes(file.name) ) {
       if ( player.money > file.cost) {
-        await tryRun(() => ns.run('/satellites/programBuyer.js', 1, file.name))
+
+        if (!canUseSingularity()) {
+          ns.tprint(`WARNING: We haven't yet reached the singularity; purchase ${file.name} ` +
+            `manually: \`buy ${file.name}\``)
+          return
+        }
+
+        await tryRun(() => ns.run('programBuyer.js', 1, file.name))
       }
       return
     }

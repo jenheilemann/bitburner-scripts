@@ -1,4 +1,4 @@
-import { getLSItem, tryRun } from 'helpers.js'
+import { getLSItem, tryRun, canUseSingularity } from 'helpers.js'
 import { networkMap } from 'network.js'
 
 /**
@@ -16,8 +16,12 @@ export async function main(ns) {
     if ( !server.data.hasAdminRights )
       continue
 
-    await tryRun(() => { ns.run('backdoor.js', 1, server.name) })
-    await ns.sleep(100) // give it a sec to spin up
-    ns.connect('home')
+    if (canUseSingularity()) {
+      ns.tprint('Attempting automatic backdoor of ' + server.name)
+      await tryRun(() => { ns.run('backdoor.js', 1, server.name) })
+    } else {
+      ns.tprint('Backdoor of ' + server.name + " available, finding path.")
+      await tryRun(() => { ns.run('find.js', 1, server.name) })
+    }
   }
 }

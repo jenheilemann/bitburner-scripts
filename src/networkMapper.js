@@ -1,68 +1,37 @@
-import { setLSItem } from 'helpers.js'
+import { disableLogs, setLSItem } from 'helpers.js'
 
 /**
  * @param {NS} ns
  **/
-export class NetworkMapper {
-  constructor(ns) {
-    ns.print("Initializing new Network object");
-    this.filename = 'network_map.txt';
-    this.serverData = {};
-    this.serverData['home'] = this.aggregateData(ns, 'home', '');
-    this.serverList = ['home'];
-    this.walkServers(ns);
+function walkServers(ns) {
+  let serverData = {};
+  let serverList = ['home'];
+  serverData['home'] = updateData(ns, 'home', '');
+  for (var i = 0; i < serverList.length; i++) {
+    ns.scan(serverList[i]).forEach(function (host) {
+      if (!serverList.includes(host)) {
+        serverData[host] = updateData(ns, host, serverList[i]);
+        serverList.push(host);
+      }
+    });
   }
-
-  walkServers(ns) {
-    for (var i = 0; i < this.serverList.length; i++) {
-      ns.scan(this.serverList[i]).forEach(function (host) {
-        if (!this.serverList.includes(host)) {
-          this.serverData[host] = this.aggregateData(ns, host, this.serverList[i]);
-          this.serverList.push(host);
-        }
-      }, this);
-    }
-    return this.serverData;
-  }
-
-  async writeMap(ns) {
-    setLSItem('NMAP', this.serverData)
-
-    let line = "Name,MaxRam,PortsRequired," +
-      "HackingLvl,MaxMoney,MinSecurity,Growth," +
-      "Parent\r\n";
-    await ns.write(this.filename, line, "w");
-
-    let data = this.serverList.map(function (server) {
-      return Object.values(this.serverData[server]).join(",");
-    }, this);
-    await ns.write(this.filename, data.join("\r\n"), "a");
-    return;
-  }
-
-  aggregateData(ns, server, parent) {
-    let sobj = {
-      name: server,
-      maxRam: ns.getServerMaxRam(server),
-      portsRequired: ns.getServerNumPortsRequired(server),
-      hackingLvl: ns.getServerRequiredHackingLevel(server),
-      maxMoney: ns.getServerMaxMoney(server),
-      minSecurity: ns.getServerMinSecurityLevel(server),
-      growth: ns.getServerGrowth(server),
-      parent: parent,
-    }
-    updateData(ns, sobj)
-    return sobj
-  }
+  return serverData;
 }
 
-export function updateData(ns, server) {
+export function updateData(ns, server_name, parent) {
+  let server
   try {
-    server.data = ns.getServer(server.name)
+    server = ns.getServer(server_name)
+    server.name = server_name
+    server.portsRequired = server.numOpenPortsRequired
+    server.hackingLvl = server.requiredHackingSkill
+    server.maxMoney = server.moneyMax
+    server.minSecurity = server.minDifficulty
+    server.growth = server.serverGrowth
+    server.parent = parent
     server.files = ns.ls(server.name)
-    server.security = ns.getServerSecurityLevel(server.name)
-    // max ram changes sometimes w/ home, purchased servers
-    server.maxRam = ns.getServerMaxRam(server.name)
+    server.security = server.hackDifficulty
+    server.availableRam = server.maxRam - server.ramUsed
   } catch(e) { ns.print(e.message) }
   return server
 }
@@ -72,8 +41,15 @@ export function updateData(ns, server) {
  * @param {NS} ns
  **/
 export async function main(ns) {
-  let mapper = new NetworkMapper(ns)
+  let map = mapNetwork(ns)
+  setLSItem('nmap', map)
+}
 
-  ns.print(`Writing networkMap to local storage and ${mapper.filename}!`)
-  await mapper.writeMap(ns)
+/**
+ * @param {NS} ns
+ **/
+export function mapNetwork(ns) {
+  disableLogs(ns, ['scan'])
+  let map = walkServers(ns)
+  return map
 }

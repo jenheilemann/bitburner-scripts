@@ -1,14 +1,15 @@
-import { waitForCash } from "helpers.js"
+import { haveEnoughMoney } from "helpers.js"
 const maxRam = 16
 
-async function upgradeRam(ns, node, id, ram) {
+function upgradeRam(ns, node, id, ram) {
   if (node.ram >= ram) {
     return;
   }
   let cost = ns.hacknet.getRamUpgradeCost(id, 1)
   ns.print('Upgrading ram, costs ' + ns.nFormat(cost, "$0.000a"))
-  await waitForCash(ns, cost);
-  ns.hacknet.upgradeRam(id, 1)
+  if ( haveEnoughMoney(ns, cost) ) {
+    ns.hacknet.upgradeRam(id, 1)
+  }
 }
 
 async function upgradeTo(ns, totalCount) {

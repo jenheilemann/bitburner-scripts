@@ -1,49 +1,89 @@
-import { networkMapFree } from 'network.js'
 import {
-          runCommandAndWait,
           disableLogs,
+          getLSItem,
           announce,
         } from 'helpers.js'
-// magic number (Ram required to run breadwinner.js)
+// magic number (Ram required to run hack.js)
 const hackingScriptSize = 1.7
-const scripts = ['hack.js', 'grow.js', 'weaken.js']
+const scripts = ['hack.js', 'grow.js', 'weaken.js', 'breadwinner.js', 'batchGrow.js', 'batchHack.js', 'batchWeaken.js']
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  disableLogs(ns, ['sleep'])
-
-  let servers = Object.values(await networkMapFree())
-    .filter(s => s.data.hasAdminRights &&
-                s.name != 'home' &&
-                s.maxRam - s.data.ramUsed >= hackingScriptSize &&
-                (
-                  !s.files.includes(scripts[0]) ||
-                  !s.files.includes(scripts[1]) ||
-                  !s.files.includes(scripts[2])
-                )
-    )
-
-  // early return, if there are no servers no need to do anything else
-  if ( servers.length == 0 ) {
-    return
-  }
+  disableLogs(ns, ['sleep', 'scp'])
+  let servers = fetchZombifyableServers(ns)
+  if (!servers) return
 
   ns.tprint("Zombifying " + servers.length + " servers")
+  var success = []
+  var failure = []
   for (let server of servers) {
-    await zombify(ns, server.name)
-    await ns.sleep(200)
+    var res = await zombify(ns, server.name)
+    res ? success.push(server) : failure.push(server)
+    await ns.sleep(50)
   }
-  let msg = `Zombified servers: ${servers.map(s => s.name).join(', ')}`
-  announce(ns, msg)
-  ns.tprint(msg)
+  if (success.length > 0 ) {
+    let msg = `Zombified servers: ${success.map(s => s.name).join(', ')}`
+    announce(ns, msg)
+    ns.tprint(msg)
+  }
+  if (failure.length > 0 ) {
+    let msg = `ERROR: failed to zombify servers: ${failure.map(s => s.name).join(', ')}`
+    announce(ns, msg)
+    ns.tprint(msg)
+  }
 }
 
-async function zombify(ns, server) {
-  for (const script of scripts) {
-    await runCommandAndWait(ns, `ns.scp('${script}', "home", '${server}')`,
-      `/Temp/scp-${script}.js`)
+
+/**
+ * @param {array} files - files on a server
+ * @returns {boolean} - whether those files include all the scripts we need to upload
+ **/
+function hasAllScripts(files) {
+  return scripts.every((script) => files.includes(script))
+}
+
+
+/**
+ * fetchZombifyableServers
+ * Find any servers in the network that haven't gotten the copied files yet.
+ * @param {NS} NS
+ * @returns {boolean|array} - servers we can work on, or false if none available
+ **/
+function fetchZombifyableServers(ns) {
+  ns.print("Fetching servers from nmap")
+  let nmap = getLSItem('nmap')
+  if (! nmap ) {
+    ns.print('NMAP is not populated, try again later.')
+    return false
   }
-  ns.print(`Copied ${scripts} to ${server}`)
+  let servers = Object.values(nmap)
+    .filter(s => s.hasAdminRights &&
+                s.name != 'home' &&
+                s.maxRam >= hackingScriptSize &&
+                !hasAllScripts(ns.ls(s.hostname))
+    )
+  ns.print(servers.map(s => [s.name, s.hasAdminRights, s.maxRam, s.ramUsed, s.files]))
+  // early return, if there are no servers no need to do anything else
+  if ( servers.length == 0 ) {
+    ns.print("Everything we can zombify has been already.")
+    return false
+  }
+  return servers
+}
+
+/**
+ * @param {NS} ns
+ * @param {string} server - Server host name
+ * @returns {boolean} - whether the files successfully copied
+ **/
+async function zombify(ns, server) {
+  var res = ns.scp(scripts, server, "home")
+  if ( res ) {
+    ns.print(`Copied ${scripts} to ${server}`)
+  } else {
+    ns.print(`ERROR: Failed in copying ${scripts} to ${server}`)
+  }
+  return res
 }

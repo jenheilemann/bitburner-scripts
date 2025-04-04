@@ -1,8 +1,8 @@
-import { networkMapFree } from 'network.js'
 import {
           disableLogs,
           toolsCount,
           clearLSItem,
+          getLSItem
         } from 'helpers.js'
 import { root } from 'rooter.js'
 
@@ -13,8 +13,13 @@ export async function main(ns) {
   disableLogs(ns, ['sleep'])
 
   let count = toolsCount()
-  let servers = Object.values(await networkMapFree())
-    .filter(s => !s.data.hasAdminRights &&
+  let nmap = getLSItem('nmap')
+  if (!nmap) {
+    ns.tprint(`Nuker.js: NMAP is not populated, can't nuke anything right now.`)
+    return
+  }
+  let servers = Object.values(nmap)
+    .filter((s) => !s.hasAdminRights &&
                  s.portsRequired <= count )
 
   if ( servers.length == 0 )
@@ -25,5 +30,4 @@ export async function main(ns) {
     root(ns, server)
   }
   ns.tprint(`SUCCESS: Nuked ${servers.map(s => s.name).join(", ")}`)
-  clearLSItem('nmap')
 }

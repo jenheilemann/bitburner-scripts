@@ -1,18 +1,22 @@
 import { lsKeys } from 'constants.js'
-import { setLSItem, getLSItem } from 'helpers.js'
+import { getLSItem, setLSItem } from 'helpers.js'
 
-export function autocomplete() {
-  return Object.keys(lsKeys)
+export function autocomplete(data) {
+  return Object.keys(lsKeys).concat(data.servers)
 }
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
+  let args = ns.flags([
+    ['pretty', false],
+    ['p', false],
+  ])
 
-  if ( ns.args.length == 0 ) {
-    ns.tprint(`This script needs a recognized key!`)
-    ns.tprint('like: `run lsSet.js reserve 2e6` or `run lsSet.js working`')
+  if ( args._.length !== 2 ) {
+    ns.tprint(`This script needs a recognized key and value!`)
+    ns.tprint('like: `run lsSet.js reserve 100`')
     return
   }
 
@@ -24,20 +28,7 @@ export async function main(ns) {
     return
   }
 
-  if ( key.toUpperCase() === 'WORKING' ){
-    setLSItem(key, Date.now())
-    ns.tprint(`Set '${safeKey}': ${getLSItem(key)}`)
-    return
-  }
-
-  if ( ns.args.length < 2 ) {
-    ns.tprint(`This script needs a value!`)
-    ns.tprint('like: `run lsSet.js reserve 2e6`')
-    return
-  }
-
-  let value = ns.args[1]
-  setLSItem(key, value)
-  ns.tprint(`Set '${safeKey}': ${getLSItem(key)}`)
+  setLSItem(key, ns.args[1])
+  ns.tprint(`Set '${safeKey}' to ${getLSItem(key)}`)
 }
 

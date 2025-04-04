@@ -1,10 +1,10 @@
 import {
-  getNsDataThroughFile as fetch,
   runCommand,
-  formatRam,
+  getLSItem,
   announce,
+  getNsDataThroughFile as fetch,
+  haveEnoughMoney, reserve
 } from 'helpers.js'
-import { networkMapFree } from 'network.js'
 
 // payoff within the hour
 const min = 60, hour = min * 60
@@ -14,27 +14,37 @@ const min = 60, hour = min * 60
  **/
 export async function main(ns) {
   // if there's already a buyer running, let it finish before starting another
-  const homePS = await fetch(ns, `ns.ps('home')`, '/Temp/ps_home.txt')
-  if ( homePS.some(proc => proc.filename === 'buyer.js') ) {
+  const homePS = ns.ps('home')
+  if ( homePS.some(proc => proc.filename === 'pServBuyer.js') ) {
     return
   }
 
-  const nmap = await networkMapFree(ns)
-  const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.data.purchasedByPlayer)
+  const nmap = getLSItem('nmap')
+  if ( !nmap ) {
+    ns.print("NMAP not available, waiting until it comes back.")
+    return
+  }
+  const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.purchasedByPlayer)
   const currRam = smallestCurrentServerSize(pservs)
-  const nextRam = await nextRamSize(ns, currRam)
+  const nextRam = nextRamSize(ns, currRam)
 
   if (nextRam == 0) {
     return
   }
 
-  let msg = `Running buyer.js to purchase ${formatRam(2**nextRam)} (currently: ${formatRam(currRam)})`
+  const cost = ns.getPurchasedServerCost(nextRam)
+  if ( !haveEnoughMoney(ns, cost) ){
+    ns.print(`Not enough money to afford the server + reserve: ${cost} (${reserve(ns)})`)
+    return
+  }
+
+  let msg = `Running pServBuyer.js to purchase ${ns.formatRam(2**nextRam)} (currently: ${ns.formatRam(currRam)})`
   announce(ns, msg)
   ns.tprint(msg)
-  ns.tprint(` ns.spawn('buyer.js', 1, '--size', ${nextRam})`)
-  await runCommand(ns, `for (let i = 0,pid = 0; pid == 0 && i < 10; i++) { ` +
-    `pid = ns.spawn('buyer.js', 1, '--size', ${nextRam}) }`, '/Temp/spawnBuyer.js')
+  ns.tprint(` ns.spawn('pServBuyer.js', 1, '--size', ${nextRam})`)
+  ns.spawn('pServBuyer.js', 1, '--size', nextRam)
 }
+
 
 /**
  * @param {array} pservs
@@ -51,28 +61,24 @@ function smallestCurrentServerSize(pservs) {
  * @param {integer} curRam
  * @param {array} pservs
  **/
-async function nextRamSize(ns, currRam) {
-  const limit = await fetch(ns, `ns.getPurchasedServerLimit()`,
-    '/Temp/getPurchasedServerLimit.txt')
-  const totIncomePerSecond = await fetch(ns, `ns.getScriptIncome()[0]`,
-    '/Temp/getScriptIncome.txt')
-  const maxServerSize = await fetch(ns, `ns.getPurchasedServerMaxRam()`,
-    '/Temp/getPurchasedServerMaxRam.txt')
+function nextRamSize(ns, currRam) {
+  const limit = ns.getPurchasedServerLimit()
+  const totIncomePerSecond = Math.max(ns.getTotalScriptIncome()[0], 3200) // 3200 makes this script to return 32GB min
+  const maxServerSize = ns.getPurchasedServerMaxRam()
   const incomePerPayoffTime = totIncomePerSecond * 2*hour
-  ns.print(`Total income: ${ns.nFormat(totIncomePerSecond, "$0,0")}`)
-  ns.print(`Income per payoff time: ${ns.nFormat(incomePerPayoffTime, "$0,0")}`)
+  ns.print(`Total income: ${ns.formatNumber(totIncomePerSecond)}/s`)
+  ns.print(`Income per payoff time: ${ns.formatNumber(incomePerPayoffTime, 12)}`)
   if (incomePerPayoffTime == 0) return 0
 
   let cost, totalCost
   for (var i = 20; 2**i > currRam; i--) {
     // max server size can vary based on BN
     if ( 2**i > maxServerSize ) continue
-    if (i < 0) { ns.tail(); throw `How is i less than 0? ${i}` }
-    cost = await fetch(ns, `ns.getPurchasedServerCost(${2**i})`,
-      `/Temp/getPurchasedServerCost.${i}.txt`)
+    if (i < 0) { ns.ui.openTail(); throw `How is i less than 0? ${i}` }
+    cost = ns.getPurchasedServerCost(2**i)
     totalCost = cost * limit
 
-    ns.print(`Total cost for ${2**i}GB ram: ${ns.nFormat(totalCost, "$0,0")}`)
+    ns.print(`Total cost for ${2**i}GB ram: ${ns.formatNumber(totalCost, 12)}`)
     if ( totalCost < incomePerPayoffTime ) {
       ns.print(`(${2**i}) totalCost < incomePerPayoffTime`)
       ns.print(`Returning ${2**i}`)

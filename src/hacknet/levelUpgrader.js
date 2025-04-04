@@ -1,14 +1,15 @@
-import { waitForCash } from "helpers.js"
+import { haveEnoughMoney } from "helpers.js"
 const maxLevel = 100
 
-async function upgradeLevel(ns, node, id, level) {
+function upgradeLevel(ns, node, id, level) {
   if (node.level >= level) {
     return;
   }
   let cost = ns.hacknet.getLevelUpgradeCost(id, 2)
   ns.print('Upgrading level, costs ' + ns.nFormat(cost, "$0.000a"))
-  await waitForCash(ns, cost);
-  ns.hacknet.upgradeLevel(id, 2)
+  if (haveEnoughMoney(ns, cost) {
+    ns.hacknet.upgradeLevel(id, 2)
+  }
 }
 
 async function upgradeTo(ns, totalCount) {
@@ -18,7 +19,7 @@ async function upgradeTo(ns, totalCount) {
     for (let i = 0; i < total; i++) {
       node = ns.hacknet.getNodeStats(i)
       ns.print('Upgrading ' + node.name)
-      await upgradeLevel(ns, node, i, maxLevel)
+      upgradeLevel(ns, node, i, maxLevel)
     }
     if (total >= totalCount && node.level >= maxLevel) {
       ns.tprint("Hacknet Node Levels upgraded to max. Godspeed, Runner.")

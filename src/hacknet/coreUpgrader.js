@@ -1,14 +1,18 @@
-import { waitForCash } from "helpers.js"
+import { haveEnoughMoney } from "helpers.js"
 const maxCores = 8
 
-async function upgradeCores(ns, node, id, cores) {
+function upgradeCores(ns, node, id, cores) {
   if (node.cores >= cores) {
     return;
   }
   let cost = ns.hacknet.getCoreUpgradeCost(id, 1)
-  ns.print('Upgrading core, costs ' + ns.nFormat(cost, "$0.000a"))
-  await waitForCash(ns, cost)
-  ns.hacknet.upgradeCore(id, 1)
+  ns.print('Upgrading core, costs $' + ns.formatNumber(cost))
+  if (haveEnoughMoney(ns, cost)) {
+    ns.hacknet.upgradeCore(id, 1)
+    return true
+  } else {
+    return false
+  }
 }
 
 async function upgradeTo(ns, totalCount) {
@@ -18,7 +22,7 @@ async function upgradeTo(ns, totalCount) {
     for (let i = 0; i < total; i++) {
       node = ns.hacknet.getNodeStats(i)
       ns.print('Upgrading ' + node.name)
-      await upgradeCores(ns, node, i, maxCores)
+      upgradeCores(ns, node, i, maxCores)
     }
     if (total >= totalCount && node.cores >= maxCores) {
       ns.tprint("Hacknet Node Cores upgraded to max. Hasta la vista, baby.")

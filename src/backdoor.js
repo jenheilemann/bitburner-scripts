@@ -20,7 +20,7 @@ export async function backdoor(ns, target) {
   let path = await findPath(target)
 
   path.forEach((step) => ns.connect(step))
-  await ns.installBackdoor()
+  await ns.singularity.installBackdoor()
   announce(ns, `Backdoor installed on ${target}`)
   ns.connect('home')
   if ( target == 'w0r1d_d43m0n') ns.killall('home')

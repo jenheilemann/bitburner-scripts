@@ -25,31 +25,31 @@ const filesToDownload = [
   '/hacknet/levelUpgrader.js',
   '/hacknet/ramUpgrader.js',
   '/hacknet/startup.js',
-  '/qol/add-tab-control-to-editor.js',
   '/satellites/activityObserver.js',
   '/satellites/backdoorObserver.js',
+  '/satellites/batchObserver.js',
   '/satellites/contractsObserver.js',
   '/satellites/controller.js',
   '/satellites/factionObserver.js',
   '/satellites/gangClashObserver.js',
   '/satellites/gangMetaObserver.js',
   '/satellites/hackerObserver.js',
-  '/satellites/homeRamBuyer.js',
+  '/satellites/homeRamObserver.js',
+  '/satellites/networkObserver.js',
   '/satellites/playerObserver.js',
-  '/satellites/programBuyer.js',
   '/satellites/programObserver.js',
   '/satellites/pservObserver.js',
-  '/satellites/serversObserver.js',
-  '/satellites/torBuyer.js',
   '/sleeves/manager.js',
   '/sleeves/metaObserver.js',
   '/startup/run.js',
   'augPurchaser.js',
   'backdoor.js',
+  'batchGrow.js',
+  'batchHack.js',
+  'batchWeaken.js',
   'bestHack.js',
   'botnet.js',
   'breadwinner.js',
-  'buyer.js',
   'constants.js',
   'crime.js',
   'doProcess.js',
@@ -60,11 +60,16 @@ const filesToDownload = [
   'lsClear.js',
   'lsGet.js',
   'lsSet.js',
+  'monitor.js',
   'network.js',
   'networkMapper.js',
   'nuker.js',
+  'pServBuyer.js',
+  'programBuyer.js',
   'rooter.js',
   'stats.js',
+  'torBuyer.js',
+  'upgradeHomeRam.js',
   'weaken.js',
   'workForFactions.js',
 ]
@@ -91,7 +96,7 @@ export async function main(ns) {
 
   await ns.sleep(50)
   ns.tprint(`Starting startup/run.js`)
-  ns.spawn('/startup/run.js', 1)
+  ns.spawn('/startup/run.js', , {spawnDelay: 1_000})
 }
 
 export async function download(ns, filename, branch) {

@@ -32,7 +32,10 @@ export const gangEquipment = {
 export const lsKeys = {
   NMAP : 'jh_network_map',
   PLAYER : 'jh_player',
+  BATCHES : 'jh_batches',
+  BATCHJOBID : 'jh_batchJobId',
   RESERVE : 'jh_reserve',
+  RESET : 'jh_reset',
   BITNODE : 'jh_bn_multipliers',
   SOURCEFILES : 'jh_owned_sourcefiles',
   WORKING : 'jh_working',

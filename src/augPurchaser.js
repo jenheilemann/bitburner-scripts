@@ -1,4 +1,8 @@
-import { formatNumberShort, formatMoney, getNsDataThroughFile } from './helpers.js'
+import { formatNumberShort,
+         formatMoney,
+         getNsDataThroughFile,
+         getLSItem,
+         fetchPlayer } from './helpers.js'
 
 // Prefer to join factions in (ish) order of most expensive to least expensive
 // This also acts as a list of default "easy" factions to list and compare, in addition to any other invites you may have
@@ -82,19 +86,16 @@ export async function main(ns) {
   const desiredAugs = options['aug-desired'].map(f => f.replaceAll("_", " "));
   const ignorePlayerData = options.i || options['ignore-player-data'];
   const sort = unshorten(options.sort); // Support the user leaving off the _mult suffix
-  playerData = await getNsDataThroughFile(ns, 'ns.getPlayer()', '/Temp/getPlayer.txt');
-  const sf11Level = ((await getNsDataThroughFile(ns, 'ns.getOwnedSourceFiles()',
-    '/Temp/getOwnedSourceFiles.txt')).find(sf => sf.n == 11) || { lvl: 0 }).lvl;
+  playerData = fetchPlayer()
+  const sf11Level = getLSItem('sourceFiles').get(11) || 0
   augCountMult = [1.9, 1.824, 1.786, 1.767][sf11Level];
-  log(ns, `Player has sf11Level ${sf11Level}, so the multiplier after each aug ` +
-    `purchased is ${augCountMult}.`);
+  log(ns, `Player has SF11 Level ${sf11Level}, so the multiplier after each ` +
+    `aug purchased is ${augCountMult}.`);
   joinedFactions = ignorePlayerData ? [] : playerData.factions;
   log(ns, 'In factions: ' + joinedFactions);
   // Get owned augmentations (whether they've been installed or not).
   // Ignore strNF because you can always buy more.
-  ownedAugmentations = ignorePlayerData ? [] :
-    (await getNsDataThroughFile(ns, 'ns.getOwnedAugmentations(true)',
-      '/Temp/getOwnedAugmentations.txt')).filter(a => a != strNF)
+  ownedAugmentations = ignorePlayerData ? [] : getLSItem('reset').get('ownedAugs').keys().filter(a => a != strNF)
   if (options['neuroflux-disabled']) omitAugs.push(strNF);
   log(ns, 'Getting all faction data...');
   await updateFactionData(ns, allFactions, omitFactions);

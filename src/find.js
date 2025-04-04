@@ -1,5 +1,5 @@
+import { canUseSingularity, runCommand, getLSItem } from 'helpers.js'
 import { factionServers as targets } from 'constants.js'
-import { findPath } from 'network.js'
 
 export function autocomplete(data, args) {
   return data.servers
@@ -11,13 +11,15 @@ export async function main(ns) {
   if (ns.args[0] === undefined) {
     for (const server in targets) {
       ns.tprint("*********** " + server + " ( " + targets[server] + " faction)")
-      path = await findPath(server)
+      path = mapPath(server)
       ns.tprint(printablePathToServer(path, true))
     }
   } else {
-    path = await findPath(ns.args[0])
+    path = mapPath(ns.args[0])
     ns.tprint(printablePathToServer(path))
-    path.forEach((step) => ns.connect(step))
+    if ( canUseSingularity() ) {
+      await runCommand(ns, path.map((step) => `ns.connect('${step}');`))
+    }
   }
 }
 
@@ -27,4 +29,18 @@ function printablePathToServer(path, backdoor = false) {
     msg += "; backdoor;"
   }
   return msg
+}
+
+function mapPath(goal) {
+  let nMap = getLSItem('NMAP')
+  let path = []
+
+  // @ignore-infinite
+  while (true) {
+    path.unshift(goal)
+    goal = nMap[goal].parent
+    if (goal == '') {
+      return path
+    }
+  }
 }

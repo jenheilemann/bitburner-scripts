@@ -16,11 +16,11 @@ export function mySleep(ms){
  * @cost 0 GB
  */
 export function haveSourceFile(num, level = 1) {
-  if ( fetchPlayer().resetInfo.currentNode == num )
+  if ( getLSItem('reset').currentNode == num )
     return true
 
-  let ownedSourceFiles = getLSItem('sourceFiles')
-  return ownedSourceFiles.some(sf => sf.n == num && sf.lvl >= level )
+  let ownedSourceFiles = getLSItem('reset').ownedSF
+  return ownedSourceFiles[num] && ownedSourceFiles[num] >= level
 }
 
 /**
@@ -42,28 +42,25 @@ export function disableLogs(ns, listOfLogs) {
 }
 
 /**
- * @param {NS} ns
- * @cost 0.1 GB
+ * @cost 0 GB
  * @returns {integer} player's money available
  */
-export function myMoney(ns) {
-  return ns.getServerMoneyAvailable('home')
+export function myMoney() {
+  return getLSItem('player').money
 }
 
 /**
  * @param {NS} ns
  * @param {integer} cost - amount wanted
- * @cost 0.2 GB
+ * @cost 0.1 GB
  */
-export async function waitForCash(ns, cost) {
-  if ((myMoney(ns) - reserve(ns)) >= cost) {
-    ns.print("I have enough: " + ns.nFormat(cost, "$0.000a"))
-    return;
+export function haveEnoughMoney(ns, cost) {
+  if ((myMoney() - reserve(ns)) >= cost) {
+    ns.print("I have enough: $" + ns.formatNumber(cost))
+    return true;
   }
-  ns.print("Waiting for " + ns.nFormat(cost + reserve(ns), "$0.000a"))
-  while ((myMoney(ns) - reserve(ns)) < cost) {
-    await ns.sleep(3000)
-  }
+  ns.print("Don't have enough: $" + ns.formatNumber(cost + reserve(ns)))
+  return false;
 }
 
 /**
@@ -82,6 +79,16 @@ export function reserve(ns) {
     }
   }
   return manualReserve
+}
+
+/**
+ * Check if the user can use a singularity function
+ *
+ * @cost 0 GB
+ */
+export function canUseSingularity() {
+  let resetInfo = getLSItem('reset')
+  return resetInfo.currentNode == 4 || resetInfo.ownedSF[4] > 0
 }
 
 
@@ -347,10 +354,10 @@ export function getFnIsAliveViaNsPs(ns) {
  * @param {...args} args - args to be passed in as arguments to command being
  *                  run as a new script.
  */
-export async function runCommand(ns, command, fileName, verbose, ...args) {
+export function runCommand(ns, command, fileName, verbose, ...args) {
   checkNsInstance(ns)
   if (!verbose) disableLogs(ns, ['run', 'sleep'])
-  return await runCommand_Custom(ns, ns.run, command,fileName, verbose, ...args)
+  return runCommand_Custom(ns, ns.run, command,fileName, verbose, ...args)
 }
 
 /**
@@ -372,7 +379,7 @@ export async function runCommandAndWait(ns, command, fileName, verbose, ...args)
   checkNsInstance(ns)
   if (!verbose) disableLogs(ns, ['run', 'sleep'])
 
-  const pid = await runCommand_Custom(ns,ns.run,command,fileName,verbose,...args)
+  const pid = runCommand_Custom(ns,ns.run,command,fileName,verbose,...args)
   if (pid === 0) {
     throw (`runCommand returned no pid. (Insufficient RAM, or bad command?) ` +
       `Destination: ${fileName} Command: ${command}`)
@@ -401,27 +408,23 @@ export async function runCommandAndWait(ns, command, fileName, verbose, ...args)
  * @param {...args} args - args to be passed in as arguments to command being
  *                  run as a new script.
  **/
-export async function runCommand_Custom(ns, fnRun, command, fileName, verbose, ...args) {
+export function runCommand_Custom(ns, fnRun, command, fileName, verbose, ...args) {
   checkNsInstance(ns)
-  const helpers = [
-    'mySleep', 'toolsCount', 'myMoney', 'waitForCash', 'reserve',
-    'tryRun', 'getLSItem', 'setLSItem', 'clearLSItem', 'fetchPlayer',
-    'announce', 'groupBy', 'formatMoney', 'formatNumberShort', 'formatNumber',
-    'formatDuration', 'formatRam', 'hashCode',
-  ]
   const script =
-    // `import { ${helpers.join(', ')} } fr` + `om 'helpers.js';\n` +
-    // `import { networkMap, fetchServer } fr` + `om 'network.js';\n` +
-    // `import * as constants fr` + `om 'constants.js';\n` +
-    `export async function main(ns) { try { ` +
-    (verbose ? `let output = ${command}; ns.tprint(output)` : command) +
-    `; } catch(err) { ns.tprint(String(err)); throw(err); } }`;
+    `import * as helpers from 'helpers.js';\n` +
+    `import * as network from 'network.js';\n` +
+    `import * as constants from 'constants.js';\n` +
+    `export async function main(ns) {
+      try
+        { ` + (verbose ? `let output = ${command}; ns.tprint(output)` : command) + `; }
+      catch(err) { ns.tprint(String(err)); throw(err); }
+    }`;
   fileName = fileName || `/Temp/${hashCode(command)}-command.js`;
   // To improve performance and save on garbage collection, we can skip
   // writing this exact same script was previously written (common for
   // repeatedly-queried data)
   if (ns.read(fileName) != script) {
-    await ns.write(fileName, script, "w")
+    ns.write(fileName, script, "w")
   }
   return fnRun(fileName, ...args)
 }
@@ -550,7 +553,7 @@ export async function getNsDataThroughFile_Custom(ns, fnRun, fnIsAlive, command,
     `if (ns.read("${fName}") != result) await ns.write("${fName}", result, 'w')`
   while (maxRetries-- > 0) {
     try {
-      const pid = await runCommand_Custom(ns, fnRun, commandToFile, fNameCommand, false)
+      const pid = runCommand_Custom(ns, fnRun, commandToFile, fNameCommand, false)
       if (pid === 0) {
         throw (`runCommand returned no pid. (Insufficient RAM, or bad command?) `
           +`Destination: ${fNameCommand} Command: ${commandToFile}`)
