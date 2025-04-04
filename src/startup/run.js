@@ -76,7 +76,7 @@ export async function main(ns) {
   ns.run('networkMapper.js')
   await ns.sleep(100)
 
-  ns.tprint(`Starting phaseSelector.js`)
-  ns.run('/startup/phaseSelector.js')
+  ns.tprint(`Starting controller.js`)
+  ns.run('/satellites/controller.js')
   ns.tprint(`Startup completed. May your pillow always be cool.`)
 }
