@@ -43,7 +43,7 @@ export async function main(ns) {
     "/startup/initStartup.js"
   );
   ns.tprint('Spawing a new startup process.')
-  ns.spawn("startup/initStartup.js", 1, '--branch', args.branch);
+  ns.spawn("startup/initStartup.js", {spawnDelay: 500}, '--branch', args.branch);
 }
 ```
 
