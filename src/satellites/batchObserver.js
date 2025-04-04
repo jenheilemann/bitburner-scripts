@@ -37,8 +37,6 @@ const weakenTimeMultiplier = 4 // Relative to hacking time
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep', 'getServerUsedRam', 'getServerMoneyAvailable'])
-  ns.clearLog()
-  ns.ui.openTail()
 
   let serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
   if ( serversWithRam.length == 0 ) {
