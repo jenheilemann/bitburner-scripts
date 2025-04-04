@@ -114,7 +114,16 @@ export async function tryRun(callback) {
 export function getLSItem(key) {
   let item = localStorage.getItem(lsKeys[key.toUpperCase()])
 
-  return item ? JSON.parse(item) : undefined
+  return item ? JSON.parse(item,jsonParseReviver) : undefined
+}
+
+export function jsonParseReviver(key, value) {
+  if(typeof value === 'object' && value !== null) {
+    if (value.dataType === 'Map') {
+      return new Map(value.value);
+    }
+  }
+  return value;
 }
 
 /**
@@ -123,7 +132,18 @@ export function getLSItem(key) {
  * @cost 0 GB
  **/
 export function setLSItem(key, value) {
-  localStorage.setItem(lsKeys[key.toUpperCase()], JSON.stringify(value))
+  localStorage.setItem(lsKeys[key.toUpperCase()], JSON.stringify(value, jsonStringifyReplacer))
+}
+
+export function jsonStringifyReplacer(key, value) {
+  if(value instanceof Map) {
+    return {
+      dataType: 'Map',
+      value: Array.from(value.entries()), // or with spread: value: [...value]
+    };
+  } else {
+    return value;
+  }
 }
 
 /**
