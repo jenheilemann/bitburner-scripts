@@ -83,14 +83,13 @@ export async function main(ns) {
   ns.disableLog("sleep")
   const args = ns.flags([['branch', 'main']])
 
-  for ( let filename of ns.ls('home', 'Temp')) {
-    ns.scriptKill(filename, 'home')
-    ns.rm(filename)
-  }
   for ( let filename of ns.ls('home', '.js')) {
     if (filename == 'startup/initStartup.js') continue;
     if (filename == 'start.js') continue;
     ns.scriptKill(filename, 'home')
+    ns.rm(filename)
+  }
+  for ( let filename of ns.ls('home', 'Temp')) {
     ns.rm(filename)
   }
 
