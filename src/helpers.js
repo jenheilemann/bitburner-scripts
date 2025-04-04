@@ -20,7 +20,17 @@ export function haveSourceFile(num, level = 1) {
     return true
 
   let ownedSourceFiles = getLSItem('reset').ownedSF
-  return ownedSourceFiles[num] && ownedSourceFiles[num] >= level
+  return ownedSourceFiles.get(num) && ownedSourceFiles.get(num) >= level
+}
+
+/**
+ * Check if the user can use a singularity function
+ * @params {num} level=1 Optionally choose the minimum level
+ *
+ * @cost 0 GB
+ */
+export function canUseSingularity(level = 1) {
+  return haveSourceFile(4, level)
 }
 
 /**
@@ -80,17 +90,6 @@ export function reserve(ns) {
   }
   return manualReserve
 }
-
-/**
- * Check if the user can use a singularity function
- *
- * @cost 0 GB
- */
-export function canUseSingularity() {
-  let resetInfo = getLSItem('reset')
-  return resetInfo.currentNode == 4 || resetInfo.ownedSF[4] > 0
-}
-
 
 /**
  * @param {NS} ns

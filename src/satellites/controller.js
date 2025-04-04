@@ -29,7 +29,7 @@ const timers = [
   // { file: '/sleeves/manager.js',              freq: 31.1*sec,  last: Date.now() },
   { file: '/satellites/programObserver.js',   freq: 33751,   last: 0 },
   // { file: '/satellites/activityObserver.js',  freq: min,       last: Date.now() },
-  { file: '/satellites/homeRamBuyer.js',      freq: 60317,  last: Date.now() },
+  { file: '/satellites/homeRamObserver.js',      freq: 60317,  last: Date.now() },
   { file: '/satellites/pservObserver.js',     freq: 60773,   last: Date.now() },
   // { file: '/satellites/contractsObserver.js', freq: 4 * min,   last: Date.now() },
 ]

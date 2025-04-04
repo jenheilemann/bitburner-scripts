@@ -11,7 +11,6 @@ import { fetchServerFree } from 'network.js'
 
 /** @param {NS} ns **/
 export async function main(ns) {
-  ns.ui.openTail()
   ns.print("------------------------")
 
   var mult = getLSItem("bitnode")["HomeComputerRamCost"]
@@ -31,7 +30,7 @@ export async function main(ns) {
   ns.print("script ram cost: " + ns.getScriptRam('upgradeHomeRam.js'))
 
   var reset = getLSItem("reset")
-  if ((reset.currentNode == 4 || reset.ownedSF[4] > 1) && ns.getScriptRam('upgradeHomeRam.js') < (ram - serverData.ramUsed)) {
+  if (canUseSingularity(2) && ns.getScriptRam('upgradeHomeRam.js') < (ram - serverData.ramUsed)) {
     announce(ns, 'Attempting to automatically upgrade home ram.', 'info')
     runCommand(ns, "ns.spawn('upgradeHomeRam.js', {spawnDelay: 200})")
   } else {
