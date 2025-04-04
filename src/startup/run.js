@@ -34,7 +34,7 @@ export async function main(ns) {
   await ns.sleep(100)
 
   var bn;
-  if (reset.currentNode == 5 || reset.ownedSF[5]) {
+  if (reset.currentNode == 5 || reset.ownedSF.get(5)) {
     ns.tprint(`Fetching bitnode multipliers`)
     bn = await fetch(ns, `ns.getBitNodeMultipliers()`, '/Temp/bitnode.txt')
   } else {
