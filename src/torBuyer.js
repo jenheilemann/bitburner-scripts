@@ -15,5 +15,5 @@ export async function main(ns) {
     return
   }
   ns.tprint(`Buying access to the Darkweb. ooOOOooo spoooooOOOkey`)
-  ns.purchaseTor()
+  ns.singularity.purchaseTor()
 }
