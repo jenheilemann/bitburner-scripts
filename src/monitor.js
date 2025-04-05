@@ -11,30 +11,30 @@ export async function main(ns) {
   disableLogs(ns, ['sleep'])
   let serverName = ns.args[0]
   ns.ui.openTail()
-  ns.ui.resizeTail(550, 205)
+  ns.ui.resizeTail(560, 205)
 
   //@ignore-infinite
   while (true) {
     ns.clearLog();
     let server = fetchServer(ns, serverName)
     ns.print(`${serverName} ${runSpinner()}`)
-    ns.print(`*** Growth factor : ${server.serverGrowth}`)
+    ns.print(`*** Growth   : ${server.serverGrowth}`)
     let percent = Math.round((server.moneyAvailable / server.moneyMax) * 100)
-    ns.print(`*** Money         : \$${ns.formatNumber(server.moneyAvailable)} / \$${ns.formatNumber(server.moneyMax)} (${(percent)}%)`)
-    ns.print(`*** Security      : ${server.hackDifficulty}/${ns.formatNumber(server.minDifficulty, 0)}`)
+    ns.print(`*** Money    : \$${ns.formatNumber(server.moneyAvailable)} / \$${ns.formatNumber(server.moneyMax)} (${(percent)}%)`)
+    ns.print(`*** Security : ${server.hackDifficulty}/${ns.formatNumber(server.minDifficulty, 0)}`)
 
     let hackThreads = Math.ceil(ns.hackAnalyzeThreads(server.hostname, server.moneyAvailable * 0.05))
     let hackTime = ns.getHackTime(server.hostname)
-    ns.print(`* Hack            : ${hackThreads.toString().padStart(3," ")} (Time: ${formatTime(hackTime)})`)
+    ns.print(`* Hack       : ${hackThreads.toString().padStart(3," ")} (Time: ${formatTime(hackTime)})`)
 
     let weakThreads = Math.ceil((server.hackDifficulty - server.minDifficulty)/0.05)
     let weakTime = hackTime * 4
-    ns.print(`* Weaken          : ${weakThreads.toString().padStart(3," ")} (Time: ${formatTime(weakTime)})`)
+    ns.print(`* Weaken     : ${weakThreads.toString().padStart(3," ")} (Time: ${formatTime(weakTime)})`)
 
     let multiplier = server.moneyMax / Math.max(server.moneyAvailable, 1)
     let growThreads = Math.ceil(ns.growthAnalyze(server.hostname, multiplier))
     let growTime = hackTime * 3.2
-    ns.print(`* Grow            : ${growThreads.toString().padStart(3," ")} (Time: ${formatTime(growTime)})`)
+    ns.print(`* Grow       : ${growThreads.toString().padStart(3," ")} (Time: ${formatTime(growTime)})`)
     
 
     await ns.sleep(200)
