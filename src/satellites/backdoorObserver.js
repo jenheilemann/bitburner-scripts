@@ -1,27 +1,30 @@
 import { getLSItem, tryRun, canUseSingularity } from 'helpers.js'
-import { networkMap } from 'network.js'
+import { networkMapFree } from 'network.js'
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  const nmap = await networkMap(ns)
+  const nmap = networkMapFree()
   const player = getLSItem('PLAYER')
 
-  for ( const server of Object.values(nmap)) {
-    if ( server.data.backdoorInstalled || server.data.purchasedByPlayer )
-      continue
-    if ( player.hacking < server.hackingLvl )
-      continue
-    if ( !server.data.hasAdminRights )
-      continue
+  // shuffle the array semi-randomly so there are less collisions
+  let server = Object.values(nmap).sort(() => .5 - Math.random()).find(s =>
+    !s.backdoorInstalled &&
+    !s.purchasedByPlayer &&
+    player.skills.hacking >= s.requiredHackingSkill &&
+    s.hasAdminRights
+  )
+  if (!server) {
+    ns.print('No server found!')
+    return
+  }
 
-    if (canUseSingularity()) {
-      ns.tprint('Attempting automatic backdoor of ' + server.name)
-      await tryRun(() => { ns.run('backdoor.js', 1, server.name) })
-    } else {
-      ns.tprint('Backdoor of ' + server.name + " available, finding path.")
-      await tryRun(() => { ns.run('find.js', 1, server.name) })
-    }
+  if (canUseSingularity()) {
+    ns.tprint('Attempting automatic backdoor of ' + server.hostname)
+    await tryRun(() => { ns.run('backdoor.js', 1, server.hostname) })
+  } else {
+    ns.tprint('Backdoor of ' + server.hostname + " available, finding path.")
+    await tryRun(() => { ns.run('find.js', 1, server.hostname) })
   }
 }

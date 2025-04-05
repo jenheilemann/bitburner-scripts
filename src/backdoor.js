@@ -17,11 +17,14 @@ export function autocomplete(data, args) {
  * @param {string} target
  **/
 export async function backdoor(ns, target) {
-  let path = await findPath(target)
+  let path = findPath(target)
 
-  path.forEach((step) => ns.connect(step))
+  path.forEach((step) => ns.singularity.connect(step))
   await ns.singularity.installBackdoor()
   announce(ns, `Backdoor installed on ${target}`)
-  ns.connect('home')
-  if ( target == 'w0r1d_d43m0n') ns.killall('home')
+  ns.singularity.connect('home')
+  if ( target == 'w0r1d_d43m0n'){
+    ns.killall('home')
+    ns.tprint('SUCCESS: The w0r1d_d43m0n has been defeated. Time to move on.')
+  }
 }
