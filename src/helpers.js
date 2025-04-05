@@ -430,8 +430,14 @@ export async function runCommandAndWait(ns, command, fileName, verbose, ...args)
 export function runCommand_Custom(ns, fnRun, command, fileName, verbose, ...args) {
   checkNsInstance(ns)
   const script =
-    `import * as helpers from 'helpers.js';\n` +
-    `import * as network from 'network.js';\n` +
+    `import { mySleep, haveSourceFile, canUseSingularity, toolsCount,disableLogs,` +
+    `myMoney,haveEnoughMoney,reserve,tryRun,getLSItem,setLSItem,jsonStringifyReplacer,`+
+    `jsonParseReviver,clearLSItem,fetchPlayer,announce,groupBy,formatMoney,`+
+    `formatNumberShort,formatNumber,formatRam,formatDuration,hashCode,getFnRunViaNsRun,` +
+    `getFnRunViaNsExec,getFnIsAliveViaNsIsRunning,getFnIsAliveViaNsPs,runCommand,` +
+    `runCommandAndWait,runCommand_Custom,waitForProcessToComplete,waitForProcessToComplete_Custom,` +
+    `getNsDataThroughFile,getNsDataThroughFile_Custom,checkNsInstance } from 'helpers.js';\n` +
+    `import {networkMap, networkMapFree, fetchServer, fetchServerFree } from 'network.js';\n` +
     `import * as constants from 'constants.js';\n` +
     `export async function main(ns) {
       try
@@ -568,7 +574,7 @@ export async function getNsDataThroughFile_Custom(ns, fnRun, fnIsAlive, command,
   // Prepare a command that will write out a new file containing the results of
   // the command unless it already exists with the same contents
   // (saves time/ram to check first)
-  const commandToFile = `const result = JSON.stringify(${command}, helpers.jsonStringifyReplacer); ` +
+  const commandToFile = `const result = JSON.stringify(${command}, jsonStringifyReplacer); ` +
     `if (ns.read("${fName}") != result) await ns.write("${fName}", result, 'w')`
   while (maxRetries-- > 0) {
     try {

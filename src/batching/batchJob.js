@@ -99,8 +99,8 @@ export class BatchDataQueue {
   /**
    * @returns {string}
    */
-  hasPreppingScript() {
-    return this.batchList.some(job => job.isPrepping())
+  hasPreppingScript(hostname) {
+    return this.batchList.some(job => job.isPrepping() && job.target == hostname)
   }
 
   /**

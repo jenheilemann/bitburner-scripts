@@ -65,9 +65,6 @@ alias find="run find.js"
 // get server data about what the best server to hack might be right now
 alias best="run bestHack.js"
 
-// quickly tail the first personal server's moneymaking script
-alias tail0="connect pserv-0; tail breadwinner.js; home"
-
 // manipulate localStorage
 alias get="run lsGet.js"
 alias set="run lsSet.js"
@@ -78,4 +75,7 @@ alias done="run lsClear.js working"
 
 // set a reserve amount manually, above reseved money for buying programs
 alias reserve="run lsSet.js reserve"
+
+// copy-paste-able line
+alias start="run start.js";alias do="run doProcess.js";alias find="run find.js";alias best="run bestHack.js";alias get="run lsGet.js";alias set="run lsSet.js";alias working="run lsSet.js working";;alias done="run lsClear.js working";alias reserve="run lsSet.js reserve"
 ```

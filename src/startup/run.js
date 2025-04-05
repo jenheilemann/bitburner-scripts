@@ -9,6 +9,8 @@ const staleLocalStorageKeys = [
   'nmap',
   'reserve',
   'reset',
+  'batches',
+  'batchJobID',
   'player',
   'decommissioned',
   'hackpercent',
