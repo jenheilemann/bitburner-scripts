@@ -9,10 +9,10 @@ const min = 60_000
  **/
 const timers = [
   // these are sorted by frequency, except playerObserver which must run first
-  { file: '/satellites/playerObserver.js',    freq: 61,     last: 0 },
+  { file: '/satellites/playerObserver.js',    freq: 61,        last: 0 },
 
-  { file: '/satellites/networkObserver.js',   freq: 43,     last: 0 },
-  { file: '/satellites/batchObserver.js',     freq: 1009,   last: 0 },
+  { file: '/satellites/networkObserver.js',   freq: 43,         last: 0 },
+  { file: '/satellites/batchObserver.js',     freq: 1009,       last: 0 },
   // { file: 'stats.js',                         freq: 1 * sec,   last: 0 },
   // { file: '/satellites/gangClashObserver.js', freq: 1.3*sec,   last: 0 },
   // { file: '/gang/equipment.js',               freq: 5.2*sec,   last: 0 },
@@ -44,8 +44,10 @@ export async function main(ns) {
     for ( const timer of timers) {
       proc = ns.ps('home').find(p => p.filename == timer.file)
       if (!proc && performance.now() > timer.last + timer.freq ) {
-        await tryRun(() => ns.run(timer.file, 1))
-        timer.last = performance.now()
+        let res = ns.run(timer.file, 1)
+        if (res > 0 ) {
+          timer.last = performance.now()
+        }
       }
       // spread out inits so player has time to propigate
       if ( first ) { await ns.sleep(50); first = false }

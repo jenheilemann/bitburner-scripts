@@ -37,6 +37,7 @@ const weakenTimeMultiplier = 4 // Relative to hacking time
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep', 'getServerUsedRam', 'getServerMoneyAvailable'])
+  ns.clearLog();
 
   let serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
   if ( serversWithRam.length == 0 ) {
@@ -69,7 +70,7 @@ export async function main(ns) {
   batcher.calcTasks()
   let jobs = batcher.assignServers(serversWithRam)
 
-  if (!batcher.isFulfilled() && !needsPrep(ns, target, fetchBatchQueue())) {
+  if (!batcher.isFulfilled() && !needsPrep(ns, target, queue) && !queue.isEmpty()) {
     ns.print(jobs)
     ns.print("Couldn't find servers to fulfill batch, try later.")
     return
