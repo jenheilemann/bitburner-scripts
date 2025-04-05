@@ -34,7 +34,6 @@ const filesToDownload = [
   '/satellites/factionObserver.js',
   '/satellites/gangClashObserver.js',
   '/satellites/gangMetaObserver.js',
-  '/satellites/hackerObserver.js',
   '/satellites/homeRamObserver.js',
   '/satellites/networkObserver.js',
   '/satellites/playerObserver.js',

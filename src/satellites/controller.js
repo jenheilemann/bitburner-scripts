@@ -14,7 +14,6 @@ const timers = [
   { file: '/satellites/networkObserver.js',   freq: 43,         last: 0 },
   { file: '/satellites/batchObserver.js',     freq: 1009,       last: 0 },
   // { file: 'stats.js',                         freq: 1 * sec,   last: 0 },
-  // { file: '/satellites/hackerObserver.js',    freq: 1201,   last: 0 },
   // { file: '/satellites/gangClashObserver.js', freq: 1.3*sec,   last: 0 },
   // { file: '/gang/equipment.js',               freq: 5.2*sec,   last: 0 },
   // { file: '/gang/recruitment.js',             freq: 5.3*sec,   last: 0 },
