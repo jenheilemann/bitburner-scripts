@@ -1,8 +1,6 @@
 import {
-  runCommand,
   getLSItem,
   announce,
-  getNsDataThroughFile as fetch,
   haveEnoughMoney, reserve
 } from 'helpers.js'
 
@@ -13,6 +11,7 @@ const min = 60, hour = min * 60
  * @param {NS} ns
  **/
 export async function main(ns) {
+  ns.clearLog()
   // if there's already a buyer running, let it finish before starting another
   const homePS = ns.ps('home')
   if ( homePS.some(proc => proc.filename === 'pServBuyer.js') ) {
@@ -32,7 +31,7 @@ export async function main(ns) {
     return
   }
 
-  const cost = ns.getPurchasedServerCost(nextRam)
+  const cost = ns.getPurchasedServerCost(2**nextRam)
   if ( !haveEnoughMoney(ns, cost) ){
     ns.print(`Not enough money to afford the server + reserve: ${cost} (${reserve(ns)})`)
     return
@@ -63,9 +62,9 @@ function smallestCurrentServerSize(pservs) {
  **/
 function nextRamSize(ns, currRam) {
   const limit = ns.getPurchasedServerLimit()
-  const totIncomePerSecond = Math.max(ns.getTotalScriptIncome()[0], 3200) // 3200 makes this script to return 32GB min
+  const totIncomePerSecond = Math.max(ns.getTotalScriptIncome()[1], 3200) // 3200 makes this script to return 32GB min
   const maxServerSize = ns.getPurchasedServerMaxRam()
-  const incomePerPayoffTime = totIncomePerSecond * 2*hour
+  const incomePerPayoffTime = totIncomePerSecond * 1*hour
   ns.print(`Total income: ${ns.formatNumber(totIncomePerSecond)}/s`)
   ns.print(`Income per payoff time: ${ns.formatNumber(incomePerPayoffTime, 12)}`)
   if (incomePerPayoffTime == 0) return 0
@@ -81,7 +80,7 @@ function nextRamSize(ns, currRam) {
     ns.print(`Total cost for ${2**i}GB ram: ${ns.formatNumber(totalCost, 12)}`)
     if ( totalCost < incomePerPayoffTime ) {
       ns.print(`(${2**i}) totalCost < incomePerPayoffTime`)
-      ns.print(`Returning ${2**i}`)
+      ns.print(`Returning ${i}`)
       return i
     }
   }
