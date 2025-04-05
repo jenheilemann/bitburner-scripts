@@ -62,6 +62,9 @@ alias do="run doProcess.js"
 // connect to any server by name
 alias find="run find.js"
 
+// connect to any server by name
+alias monitor="run monitor.js"
+
 // get server data about what the best server to hack might be right now
 alias best="run bestHack.js"
 
@@ -77,5 +80,5 @@ alias done="run lsClear.js working"
 alias reserve="run lsSet.js reserve"
 
 // copy-paste-able line
-alias start="run start.js";alias do="run doProcess.js";alias find="run find.js";alias best="run bestHack.js";alias get="run lsGet.js";alias set="run lsSet.js";alias working="run lsSet.js working";;alias done="run lsClear.js working";alias reserve="run lsSet.js reserve"
+alias start="run start.js";alias do="run doProcess.js";alias find="run find.js";alias best="run bestHack.js";alias get="run lsGet.js";alias set="run lsSet.js";alias working="run lsSet.js working";;alias done="run lsClear.js working";alias reserve="run lsSet.js reserve";alias monitor="run monitor.js"
 ```
