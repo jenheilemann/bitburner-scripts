@@ -24,7 +24,7 @@ const timingMarginOfError = 50
 // how much ram should be set aside on the home server for running the controller etc
 const reservedRam = 20
 // how many ms between each HWGW file ending
-const batchBufferTime = 2
+const batchBufferTime = 10
 
 // Game-set constants. Don't change these magic numbers.
 const growsPerWeaken = 12.5
