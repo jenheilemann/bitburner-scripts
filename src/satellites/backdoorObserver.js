@@ -25,6 +25,6 @@ export async function main(ns) {
     await tryRun(() => { ns.run('backdoor.js', 1, server.hostname) })
   } else {
     ns.tprint('Backdoor of ' + server.hostname + " available, finding path.")
-    await tryRun(() => { ns.run('find.js', 1, server.hostname) })
+    await tryRun(() => { ns.run('find.js', 1, server.hostname, true) })
   }
 }

@@ -16,7 +16,7 @@ export async function main(ns) {
     }
   } else {
     path = mapPath(ns.args[0])
-    ns.tprint(printablePathToServer(path))
+    ns.tprint(printablePathToServer(path), ns.args[1])
     if ( canUseSingularity() ) {
       await runCommand(ns, path.map((step) => `ns.connect('${step}');`))
     }
