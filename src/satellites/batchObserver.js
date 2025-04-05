@@ -90,10 +90,10 @@ function weakTime(ns, server) { return hackTime(ns, server) * weakenTimeMultipli
 function fetchServersWithRam(ns, minRam) {
   return Object.values(networkMapFree()).filter(server =>
       // sometimes pservs are deleted before getting the network map.
-      ns.serverExists(server.name) &&
+      ns.serverExists(server.hostname) &&
       serverHasEnoughRam(server, minRam) &&
       server.files.includes('batchWeaken.js') &&
-      getLSItem('decommissioned') != server.name
+      getLSItem('decommissioned') != server.hostname
   )
 }
 
@@ -103,7 +103,7 @@ function fetchServersWithRam(ns, minRam) {
  * @returns {boolean} Whether the server's unused ram is enough to run one thread of the smallest file
  **/
 function serverHasEnoughRam(server, minRam) {
-  let reserved = server.name == 'home' ? reservedRam : 0
+  let reserved = server.hostname == 'home' ? reservedRam : 0
   let available = server.availableRam - reserved
   return available > minRam
 }
