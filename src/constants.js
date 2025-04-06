@@ -4,8 +4,17 @@ export const factionServers = {
   "avmnite-02h"  : "NiteSec",
   "I.I.I.I"      : "The Black Hand",
   "run4theh111z" : "BitRunners",
-  "The-Cave"     : "Daedalus",
+  "."            : "The Dark Army",
+  "The-Cave"     : "Daedalus"
 }
+
+export const orgServers = {
+  "fulcrumassets" : "Fulcrum Secret Technologies",
+  "w0r1d_d43m0n"  : "World Daemon",
+  "darkweb"       : "Dark Web"
+}
+
+export const specialServers = {...factionServers, ...orgServers}
 
 export const rootFiles = [
   { name: "BruteSSH.exe", cost: 500000, },
