@@ -1,28 +1,29 @@
-import { fetchServer } from 'network.js'
-import { disableLogs } from 'helpers.js'
+import { fetchServerFree } from 'network.js'
+import { disableLogs, getLSItem } from 'helpers.js'
+import { findBestTarget } from 'bestHack.js'
 
 export function autocomplete(data, args) {
   return data.servers
 }
-let spinnerIncrementor = 0
 
 /** @param {NS} ns */
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
-  let serverName = ns.args[0]
   ns.ui.openTail()
-  ns.ui.resizeTail(560, 225)
+  ns.ui.resizeTail(500, 225)
 
-  //@ignore-infinite
   while (true) {
     ns.clearLog();
-    let server = fetchServer(ns, serverName)
+    let serverName = ns.args[0] ?? findBestTarget().hostname
+    let server = fetchServerFree(serverName)
     ns.print(`${serverName} ${runSpinner()}`)
-    let weakTime = ns.getWeakenTime(server.hostname)
-    ns.print(`*** Growth   : ${server.serverGrowth}      Time : ${formatTime(weakTime)}`)
     let percent = Math.round((server.moneyAvailable / server.moneyMax) * 100)
-    ns.print(`*** Money    : \$${ns.formatNumber(server.moneyAvailable)} / \$${ns.formatNumber(server.moneyMax)} (${(percent)}%)`)
-    ns.print(`*** Security : ${server.hackDifficulty}/${ns.formatNumber(server.minDifficulty, 0)}`)
+    ns.print(`*** Money    : \$${ns.formatNumber(server.moneyAvailable,0)} / \$${ns.formatNumber(server.moneyMax,0)} (${(percent)}%)`)
+    let weakTime = ns.getWeakenTime(server.hostname)
+    ns.print(`*** Growth   : ${server.serverGrowth.toString().padStart(3)} | ` +
+             `Security : ${ns.formatNumber(server.hackDifficulty, 1)}/${ns.formatNumber(server.minDifficulty, 0)}`)
+    ns.print(`*** Batches  : ${getLSItem('batches').filter(b=>b.target == serverName).length.toString().padStart(3)} | ` +
+             `Time : ${formatTime(weakTime)}`)
 
     let hackThreads = Math.ceil(ns.hackAnalyzeThreads(server.hostname, server.moneyAvailable * 0.05))
     ns.print(`* Hack       : ${hackThreads.toString().padStart(3," ")}`)
@@ -42,7 +43,7 @@ export async function main(ns) {
     ns.print(`* Weaken2    : ${weakThreads.toString().padStart(3," ")} (${weakThForHack})`)
 
 
-    await ns.sleep(200)
+    await ns.sleep(100)
   }
 }
 /**
@@ -63,7 +64,8 @@ function formatTime(timeInMs) {
  */
 function runSpinner() {
   let spinnerText = "|/-\\"
-  spinnerIncrementor = (spinnerIncrementor + 1) % (spinnerText.length * 30)
+  let rotation = spinnerText.length
+  let curSec = Math.round(performance.now() /1000)
 
-  return spinnerText[spinnerIncrementor % spinnerText.length].padStart(Math.floor(spinnerIncrementor/(spinnerText.length)), '.')
+  return spinnerText[curSec % (rotation)].padStart(Math.round((curSec%75)/rotation), '.')
 }
