@@ -21,6 +21,7 @@ export function autocomplete(data, args) {
 export async function main(ns) {
   disableLogs(ns, ['getServerMoneyAvailable', 'sleep'])
   const args = ns.flags(argsSchema)
+  // ns.ui.openTail()
 
   const ram = 2**args.size
   const limit = await fetch(ns, `ns.getPurchasedServerLimit()`,
@@ -79,7 +80,6 @@ async function purchaseNewServer(ns, hostname, cost, ram) {
     `/Temp/purchaseServer.txt`)
   if (result) {
     announce(ns, `Purchased new server, ${hostname} with ${formatRam(ram)}`)
-    clearLSItem('nmap')
     return 1
   }
   return 0
@@ -95,21 +95,11 @@ async function upgradeServer(ns, server, cost, ram) {
   if ( !haveEnoughMoney(ns, cost) ){
     return 0
   }
-  setLSItem('decommissioned', server.hostname)
-  if ( ns.ps(server.hostname).length > 0 ) {
-    ns.print("Waiting for scripts to end on " + server.hostname)
-    ns.print("Killing pServBuyer.js until the decommissioned server is ready.")
-    ns.exit()
-  }
-  ns.print("Destroying server: " + server.hostname)
-  await fetch(ns, `ns.deleteServer('${server.hostname}')`, '/Temp/deleteServer.txt')
-  const result = await fetch(ns, `ns.purchaseServer('${server.hostname}', ${ram})`,
-    '/Temp/purchaseServer.txt')
-  clearLSItem('decommissioned')
+  ns.print("Upgrading server: " + server.hostname)
+  const result = ns.upgradePurchasedServer(server.hostname, ram)
 
   if (result) {
     announce(ns, `Upgraded server ${server.hostname} with ${formatRam(ram)}`)
-    clearLSItem('nmap')
     return 1
   }
   return 0

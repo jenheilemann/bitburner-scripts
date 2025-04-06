@@ -39,8 +39,8 @@ export async function main(ns) {
 
   let msg = `Running pServBuyer.js to purchase ${ns.formatRam(2**nextRam)} (currently: ${ns.formatRam(currRam)})`
   announce(ns, msg)
-  ns.tprint(msg)
-  ns.tprint(` ns.spawn('pServBuyer.js', 1, '--size', ${nextRam})`)
+  // ns.tprint(msg)
+  // ns.tprint(` ns.spawn('pServBuyer.js', 1, '--size', ${nextRam})`)
   ns.spawn('pServBuyer.js', 1, '--size', nextRam)
 }
 
