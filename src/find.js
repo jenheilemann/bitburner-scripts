@@ -16,20 +16,21 @@ export async function main(ns) {
     }
   } else {
     path = mapPath(ns.args[0])
-    ns.tprint(printablePathToServer(path, ns.args[1]))
+    ns.tprint(printablePathToServer(path,ns.args[1]))
     if ( canUseSingularity() ) {
-      let cmd = path.map((step) => `ns.singularity.connect('${step}');`).join("")
-      if (ns.args[1]) cmd += '; backdoor'
-      await runCommand(ns, cmd, '/Temp/connect.js')
+      await runCommand(ns, path.map((step) => `ns.connect('${step}');`))
     }
   }
 }
 
 function printablePathToServer(path, backdoor = false) {
   let msg = path.join("; connect ")
-  if (backdoor) {
+  if (path[0] != "home")
+    msg = "connect " + msg
+
+  if (backdoor)
     msg += "; backdoor;"
-  }
+
   return msg
 }
 
@@ -40,9 +41,9 @@ function mapPath(goal) {
   // @ignore-infinite
   while (true) {
     path.unshift(goal)
-    goal = nMap[goal].parent
-    if (goal == '') {
+    if (nMap[goal].parent == '' || nMap[goal].backdoorInstalled ) {
       return path
     }
+    goal = nMap[goal].parent
   }
 }
