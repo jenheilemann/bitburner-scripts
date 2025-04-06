@@ -9,9 +9,17 @@ export const factionServers = {
 }
 
 export const orgServers = {
-  "fulcrumassets" : "Fulcrum Secret Technologies",
-  "w0r1d_d43m0n"  : "World Daemon",
-  "darkweb"       : "Dark Web"
+  "fulcrumassets"      : "Fulcrum Secret Technologies",
+  "w0r1d_d43m0n"       : "World Daemon",
+  "darkweb"            : "Dark Web",
+  "rothman-uni"        : "Rothman University",
+  "summit-uni"         : "Summit University"
+  "powerhouse-fitness" : "Powerhouse Gym",
+  "iron-gym"           : "Iron Gym",
+  "millenium-fitness"  : "Millenium Fitness Gym",
+  "crush-fitness"      : "Crush Fitness Gym",
+  "snap-fitness"       : "Snap Fitness Gym",
+  "aevum-police"       : "Aevum Police Headquarters",
 }
 
 export const specialServers = {...factionServers, ...orgServers}
