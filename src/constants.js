@@ -13,7 +13,7 @@ export const orgServers = {
   "w0r1d_d43m0n"       : "World Daemon",
   "darkweb"            : "Dark Web",
   "rothman-uni"        : "Rothman University",
-  "summit-uni"         : "Summit University"
+  "summit-uni"         : "Summit University",
   "powerhouse-fitness" : "Powerhouse Gym",
   "iron-gym"           : "Iron Gym",
   "millenium-fitness"  : "Millenium Fitness Gym",
