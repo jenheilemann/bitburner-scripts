@@ -22,7 +22,9 @@ export async function main(ns) {
     let weakTime = ns.getWeakenTime(server.hostname)
     ns.print(`*** Growth   : ${server.serverGrowth.toString().padStart(3)} | ` +
              `Security : ${ns.formatNumber(server.hackDifficulty, 1)}/${ns.formatNumber(server.minDifficulty, 0)}`)
-    ns.print(`*** Batches  : ${getLSItem('batches').filter(b=>b.target == serverName).length.toString().padStart(3)} | ` +
+    let batches = getLSItem('batches')
+    batches = batches ? batches.filter(b=>b.target == serverName).length : 0
+    ns.print(`*** Batches  : ${batches.toString().padStart(3)} | ` +
              `Time : ${formatTime(weakTime)}`)
 
     let hackThreads = Math.ceil(ns.hackAnalyzeThreads(server.hostname, server.moneyAvailable * 0.05))
