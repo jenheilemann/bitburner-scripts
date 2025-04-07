@@ -38,6 +38,7 @@ const weakenTimeMultiplier = 4 // Relative to hacking time
 export async function main(ns) {
   disableLogs(ns, ['sleep', 'getServerUsedRam', 'getServerMoneyAvailable'])
   ns.clearLog();
+  ns.print('Running batchObserver')
 
   let serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
   if ( serversWithRam.length == 0 ) {
@@ -49,7 +50,12 @@ export async function main(ns) {
   // I can manually override the default percentage, else defaults to hackDecimal
   if ((typeof getLSItem('hackpercent')) != 'number') setLSItem('hackpercent', hackDecimal)
 
+  let queue = fetchBatchQueue()
+  ns.print(`queue.isEmpty(): ${queue.isEmpty()}`)
+  ns.print(`queue.anyInsideErrorWindow(): ${queue.anyInsideErrorWindow()}`)
+
   while ( withinAnyBatchErrorWindow() ) {
+    ns.print("Within batch error window, waiting....")
     await ns.sleep(batchBufferTime*2)
   }
 
@@ -57,13 +63,9 @@ export async function main(ns) {
   // target = networkMapFree()['n00dles']
   // target = networkMapFree()['joesguns']
 
+  ns.print(`queue.hasPreppingScript(${target.hostname}): ${queue.hasPreppingScript(target.hostname)}`)
   ns.print(`isHealthy? ${isHealthy(ns, target)}`)
   ns.print(`needsPrep? ${needsPrep(ns, target, fetchBatchQueue())}`)
-
-  let queue = fetchBatchQueue()
-  ns.print(`queue.isEmpty(): ${queue.isEmpty()}`)
-  ns.print(`queue.anyInsideErrorWindow(): ${queue.anyInsideErrorWindow()}`)
-  ns.print(`queue.hasPreppingScript(${target.hostname}): ${queue.hasPreppingScript(target.hostname)}`)
 
 
   let batcher = chooseBatcher(ns, target)
@@ -360,11 +362,11 @@ async function launch(ns, batcher, target) {
     if (job.threads == 0) continue
 
     job.servers.forEach(server => {
-      pids.push([ns.exec(fileNames[job.type], server[0], server[1], JSON.stringify(args)), job.time])
+      pids.push(ns.exec(fileNames[job.type], server[0], server[1], JSON.stringify(args)))
     })
   }
 
-  if ( pids.some(p => p == 0) ) {
+  if ( pids.some(p => p == 0) && batcher.type != 'Prepping') {
     ns.tprint(`ERROR: One or more pids was zero! Canceling other jobs in batch ${jobID}.`)
     pids.forEach(pid => pid == 0 ? null : ns.kill(pid))
     return
@@ -372,17 +374,21 @@ async function launch(ns, batcher, target) {
 
   ns.print(pids)
   await ns.sleep(3)
-  let longestTime = Math.max(...batcher.tasks.map(t => t.time))
-  let endTime = performance.now() + longestTime
-  let pad = 0
-  pids.forEach(pid => {
-    ns.print(`ns.writePort(${pid}, ${endTime + pad})`)
-    ns.writePort(pid[0], endTime + pad)
-    pad += batchBufferTime
+  let longestTime = Math.max(...batcher.tasks.map(t => t.time)) + batchBufferTime
+  let errorWindowStartTime = performance.now() + longestTime
+  pids.forEach(async (pid) => {
+    ns.print(`Prompting PID ${pid}....`)
+    while(! ns.getScriptLogs(pid).some(l => l.includes("Waiting for port write")) ) {
+      ns.print(`_____ Waiting for PID ${pid[0]} to be ready.`)
+      await ns.sleep(1)
+    }
+    ns.print(`ns.writePort(${pid}, ${performance.now() + longestTime})`)
+    ns.writePort(pid, performance.now() + longestTime)
+    longestTime += batchBufferTime
   })
   ns.print(`recordBatch(start, end, id, longestTime, type, target)`)
-  ns.print(`recordBatch(${endTime-batchBufferTime}, ${endTime+pad}, ${batchID}, ${longestTime}, ${batcher.type}, ${target})`)
-  recordBatch(endTime-batchBufferTime, endTime+pad, batchID, longestTime, batcher.type, target)
+  ns.print(`recordBatch(${errorWindowStartTime}, ${performance.now() + longestTime}, ${batchID}, ${longestTime}, ${batcher.type}, ${target})`)
+  recordBatch(errorWindowStartTime, performance.now() + longestTime, batchID, longestTime, batcher.type, target)
 }
 
 /**
