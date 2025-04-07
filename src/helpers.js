@@ -119,7 +119,10 @@ export function getLSItem(key) {
 export function jsonParseReviver(key, value) {
   if(typeof value === 'object' && value !== null) {
     if (value.dataType === 'Map') {
-      return new Map(value.value);
+      return new Map(value.value)
+    }
+    if (value.dataType === 'BigInt') {
+      return BigInt(value.value)
     }
   }
   return value;
@@ -135,12 +138,17 @@ export function setLSItem(key, value) {
 }
 
 export function jsonStringifyReplacer(key, value) {
-  if(value instanceof Map) {
+  if (value instanceof Map) {
     return {
       dataType: 'Map',
       value: Array.from(value.entries()), // or with spread: value: [...value]
     };
-  } else {
+  } else if (typeof(value) == 'bigint') {
+    return {
+      dataType: 'BigInt',
+      value: value.toString()
+    }
+  }else {
     return value;
   }
 }
