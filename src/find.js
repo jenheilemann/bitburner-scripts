@@ -18,7 +18,8 @@ export async function main(ns) {
     path = mapPath(ns.args[0])
     ns.tprint(printablePathToServer(path,ns.args[1]))
     if ( canUseSingularity() ) {
-      await runCommand(ns, path.map((step) => `ns.connect('${step}');`))
+      let cmd = path.map((step) => `ns.singularity.connect('${step}');`).join()
+      await runCommand(ns, cmd, '/Temp/singularity.connect.js')
     }
   }
 }
