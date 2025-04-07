@@ -21,10 +21,18 @@ export async function main(ns) {
   }
 
   if (canUseSingularity()) {
+    if ( ns.ps('home').some(proc => isBackdoorOf(proc, server.hostname)) ) {
+      ns.print("Backdoor already running on this server.")
+      return
+    }
     ns.tprint('Attempting automatic backdoor of ' + server.hostname)
     await tryRun(() => { ns.run('backdoor.js', 1, server.hostname) })
   } else {
     ns.tprint('Backdoor of ' + server.hostname + " available, finding path.")
     await tryRun(() => { ns.run('find.js', 1, server.hostname, true) })
   }
+}
+
+function isBackdoorOf(process, hostname) {
+  return process.filename == 'backdoor.js' && process.args.includes(hostname)
 }
