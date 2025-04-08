@@ -391,7 +391,7 @@ async function launch(ns, batcher, target) {
   ns.print(`batch id: ${batchID}`)
   for (let job of batcher.tasks) {
     ns.print(job)
-    let args = { id: batchID, time: job.time, type: job.type, target: target }
+    let args = { id: batchID, time: job.time, target: target }
     if (job.threads == 0) continue
     job.pids = []
     job.servers.forEach(server => {

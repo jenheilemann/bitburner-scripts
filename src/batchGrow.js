@@ -18,12 +18,12 @@ export async function main(ns) {
   let timeNow = performance.now()
   let delay = endTime - job.time - timeNow
   if (delay < 0) {
-    ns.tprint(`WARN: Batch ${job.id} ${job.type} was ${-delay}ms too late. (${endTime})\n`);
+    ns.tprint(`WARN: Batch ${job.id} grow was ${-delay}ms too late. (${endTime})\n`);
     delay = 0;
   }
   await ns.grow(job.target, { additionalMsec: delay })
   const end = Date.now()
   ns.atExit(() => {
-    ns.print(`Batch ${job.id}: ${job.type} finished at ${end.toString().slice(-6)}/${Math.round(endTime).toString().slice(-6)}\n`)
+    ns.print(`Batch ${job.id}: Grow finished at ${end.toString().slice(-6)}/${Math.round(endTime).toString().slice(-6)}\n`)
   });
 }
