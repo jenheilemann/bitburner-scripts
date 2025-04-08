@@ -90,10 +90,11 @@ export class BatchDataQueue {
   }
 
   /**
+   * @param {string} target
    * @returns {string}
    */
-  anyInsideErrorWindow() {
-    return this.batchList.some(job => job.isInsideErrorWindow())
+  anyInsideErrorWindow(target) {
+    return this.batchList.some(job => job.target == target && job.isInsideErrorWindow())
   }
 
   /**

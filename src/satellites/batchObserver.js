@@ -54,14 +54,19 @@ export async function main(ns) {
   ns.print(`queue.isEmpty(): ${queue.isEmpty()}`)
   ns.print(`queue.anyInsideErrorWindow(): ${queue.anyInsideErrorWindow()}`)
 
-  while ( withinAnyBatchErrorWindow() ) {
+
+  let target = findBestTarget()
+  if (!target) {
+    ns.print(`No target found, best wait til next time....`)
+    return
+  }
+  // target = networkMapFree()['n00dles']
+  // target = networkMapFree()['joesguns']
+
+  while ( withinAnyBatchErrorWindow(target.hostname) ) {
     ns.print("Within batch error window, waiting....")
     await ns.sleep(batchBufferTime*2)
   }
-
-  let target = findBestTarget()
-  // target = networkMapFree()['n00dles']
-  // target = networkMapFree()['joesguns']
 
   ns.print(`queue.hasPreppingScript(${target.hostname}): ${queue.hasPreppingScript(target.hostname)}`)
   ns.print(`isHealthy? ${isHealthy(ns, target)}`)
@@ -112,15 +117,16 @@ function serverHasEnoughRam(server, minRam) {
 }
 
 /**
+ * @param {string} hostname - name of the server we're targeting
  * @returns {boolean} Is the current time within the error window of another
  *                    batch that is ending?
  **/
-function withinAnyBatchErrorWindow() {
+function withinAnyBatchErrorWindow(hostname) {
   let batchDataQueue = fetchBatchQueue()
 
   if ( batchDataQueue.isEmpty() ) { return false }
 
-  return batchDataQueue.anyInsideErrorWindow()
+  return batchDataQueue.anyInsideErrorWindow(hostname)
 }
 
 /**
