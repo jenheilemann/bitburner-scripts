@@ -1,5 +1,5 @@
 import { disableLogs, getLSItem, setLSItem, fetchPlayer } from 'helpers.js'
-import { findBestTarget } from 'bestHack.js'
+import { BestHack } from 'bestHack.js'
 import { networkMapFree, networkMap } from 'network.js'
 import { BatchDataQueue } from 'batching/batchJob.js'
 
@@ -50,18 +50,18 @@ export async function main(ns) {
   // I can manually override the default percentage, else defaults to hackDecimal
   if ((typeof getLSItem('hackpercent')) != 'number') setLSItem('hackpercent', hackDecimal)
 
-  let queue = fetchBatchQueue()
-  ns.print(`queue.isEmpty(): ${queue.isEmpty()}`)
-  ns.print(`queue.anyInsideErrorWindow(): ${queue.anyInsideErrorWindow()}`)
-
-
-  let target = findBestTarget()
+  let target = findBestTarget(ns)
   if (!target) {
     ns.print(`No target found, best wait til next time....`)
     return
   }
   // target = networkMapFree()['n00dles']
   // target = networkMapFree()['joesguns']
+
+  let queue = fetchBatchQueue()
+  ns.print(`queue.isEmpty(): ${queue.isEmpty()}`)
+  ns.print(`queue.anyInsideErrorWindow('${target.hostname}'): ${queue.anyInsideErrorWindow(target.hostname)}`)
+
 
   while ( withinAnyBatchErrorWindow(target.hostname) ) {
     ns.print("Within batch error window, waiting....")
@@ -127,6 +127,30 @@ function withinAnyBatchErrorWindow(hostname) {
   if ( batchDataQueue.isEmpty() ) { return false }
 
   return batchDataQueue.anyInsideErrorWindow(hostname)
+}
+
+
+export function findBestTarget(ns) {
+  let map = getLSItem('nmap')
+  if (! map || map.length == 0 ) {
+    throw new Error("No network map exists, BestHack can't work.")
+  }
+  let hackingSkill = fetchPlayer().skills.hacking
+  let searcher = new BestHack(map)
+  let servers = searcher.findTop(hackingSkill)
+  let batchData = fetchBatchQueue()
+
+  for (let server of servers) {
+    // weaktime longer than 5 minutes, we only want to prep it;
+    // focus on hacking other servers
+    if ( weakTime(ns, server) > 5 * 60 * 1000 ) {
+      if ( needsPrep(ns, server, batchData) )
+        return server
+      continue
+    }
+    return server
+  }
+  return false
 }
 
 /**
@@ -248,6 +272,9 @@ class HackBatcher extends Batcher {
    * @returns {array[BatchTask]} The needed ram and threads for HWGW batch
    **/
   calcTasks() {
+    // zero out the server, assume prepping script goes well
+    this.target.moneyAvailable = this.target.moneyMax
+    this.target.hackDifficulty = this.target.minDifficulty
     if (this.tasks.length > 0) return this.tasks
     let hackTh = calcThreadsToHack(this.target, this.target.moneyAvailable * hackDecimal)
     let weakTh1 = Math.ceil(hackTh/hacksPerWeaken)
@@ -416,7 +443,7 @@ function fetchNextBatchID() {
  *                        for instance, to grow from 200 to 600, input 600
  * @returns {num} Number of threads needed
  */
-function calcThreadsToGrow(server, targetMoney) {
+export function calcThreadsToGrow(server, targetMoney) {
   let person = fetchPlayer()
   let startMoney = server.moneyAvailable
 
@@ -494,7 +521,8 @@ function calculateServerGrowthLog(server, threads, p, cores = 1) {
  * @params {num} hackAmount - how much money to get with this hack, as a dollar amount
  * @returns {num} the number of threads to hack with to get about this amount
  */
-function calcThreadsToHack(server, hackAmount) {
+export function calcThreadsToHack(server, hackAmount) {
+  debugger
   if (hackAmount < 0 || hackAmount > server.moneyAvailable) {
     return -1;
   }
