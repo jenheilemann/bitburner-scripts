@@ -45,6 +45,10 @@ const solvers = {
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
   let map = await networkMapFree()
+  if (map['home'].maxRam < 16){
+    ns.print('Not enough ram to read contracts, try later.')
+    return
+  }
   ns.clearLog()
 
   await runContracts(ns, map)

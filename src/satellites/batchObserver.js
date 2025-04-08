@@ -63,7 +63,7 @@ export async function main(ns) {
   ns.print(`queue.anyInsideErrorWindow('${target.hostname}'): ${queue.anyInsideErrorWindow(target.hostname)}`)
 
 
-  while ( withinAnyBatchErrorWindow(target.hostname) ) {
+  while ( withinAnyBatchErrorWindow(target.hostname, performance.now()) ) {
     ns.print("Within batch error window, waiting....")
     await ns.sleep(batchBufferTime*2)
   }
@@ -118,15 +118,16 @@ function serverHasEnoughRam(server, minRam) {
 
 /**
  * @param {string} hostname - name of the server we're targeting
+ * @param {num} timestamp - time to check if we're within the window
  * @returns {boolean} Is the current time within the error window of another
  *                    batch that is ending?
  **/
-function withinAnyBatchErrorWindow(hostname) {
+function withinAnyBatchErrorWindow(hostname, timestamp) {
   let batchDataQueue = fetchBatchQueue()
 
   if ( batchDataQueue.isEmpty() ) { return false }
 
-  return batchDataQueue.anyInsideErrorWindow(hostname)
+  return batchDataQueue.anyInsideErrorWindow(hostname, timestamp)
 }
 
 
@@ -222,7 +223,7 @@ class PrepBatcher extends Batcher {
   calcTasks() {
     if (this.tasks.length > 0 ) return this.tasks
     let weakTh1 = Math.ceil(((this.target.hackDifficulty - this.target.minDifficulty) / 0.05))
-    let growTh  = calcThreadsToGrow(this.target, this.target.moneyMax)
+    let growTh  = calcThreadsToGrow(this.target, this.target.moneyMax) + 1
     let weakTh2 = Math.ceil((growTh/growsPerWeaken))
     this.tasks = [
       new BatchTask('weak', weakTh1, calcRam('weak', weakTh1), weakTime(this.ns, this.target)),
@@ -279,7 +280,7 @@ class HackBatcher extends Batcher {
     let hackTh = calcThreadsToHack(this.target, this.target.moneyAvailable * hackDecimal)
     let weakTh1 = Math.ceil(hackTh/hacksPerWeaken)
     this.target.moneyAvailable -= this.target.moneyAvailable*hackDecimal
-    let growTh = calcThreadsToGrow(this.target, this.target.moneyMax)
+    let growTh = calcThreadsToGrow(this.target, this.target.moneyMax) + 1
     let weakTh2 = Math.ceil(growTh/growsPerWeaken)
     this.tasks = [
       new BatchTask('hack', hackTh,  calcRam('hack', hackTh),  hackTime(this.ns, this.target)),
@@ -386,39 +387,48 @@ function calcRam(type, numThreads) {
  * @returns {null}
  */
 async function launch(ns, batcher, target) {
-  let pids = []
   let batchID = fetchNextBatchID()
   ns.print(`batch id: ${batchID}`)
   for (let job of batcher.tasks) {
     ns.print(job)
     let args = { id: batchID, time: job.time, type: job.type, target: target }
     if (job.threads == 0) continue
-
+    job.pids = []
     job.servers.forEach(server => {
-      pids.push(ns.exec(fileNames[job.type], server[0], server[1], JSON.stringify(args)))
+      job.pids.push(ns.exec(fileNames[job.type], server[0], server[1], JSON.stringify(args)))
     })
   }
 
-  if ( pids.some(p => p == 0) && batcher.type != 'Prepping') {
+  if ( batcher.tasks.some(t => t.pids.some(p => p == 0)) && batcher.type != 'Prepping') {
     ns.tprint(`ERROR: One or more pids was zero! Canceling other jobs in batch ${jobID}.`)
-    pids.forEach(pid => pid == 0 ? null : ns.kill(pid))
+    for (let job of batcher.tasks) {
+      job.pids.forEach(pid => pid == 0 ? null : ns.kill(pid))
+    }
     return
   }
 
-  ns.print(pids)
-  await ns.sleep(3)
+  ns.print(batcher.tasks.map(t => t.pids))
+  await ns.sleep(2)
   let longestTime = Math.max(...batcher.tasks.map(t => t.time)) + batchBufferTime
+
+  while ( withinAnyBatchErrorWindow(target.hostname, performance.now() + longestTime) ) {
+    ns.print("Within batch error window, waiting to launch....")
+    await ns.sleep(2)
+  }
+
   let errorWindowStartTime = performance.now() + longestTime
-  pids.forEach(async (pid) => {
-    ns.print(`Prompting PID ${pid}....`)
-    while(! ns.getScriptLogs(pid).some(l => l.includes("Waiting for port write")) ) {
-      ns.print(`_____ Waiting for PID ${pid[0]} to be ready.`)
-      await ns.sleep(1)
+  for (let job of batcher.tasks) {
+    for (let pid of job.pids) {
+      ns.print(`Prompting PID ${pid}....`)
+      while(! ns.getScriptLogs(pid).some(l => l.includes("Waiting for port write")) ) {
+        ns.print(`_____ Waiting for PID ${pid[0]} to be ready.`)
+        await ns.sleep(1)
+      }
+      ns.print(`ns.writePort(${pid}, ${performance.now() + longestTime})`)
+      ns.writePort(pid, performance.now() + longestTime)
     }
-    ns.print(`ns.writePort(${pid}, ${performance.now() + longestTime})`)
-    ns.writePort(pid, performance.now() + longestTime)
     longestTime += batchBufferTime
-  })
+  }
   ns.print(`recordBatch(start, end, id, longestTime, type, target)`)
   ns.print(`recordBatch(${errorWindowStartTime}, ${performance.now() + longestTime}, ${batchID}, ${longestTime}, ${batcher.type}, ${target})`)
   recordBatch(errorWindowStartTime, performance.now() + longestTime, batchID, longestTime, batcher.type, target)

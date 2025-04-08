@@ -29,8 +29,8 @@ export class BatchJob {
    * @returns {boolean} are we currently within the error window while 
    *                    this batch is completing?
    */
-  isInsideErrorWindow() {
-    return this.start < performance.now() && performance.now() < this.end
+  isInsideErrorWindow(timestamp) {
+    return this.start < timestamp && timestamp < this.end
   }
 
   /**
@@ -42,9 +42,9 @@ export class BatchJob {
 
   toObj() {
     return {
-              id: this.id, 
-              time: this.time, 
-              type: this.type, 
+              id: this.id,
+              time: this.time,
+              type: this.type,
               target: this.target,
               start: this.start,
               end: this.end,
@@ -76,7 +76,7 @@ export class BatchDataQueue {
   }
 
   /**
-   * @returns {null} 
+   * @returns {null}
    */
   discardExpiredBatchData() {
     this.batchList = this.batchList.filter(job => !job.isExpired())
@@ -91,10 +91,11 @@ export class BatchDataQueue {
 
   /**
    * @param {string} target
+   * @param {number} timestamp
    * @returns {string}
    */
-  anyInsideErrorWindow(target) {
-    return this.batchList.some(job => job.target == target && job.isInsideErrorWindow())
+  anyInsideErrorWindow(target, timestamp = performance.now()) {
+    return this.batchList.some(job => job.target == target && job.isInsideErrorWindow(timestamp))
   }
 
   /**

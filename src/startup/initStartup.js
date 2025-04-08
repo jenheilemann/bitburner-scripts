@@ -10,6 +10,7 @@ const filesToDownload = [
   '/contracts/primeFactorSolver.js',
   '/contracts/sanitizeParensSolver.js',
   '/contracts/spiralizeMatrixSolver.js',
+  '/contracts/squareRootSolver.js',
   '/contracts/stockTraderSolver.js',
   '/contracts/subarrayMaximumSolver.js',
   '/contracts/totalWaysToSumSolver.js',

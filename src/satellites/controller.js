@@ -31,7 +31,8 @@ const timers = [
   // { file: '/satellites/activityObserver.js',  freq: min,       last: Date.now() },
   { file: '/satellites/homeRamObserver.js',   freq: 63577,  last: performance.now() },
   { file: '/satellites/pservObserver.js',     freq: 63901,  last: performance.now() },
-  // { file: '/satellites/contractsObserver.js', freq: 4 * min,   last: Date.now() },
+  { file: '/satellites/contractsObserver.js', freq: 119993, last: performance.now() },
+
 ]
 
 /**
