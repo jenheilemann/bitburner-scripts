@@ -29,6 +29,9 @@ export class BestHack {
    */
   findBestPerLevel(player_hacking) {
     let filtered = this.filterServers(player_hacking)
+    if (filtered.length == 0) {
+      return false
+    }
     return filtered.reduce((a, b) => (calcScore(a) > calcScore(b)) ? a : b)
   }
 
