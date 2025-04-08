@@ -8,8 +8,8 @@
 import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
 
 /** @param {NS} ns **/
-export async function main(ns) {
-  const codingContractor = new CodingContractWrapper(ns)
+export async function main(ns, file, type, server) {
+  const codingContractor = new CodingContractWrapper(ns, file, type, server)
   const answer = solve(await codingContractor.extractData())
   await codingContractor.sendSolution(answer)
 }

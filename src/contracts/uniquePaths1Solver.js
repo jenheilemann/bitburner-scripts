@@ -15,8 +15,8 @@ import { CodingContractWrapper } from '/contracts/CodingContractWrapper.js'
 import { solve } from '/contracts/uniquePaths2Solver.js'
 
 /** @param {NS} ns **/
-export async function main(ns) {
-  const codingContractor = new CodingContractWrapper(ns)
+export async function main(ns, file, type, server) {
+  const codingContractor = new CodingContractWrapper(ns, file, type, server)
   const data = await codingContractor.extractData()
   const answer = solve(expand(data[0], data[1]))
   await codingContractor.sendSolution(answer)
