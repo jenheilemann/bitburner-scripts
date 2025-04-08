@@ -1,4 +1,4 @@
-import { networkMap } from 'network.js'
+import { networkMapFree } from 'network.js'
 import {
         disableLogs,
         tryRun,
@@ -22,6 +22,7 @@ const solvers = {
   "Unique Paths in a Grid II"           : "/contracts/uniquePaths2Solver.js",
   "Sanitize Parentheses in Expression"  : "/contracts/sanitizeParensSolver.js",
   "Find All Valid Math Expressions"     : "/contracts/findValidExpressionsSolver.js",
+  "Square Root"                         : "/contracts/squareRootSolver.js",
 }
 
 /**
@@ -29,28 +30,39 @@ const solvers = {
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep'])
-  let map = await networkMap(ns)
+  let map = await networkMapFree()
+  ns.ui.openTail()
+  ns.clearLog()
 
   await runContracts(ns, map)
 }
 
+/**
+ * @param {NS} ns
+ * @param {Obj} map
+ **/
 async function runContracts(ns, map) {
-  let contract, solverFile, type
-  const serverNames = JSON.stringify(Object.keys(map))
-  let serversData = await fetch(ns,
-    `${serverNames}.map(s => ns.ls(s, '.cct').map(f => { return {file: f, server: s }})).flat()`,
-    '/Temp/ls-cct.txt')
-  ns.print(serversData)
-  let contracts = await fetch(ns,
-    JSON.stringify(serversData) + `.map(s => { ` +
-    `s.type = ns.codingcontract.getContractType(s.file, s.server); return s})`,
-    '/Temp/codingcontract.getContractType.txt')
+  let solverFile
+  const servers = Object.values(map)
+  let files = servers.map(s => s.files.filter(f => f.includes('.cct')).map(f =>
+    { return {file: f, server: s.hostname, type: '', }})).flat()
+  let contracts = files.map(s => {
+    s.type = ns.codingcontract.getContractType(s.file, s.server)
+    return s
+  })
   ns.print(contracts)
+  // let contract = contracts[0]
 
   for ( const contract of contracts ) {
-    // Contract needs to be in the format { file: 'name', type: 'type', server: 'server'}
+    // Contract needs to be in the format
+    // { file: 'name', type: 'type', server: 'server'}
     ns.print(`Contract ${contract.file} (${contract.type}) found on ${contract.server}`)
-    solverFile = solvers[contract.type] ?? "/contracts/failSolver.js"
-    await tryRun(() => ns.run(solverFile, 1, '--dataString', JSON.stringify(contract)) )
+    // solverFile = solvers[contract.type] ?? "/contracts/failSolver.js"
+    solverFile = solvers[contract.type] ?? "fail"
+    if (solverFile == "fail") {
+      continue
+    }
+    ns.spawn(solverFile, {spawnDelay:0}, '--dataString', JSON.stringify(contract))
+    return
   }
 }
