@@ -28,9 +28,8 @@ export class CodingContractWrapper {
 
   // Get the coding contract puzzle data
   async extractData() {
-    this.data = await fetch(this.ns,
-      `ns.codingcontract.getData('${this.args.file}', '${this.args.server}')`,
-      `/Temp/codingcontract.getData.txt`)
+    let cmd = `ns.codingcontract.getData('${this.args.file}', '${this.args.server}')`
+    this.data = await fetch(this.ns, cmd, `/Temp/codingcontract.getData.txt`)
     return this.data
   }
 
