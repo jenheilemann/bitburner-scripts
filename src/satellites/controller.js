@@ -40,9 +40,10 @@ const timers = [
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep','run'])
-  let proc
   ns.ui.openTail()
+  ns.ui.resizeTail(740,400)
   let report = new Report()
+  let proc
 
   while(true) {
     ns.clearLog()
