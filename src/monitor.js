@@ -1,87 +1,95 @@
-import { fetchPlayer, getLSItem } from 'helpers.js'
-import { HackBatcher } from '/batching/batcher.js'
-import { weakTime } from '/batching/calculations.js'
+import { fetchServerFree } from 'network.js'
+import { disableLogs, getLSItem } from 'helpers.js'
+import { findBestTarget } from '/satellites/batchObserver.js'
+import { calcThreadsToHack, calcHackAmount } from '/batching/calculations.js'
 
-
-export function calcScore(server) {
-  let batcher = new HackBatcher(server)
-  let totalRamRequired = batcher.calcTotalRamRequired()
-  let maxTime = weakTime(server) / 1000
-  return server.maxMoney/totalRamRequired/maxTime
+export function autocomplete(data, args) {
+  return data.servers
 }
 
-export class BestHack {
-  constructor(serverData) {
-    this.serverData = serverData
-    this.calcsRun = false
-  }
-
-  /**
-   * @param {number} player_hacking
-   */
-  findBestPerLevel(player_hacking) {
-    let filtered = this.filterServers(player_hacking)
-    if (filtered.length == 0) {
-      return false
-    }
-    return filtered.reduce((a, b) => (calcScore(a) > calcScore(b)) ? a : b)
-  }
-
-  /**
-   * @param {number} player_hacking
-   */
-  findTop(player_hacking) {
-    let filtered = this.filterServers(player_hacking)
-    return filtered.sort((a, b) => calcScore(b) - calcScore(a))
-  }
-
-  /**
-   * @param {number} player_hacking
-   * @param {number} count
-   */
-  findTopN(player_hacking, count) {
-    let filtered = this.findTop(player_hacking)
-    return filtered.slice(0, count)
-  }
-
-  /**
-   * @param {number} player_hacking
-   */
-  filterServers(player_hacking) {
-    let filtered = Object.values(this.serverData)
-      .filter((server) => server.requiredHackingSkill <= Math.max(Math.floor(player_hacking/2), 1) &&
-                          server.hasAdminRights &&
-                          server.moneyMax > 0)
-    return filtered
-  }
-}
-
-export function findBestTarget() {
-  let map = getLSItem('nmap')
-  if (! map || map.length == 0 ) {
-    throw new Error("No network map exists, BestHack can't work.")
-  }
-
-  let searcher = new BestHack(map)
-  return searcher.findBestPerLevel(fetchPlayer().skills.hacking)
-}
-
+/** @param {NS} ns */
 export async function main(ns) {
-  let map = getLSItem('nmap')
-  if (! map ) {
-    throw new Error("No network map exists, BestHack can't work.")
-  }
+  disableLogs(ns, ['sleep', 'getServerMoneyAvailable'])
+  ns.ui.openTail()
+  ns.ui.resizeTail(500, 225)
 
-  let searcher = new BestHack(map)
-  ns.print(Math.max(Math.floor(fetchPlayer().skills.hacking/2)))
-  ns.print(`[s.name, s.moneyMax, calcScore(s), weakTime(s)/1000, ramRequired ]`)
-  for (let s of searcher.filterServers(fetchPlayer().skills.hacking)) {
-    ns.print([
-      s.name.padEnd(15),
-      s.moneyMax,
-      calcScore(s),
-      weakTime(s)/1000,
-      new HackBatcher(s).calcTotalRamRequired()])
+  while (true) {
+    await ns.sleep(100)
+    ns.clearLog();
+
+    let batches = getLSItem('batches')
+    let server = findServer(ns, batches)
+    if (!server) {
+      ns.print("No hackable server found.")
+      continue
+    }
+
+    ns.print(`${server.hostname} ${runSpinner()}`)
+    let percent = Math.round((server.moneyAvailable / server.moneyMax) * 100)
+    ns.print(`*** Money    : \$${ns.formatNumber(server.moneyAvailable,0)} / \$${ns.formatNumber(server.moneyMax,0)} (${(percent)}%)`)
+    let weakTime = ns.getWeakenTime(server.hostname)
+    ns.print(`*** Growth   : ${server.serverGrowth.toString().padStart(3)} | ` +
+             `Security : ${ns.formatNumber(server.hackDifficulty, 1)}/${ns.formatNumber(server.minDifficulty, 0)}`)
+    batches = batches ? batches.filter(b=>b.target == server.hostname).length : 0
+    ns.print(`*** Batches  : ${batches.toString().padStart(3)} | ` +
+             `Time : ${formatTime(weakTime)}`)
+
+    let available = server.moneyAvailable
+    server.moneyAvailable = server.moneyMax
+    let difficulty = server.hackDifficulty
+    server.hackDifficulty = server.minDifficulty
+    let hackThreads = Math.ceil(calcThreadsToHack(server, server.moneyAvailable * calcHackAmount(server)))
+    ns.print(`* Hack       : ${hackThreads.toString().padStart(3," ")}`)
+    server.moneyAvailable = available
+    server.hackDifficulty = difficulty
+
+    let weakThreads = Math.ceil((server.hackDifficulty - server.minDifficulty)/0.05)
+    let weakThForHack = Math.ceil(hackThreads/25)
+    ns.print(`* Weaken     : ${weakThreads.toString().padStart(3," ")} (${weakThForHack})`)
+
+    server.hackDifficulty = server.minDifficulty
+    let multiplier = server.moneyMax / Math.max(server.moneyAvailable, 1)
+    let growThreads = Math.ceil(ns.growthAnalyze(server.hostname, multiplier))
+    multiplier = server.moneyMax / (Math.max(server.moneyMax, 1) * (1 - calcHackAmount(server)))
+    let growThForHack = Math.ceil(ns.growthAnalyze(server.hostname, multiplier))
+    ns.print(`* Grow       : ${growThreads.toString().padStart(3," ")} (${growThForHack})`)
+    server.hackDifficulty = difficulty
+
+    weakThreads = Math.ceil((server.hackDifficulty - server.minDifficulty)/0.05)
+    weakThForHack = Math.ceil(growThForHack/12.5)
+    ns.print(`* Weaken2    : ${weakThreads.toString().padStart(3," ")} (${weakThForHack})`)
   }
-  ns.tprint( searcher.findBestPerLevel(fetchPlayer().skills.hacking) )
+}
+
+function findServer(ns, batches) {
+  if (ns.args[0])
+    return fetchServerFree(ns.args[0])
+
+  if ( batches.length > 0)
+    return fetchServerFree(batches[batches.length-1].target)
+
+  return findBestTarget(ns)
+}
+/**
+ * @returns {string} Time string, formatted nicely
+ */
+function formatTime(timeInMs) {
+  if (timeInMs > 1000 * 60 * 60 )
+    return new Date(timeInMs).toISOString().slice(11, 23)
+  if (timeInMs > 1000 * 60 )
+    return new Date(timeInMs).toISOString().slice(14, 23)
+  if (timeInMs > 1000 )
+    return new Date(timeInMs).toISOString().slice(17, 23)
+  return new Date(timeInMs).toISOString().slice(18, 23)
+}
+
+/**
+ * @returns {string} A spinner that cycles through an animation
+ */
+function runSpinner() {
+  let spinnerText = "|/-\\"
+  let rotation = spinnerText.length
+  let curSec = Math.round(performance.now() /1000)
+
+  return spinnerText[curSec % (rotation)].padStart(Math.round((curSec%75)/rotation), '.')
 }
