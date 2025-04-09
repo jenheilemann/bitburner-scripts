@@ -1,10 +1,10 @@
 import { fetchPlayer, getLSItem } from 'helpers.js'
-import { HackBatcher } from '/batching/batcher.js'
+import { HackBuilder } from '/batching/builder.js'
 import { weakTime } from '/batching/calculations.js'
 
 
 export function calcScore(server) {
-  let batcher = new HackBatcher(server)
+  let batcher = new HackBuilder(server)
   let totalRamRequired = batcher.calcTotalRamRequired()
   let maxTime = weakTime(server) / 1000
   return server.maxMoney/totalRamRequired/maxTime
@@ -81,7 +81,7 @@ export async function main(ns) {
       s.moneyMax,
       calcScore(s),
       weakTime(s)/1000,
-      new HackBatcher(s).calcTotalRamRequired()])
+      new HackBuilder(s).calcTotalRamRequired()])
   }
   ns.tprint( searcher.findBestPerLevel(fetchPlayer().skills.hacking) )
 }
