@@ -1,15 +1,11 @@
 import { disableLogs, getLSItem, setLSItem, fetchPlayer } from 'helpers.js'
 import { BestHack } from 'bestHack.js'
-import { networkMapFree, networkMap } from 'network.js'
-import { BatchDataQueue } from 'batching/batchJob.js'
+import { networkMapFree } from 'network.js'
+import { reservedRam } from 'constants.js'
+import { BatchDataQueue } from '/batching/queue.js'
+import { PrepBuilder, HackBuilder } from '/batching/builder.js'
+import { weakTime, ramSizes, calcHackAmount } from '/batching/calculations.js'
 
-// minimum ram required to run each file with 1 thread
-// avoid calling getScriptRam
-const ramSizes = {
-  'hack' : 1.7,
-  'weak' : 1.75,
-  'grow' : 1.75,
-}
 
 const fileNames = {
   'hack' : 'batchHack.js',
@@ -17,20 +13,8 @@ const fileNames = {
   'grow' : 'batchGrow.js',
 }
 
-// how much of the server should we hack per batch, ideally?
-const hackDecimal = 0.05
-// timing margin of error, as ms before the end timestamp
-const timingMarginOfError = 50
-// how much ram should be set aside on the home server for running the controller etc
-const reservedRam = 20
 // how many ms between each HWGW file ending
-const batchBufferTime = 10
-
-// Game-set constants. Don't change these magic numbers.
-const growsPerWeaken = 12.5
-const hacksPerWeaken = 25
-const growTimeMultiplier = 3.2 // Relative to hacking time. 16/5 = 3.2
-const weakenTimeMultiplier = 4 // Relative to hacking time
+const batchBufferTime = 5
 
 /**
  * @param {NS} ns
@@ -46,9 +30,6 @@ export async function main(ns) {
      return;
   }
   // serversWithRam = [networkMapFree()['home']]
-
-  // I can manually override the default percentage, else defaults to hackDecimal
-  if ((typeof getLSItem('hackpercent')) != 'number') setLSItem('hackpercent', hackDecimal)
 
   let target = findBestTarget(ns)
   if (!target) {
@@ -76,20 +57,38 @@ export async function main(ns) {
   let batcher = chooseBatcher(ns, target)
   batcher.calcTasks()
   let jobs = batcher.assignServers(serversWithRam)
+  let hackDecimal = calcHackAmount(target)
 
-  if (!batcher.isFulfilled() && !needsPrep(ns, target, queue) && !queue.isEmpty()) {
-    ns.print(jobs)
-    ns.print("Couldn't find servers to fulfill batch, try later.")
+  if (!batcher.isFulfilled() && batcher.type == 'Hacking') {
+    if (queue.isEmpty()) {
+      ns.print("Not enough ram for a full batch, recalculating....")
+      while(!batcher.isFulfilled() && hackDecimal > 0.01) {
+        hackDecimal = hackDecimal*0.95
+        batcher.calcTasks()
+        jobs = batcher.assignServers(serversWithRam)
+      }
+      if (!batcher.isFulfilled()) {
+        ns.print(`Some ram found... at ${hackDecimal*100}% hacking.`)
+        ns.print(jobs)
+      } else {
+        ns.print(`Ram found! at ${hackDecimal*100}% hacking.`)
+        ns.print(jobs)
+      }
+    } else {
+      ns.print(jobs)
+      ns.print("Couldn't find servers to fulfill batch, try later.")
+      return
+    }
+  }
+
+  if (batcher.isEmpty()) {
+    ns.print("Found zero ram to fulfill tasks, try again later....")
     return
   }
 
   ns.print(`Ready for launch! Target: ${target.hostname}`)
   await launch(ns,batcher,target.hostname)
 }
-
-function hackTime(ns, server) { return ns.getHackTime(server.hostname) }
-function growTime(ns, server) { return hackTime(ns, server) * growTimeMultiplier }
-function weakTime(ns, server) { return hackTime(ns, server) * weakenTimeMultiplier }
 
 /**
  * @param {NS} ns
@@ -136,6 +135,7 @@ export function findBestTarget(ns) {
   if (! map || map.length == 0 ) {
     throw new Error("No network map exists, BestHack can't work.")
   }
+  debugger
   let hackingSkill = fetchPlayer().skills.hacking
   let searcher = new BestHack(map)
   let servers = searcher.findTop(hackingSkill)
@@ -144,7 +144,7 @@ export function findBestTarget(ns) {
   for (let server of servers) {
     // weaktime longer than 5 minutes, we only want to prep it;
     // focus on hacking other servers
-    if ( weakTime(ns, server) > 5 * 60 * 1000 ) {
+    if ( weakTime(server) > 5 * 60 * 1000 ) {
       if ( needsPrep(ns, server, batchData) )
         return server
       continue
@@ -161,172 +161,9 @@ export function findBestTarget(ns) {
  **/
 function chooseBatcher(ns, targetServer) {
   if (needsPrep(ns, targetServer, fetchBatchQueue())) {
-    return new PrepBatcher(ns, targetServer)
+    return new PrepBuilder(targetServer)
   }
-  return new HackBatcher(ns, targetServer)
-}
-
-class BatchTask {
-  constructor(type, threads, ram, time) {
-    this.type = type
-    this.threads = threads
-    this.ram = ram
-    this.time = time
-    this.servers
-  }
-}
-
-
-class Batcher {
-  constructor(ns, target) {
-    this.ns = ns;
-    this.target = target;
-    this.tasks = []
-  }
-
-  /**
-   * @param {array[Server]} serversWithRam
-   * @returns {obj[obj]} The threads with added chosen servers and # of threads
-   **/
-  assignServers(serversWithRam) {
-    serversWithRam.map(s => {
-      let reserved = s.hostname == 'home' ? reservedRam : 0
-      s.availableRam = s.maxRam - this.ns.getServerUsedRam(s.hostname) - reserved
-    })
-
-    this.tasks.forEach(task => {
-      let servers = this.matchServers(task, serversWithRam)
-      if ( !servers ) return
-      task.servers = servers.map(s => [s.hostname, s.threads])
-    })
-    return this.tasks
-  }
-
-  /**
-   * @returns {boolean} true if all batches have matching servers
-   */
-  isFulfilled() {
-    return this.tasks.every(b => b.servers && b.servers.length > 0)
-  }
-}
-
-class PrepBatcher extends Batcher {
-  type = 'Prepping'
-
-  /**
-   * @returns {array[BatchTask]} The ram and threads for grow, weaken until the target is prepped
-   *    {
-   *      grow:    {type: grow,   threads: y, time: longest + 0},
-   *      weaken2: {type: weaken, threads: y, time: longest + 1}
-   *    }
-   **/
-  calcTasks() {
-    if (this.tasks.length > 0 ) return this.tasks
-    let weakTh1 = Math.ceil(((this.target.hackDifficulty - this.target.minDifficulty) / 0.05))
-    let growTh  = calcThreadsToGrow(this.target, this.target.moneyMax) + 1
-    let weakTh2 = Math.ceil((growTh/growsPerWeaken))
-    this.tasks = [
-      new BatchTask('weak', weakTh1, calcRam('weak', weakTh1), weakTime(this.ns, this.target)),
-      new BatchTask('grow', growTh,  calcRam('grow', growTh),  growTime(this.ns, this.target)),
-      new BatchTask('weak', weakTh2, calcRam('weak', weakTh2), weakTime(this.ns, this.target)),
-    ].filter(t => t.threads > 0)
-    return this.tasks
-  }
-
-  /**
-   * @param {obj} task
-   * @param {array[Servers]} serversWithRam
-   * @returns {array[Servers]} Servers with available ram adjusted and number of threads recorded
-   **/
-  matchServers(task, serversWithRam) {
-    serversWithRam.sort((a,b) => a.availableRam - b.availableRam)
-    let server = serversWithRam.find(s => s.availableRam >= task.ram)
-    if (server) {
-      server.threads = task.threads
-      server.availableRam -= task.ram
-      return [server]
-    }
-    serversWithRam.sort((a,b) => b.availableRam - a.availableRam)
-    let neededThreads = task.threads
-    let scriptSize = ramSizes[task.type]
-    let servers = []
-    serversWithRam.forEach(server => {
-      if (neededThreads == 0 ) return
-
-      if (server.availableRam > scriptSize) {
-        let useThreads = Math.min(neededThreads, Math.floor(server.availableRam/scriptSize))
-        let useRam = useThreads*scriptSize
-        server.threads = useThreads
-        server.availableRam -= useRam
-        servers.push(server)
-        neededThreads -= useThreads
-      }
-    })
-    return servers
-  }
-}
-
-class HackBatcher extends Batcher {
-  type = 'Hacking'
-
-  /**
-   * @returns {array[BatchTask]} The needed ram and threads for HWGW batch
-   **/
-  calcTasks() {
-    // zero out the server, assume prepping script goes well
-    this.target.moneyAvailable = this.target.moneyMax
-    this.target.hackDifficulty = this.target.minDifficulty
-    if (this.tasks.length > 0) return this.tasks
-    let hackTh = calcThreadsToHack(this.target, this.target.moneyAvailable * hackDecimal)
-    let weakTh1 = Math.ceil(hackTh/hacksPerWeaken)
-    this.target.moneyAvailable -= this.target.moneyAvailable*hackDecimal
-    let growTh = calcThreadsToGrow(this.target, this.target.moneyMax) + 1
-    let weakTh2 = Math.ceil(growTh/growsPerWeaken)
-    this.tasks = [
-      new BatchTask('hack', hackTh,  calcRam('hack', hackTh),  hackTime(this.ns, this.target)),
-      new BatchTask('weak', weakTh1, calcRam('weak', weakTh1), weakTime(this.ns, this.target)),
-      new BatchTask('grow', growTh,  calcRam('grow', growTh),  growTime(this.ns, this.target)),
-      new BatchTask('weak', weakTh2, calcRam('weak', weakTh2), weakTime(this.ns, this.target)),
-    ].filter(t => t.threads > 0)
-    return this.tasks
-  }
-
-  /**
-   * @param {obj} task
-   * @param {array[Servers]} serversWithRam
-   * @returns {array[Servers]} Servers with available ram adjusted and number of threads recorded
-   **/
-  matchServers(task, serversWithRam) {
-    serversWithRam.sort((a,b) => a.availableRam - b.availableRam)
-    let server = serversWithRam.find(s => s.availableRam >= task.ram)
-    if (server) {
-      server.threads = task.threads
-      server.availableRam -= task.ram
-      return [server]
-    }
-
-    if (task.type == "weak ") {
-      serversWithRam.sort((a,b) => b.availableRam - a.availableRam)
-      let neededThreads = task.threads
-      let scriptSize = ramSizes[task.type]
-      let servers = []
-      serversWithRam.forEach(server => {
-        if (server.availableRam > scriptSize) {
-          let useThreads = Math.min(neededThreads, Math.floor(server.availableRam/scriptSize))
-          let useRam = useThreads*scriptSize
-          server.threads = useThreads
-          server.availableRam -= useRam
-          servers.push(server)
-          neededThreads -= useThreads
-          if (neededThreads == 0 ) {
-            return
-          }
-        }
-      })
-      return servers
-    }
-    return []
-  }
+  return new HackBuilder(targetServer)
 }
 
 
@@ -372,15 +209,6 @@ function isHealthy(ns, server) {
 
 
 /**
- * @param {string} type
- * @param {num} numThreads
- * @returns {num} Amount of ram needed to run that many of that type of action
- **/
-function calcRam(type, numThreads) {
-  return ramSizes[type] * numThreads
-}
-
-/**
  * @param {NS} ns
  * @param {obj} batchServers
  * @param {string} target
@@ -421,7 +249,7 @@ async function launch(ns, batcher, target) {
     for (let pid of job.pids) {
       ns.print(`Prompting PID ${pid}....`)
       while(! ns.getScriptLogs(pid).some(l => l.includes("Waiting for port write")) ) {
-        ns.print(`_____ Waiting for PID ${pid[0]} to be ready.`)
+        ns.print(`_____ Waiting for PID ${pid} to be ready.`)
         await ns.sleep(1)
       }
       ns.print(`ns.writePort(${pid}, ${performance.now() + longestTime})`)
@@ -443,123 +271,4 @@ function fetchNextBatchID() {
   if ( nextID > 9_999_999_999_999 ) { nextID = 1 }
   setLSItem('batchJobId', nextID.toString(16))
   return nextID.toString(16)
-}
-
-/**
- * Returns the number of threads needed to grow the specified server by
- * the specified amount.
- * @param {Server} server - Server being grown
- * @param {num} targetMoney - - How much you want the server grown TO (not by),
- *                        for instance, to grow from 200 to 600, input 600
- * @returns {num} Number of threads needed
- */
-export function calcThreadsToGrow(server, targetMoney) {
-  let person = fetchPlayer()
-  let startMoney = server.moneyAvailable
-
-  const k = calculateServerGrowthLog(server, 1, person);
-  const guess = (targetMoney - startMoney) / (1 + (targetMoney * (1 / 16) + startMoney * (15 / 16)) * k);
-  let x = guess;
-  let diff;
-  do {
-    const ox = startMoney + x;
-    // Have to use division instead of multiplication by inverse, because
-    // if targetMoney is MIN_VALUE then inverting gives Infinity
-    const newx = (x - ox * Math.log(ox / targetMoney)) / (1 + ox * k);
-    diff = newx - x;
-    x = newx;
-  } while (diff < -1 || diff > 1);
-  /* If we see a diff of 1 or less we know all future diffs will be smaller, and the rate of
-   * convergence means the *sum* of the diffs will be less than 1.
-
-   * In most cases, our result here will be ceil(x).
-   */
-  const ccycle = Math.ceil(x);
-  if (ccycle - x > 0.999999) {
-    // Rounding-error path: It's possible that we slightly overshot the integer value due to
-    // rounding error, and more specifically precision issues with log and the size difference of
-    // startMoney vs. x. See if a smaller integer works. Most of the time, x was not close enough
-    // that we need to try.
-    const fcycle = ccycle - 1;
-    if (targetMoney <= (startMoney + fcycle) * Math.exp(k * fcycle)) {
-      return fcycle;
-    }
-  }
-  if (ccycle >= x + ((diff <= 0 ? -diff : diff) + 0.000001)) {
-    // Fast-path: We know the true value is somewhere in the range [x, x + |diff|] but the next
-    // greatest integer is past this. Since we have to round up grows anyway, we can return this
-    // with no more calculation. We need some slop due to rounding errors - we can't fast-path
-    // a value that is too small.
-    return ccycle;
-  }
-  if (targetMoney <= (startMoney + ccycle) * Math.exp(k * ccycle)) {
-    return ccycle;
-  }
-  return ccycle + 1
-}
-
-
-// Returns the log of the growth rate. When passing 1 for threads, this gives a useful constant.
-function calculateServerGrowthLog(server, threads, p, cores = 1) {
-  if (!server.serverGrowth) return -Infinity;
-  const hackDifficulty = server.hackDifficulty ?? 100;
-  const numServerGrowthCycles = Math.max(threads, 0);
-
-  const serverBaseGrowthIncr = 0.03 // Unadjusted growth increment (growth rate is this * adjustment + 1)
-  const serverMaxGrowthLog = 0.00349388925425578 // Maximum possible growth rate accounting for server security, precomputed as log1p(.0035)
-
-  //Get adjusted growth log, which accounts for server security
-  //log1p computes log(1+p), it is far more accurate for small values.
-  let adjGrowthLog = Math.log1p(serverBaseGrowthIncr / hackDifficulty);
-  if (adjGrowthLog >= serverMaxGrowthLog) {
-    adjGrowthLog = serverMaxGrowthLog;
-  }
-
-  //Calculate adjusted server growth rate based on parameters
-  const serverGrowthPercentage = server.serverGrowth / 100;
-  const serverGrowthPercentageAdjusted = serverGrowthPercentage * getLSItem('bitnode')['ServerGrowthRate'];
-
-  //Apply serverGrowth for the calculated number of growth cycles
-  const coreBonus = 1 + (cores - 1) * (1 / 16);
-  // It is critical that numServerGrowthCycles (aka threads) is multiplied last,
-  // so that it rounds the same way as numCycleForGrowth.
-  return adjGrowthLog * serverGrowthPercentageAdjusted * p.mults.hacking_grow * coreBonus * numServerGrowthCycles;
-}
-
-/**
- * @params {Server} server
- * @params {num} hackAmount - how much money to get with this hack, as a dollar amount
- * @returns {num} the number of threads to hack with to get about this amount
- */
-export function calcThreadsToHack(server, hackAmount) {
-  debugger
-  if (hackAmount < 0 || hackAmount > server.moneyAvailable) {
-    return -1;
-  }
-
-  const percentHacked = calculatePercentMoneyHacked(server)
-  return Math.floor(hackAmount / (server.moneyAvailable * percentHacked))
-}
-
-/**
- * Returns the percentage of money that will be stolen from a server if
- * it is successfully hacked (returns the decimal form, not the actual percent value)
- */
-function calculatePercentMoneyHacked(server) {
-  // Adjust if needed for balancing. This is the divisor for the final calculation
-  const balanceFactor = 240;
-  const player = fetchPlayer()
-
-  const difficultyMult = (100 - server.hackDifficulty) / 100;
-  const skillMult = (player.skills.hacking - (server.requiredHackingSkill - 1)) / player.skills.hacking;
-  const percentMoneyHacked = (difficultyMult * skillMult * player.mults.hacking_money) / balanceFactor;
-  if (percentMoneyHacked < 0) {
-    return 0;
-  }
-  if (percentMoneyHacked > 1) {
-    return 1;
-  }
-
-  let scriptHackMoneyMult = getLSItem('bitnode')["ScriptHackMoney"]
-  return percentMoneyHacked * scriptHackMoneyMult
 }

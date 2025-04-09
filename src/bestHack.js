@@ -1,21 +1,13 @@
 import { fetchPlayer, getLSItem } from 'helpers.js'
+import { HackBatcher } from '/batching/batcher.js'
+import { weakTime } from '/batching/calculations.js'
 
-const maxMoneyCoefficient = 1.25
-const growthCoefficient = 1.1
-const minSecurityCoefficient = 2
-const growthCap = 100 // because otherwise N00dles is always on the top of the list
-const securityWeight = 200
-const maxWeakenTime = 15 * 60 * 1000
 
 export function calcScore(server) {
-  // {"hackingLvl":1,"maxMoney":0,"minSecurity":1,"growth":1}
-  // let money = Math.pow(server.maxMoney, maxMoneyCoefficient)
-  // let growth = Math.pow(Math.min(server.growth, growthCap), growthCoefficient)
-  // let minSec = Math.pow(server.minSecurity, minSecurityCoefficient)
-  // let hacking = server.hackingLvl
-
-  // return (money * growth / (securityWeight + minSec * hacking))
-  return server.maxMoney/server.minSecurity; // elsewhere filtered by hacking level
+  let batcher = new HackBatcher(server)
+  let totalRamRequired = batcher.calcTotalRamRequired()
+  let maxTime = weakTime(server) / 1000
+  return server.maxMoney/totalRamRequired/maxTime
 }
 
 export class BestHack {
@@ -82,7 +74,14 @@ export async function main(ns) {
 
   let searcher = new BestHack(map)
   ns.print(Math.max(Math.floor(fetchPlayer().skills.hacking/2)))
-  ns.print(Object.values(searcher.serverData).map(s => [s.name, s.requiredHackingSkill, s.hasAdminRights, s.moneyMax]))
-  ns.print(searcher.filterServers(fetchPlayer().skills.hacking).map(s => [s.name, s.requiredHackingSkill, s.hasAdminRights, s.moneyMax]))
+  ns.print(`[s.name, s.moneyMax, calcScore(s), weakTime(s)/1000, ramRequired ]`)
+  for (let s of searcher.filterServers(fetchPlayer().skills.hacking)) {
+    ns.print([
+      s.name.padEnd(15),
+      s.moneyMax,
+      calcScore(s),
+      weakTime(s)/1000,
+      new HackBatcher(s).calcTotalRamRequired()])
+  }
   ns.tprint( searcher.findBestPerLevel(fetchPlayer().skills.hacking) )
 }

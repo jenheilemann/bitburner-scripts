@@ -1,5 +1,7 @@
 const filesToDownload = [
-  '/batching/batchJob.js',
+  '/batching/builder.js',
+  '/batching/calculations.js',
+  '/batching/queue.js',
   '/contracts/arrayJumpingSolver.js',
   '/contracts/CodingContractWrapper.js',
   '/contracts/failSolver.js',
