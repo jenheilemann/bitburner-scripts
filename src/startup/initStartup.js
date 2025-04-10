@@ -57,8 +57,6 @@ const filesToDownload = [
   'crime.js',
   'doProcess.js',
   'find.js',
-  'grow.js',
-  'hack.js',
   'helpers.js',
   'lsClear.js',
   'lsGet.js',
@@ -73,7 +71,6 @@ const filesToDownload = [
   'stats.js',
   'torBuyer.js',
   'upgradeHomeRam.js',
-  'weaken.js',
   'workForFactions.js',
 ]
 const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/'
