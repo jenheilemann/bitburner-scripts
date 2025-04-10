@@ -135,7 +135,6 @@ export function findBestTarget(ns) {
   if (! map || map.length == 0 ) {
     throw new Error("No network map exists, BestHack can't work.")
   }
-  debugger
   let hackingSkill = fetchPlayer().skills.hacking
   let searcher = new BestHack(map)
   let servers = searcher.findTop(hackingSkill)
