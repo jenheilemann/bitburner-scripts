@@ -1,12 +1,22 @@
-import { fetchPlayer, getLSItem } from 'helpers.js'
+import { fetchPlayer, getLSItem, formatDuration, formatRam } from 'helpers.js'
 import { HackBuilder } from '/batching/builder.js'
 import { weakTime } from '/batching/calculations.js'
 
 
 export function calcScore(server) {
+  // Set up the calculation with everything min/maxed
+  let hD = server.hackDifficulty
+  let mA = server.moneyAvailable
+  server.hackDifficulty = server.minDifficulty
+  server.moneyAvailable = server.moneyMax
+
   let batcher = new HackBuilder(server)
   let totalRamRequired = batcher.calcTotalRamRequired()
   let maxTime = weakTime(server) / 1000
+
+  // reset the server object for anything else using it
+  server.hackDifficulty = hD
+  server.moneyAvailable = mA
   return server.maxMoney/totalRamRequired/maxTime
 }
 
@@ -20,11 +30,11 @@ export class BestHack {
    * @param {number} player_hacking
    */
   findBestPerLevel(player_hacking) {
-    let filtered = this.filterServers(player_hacking)
+    let filtered = this.findTop(player_hacking)
     if (filtered.length == 0) {
       return false
     }
-    return filtered.reduce((a, b) => (calcScore(a) > calcScore(b)) ? a : b)
+    return filtered[0]
   }
 
   /**
@@ -32,7 +42,8 @@ export class BestHack {
    */
   findTop(player_hacking) {
     let filtered = this.filterServers(player_hacking)
-    return filtered.sort((a, b) => calcScore(b) - calcScore(a))
+    filtered.map(s => s.hackableScore = calcScore(s))
+    return filtered.sort((a, b) => b.hackableScore - a.hackableScore)
   }
 
   /**
@@ -49,7 +60,7 @@ export class BestHack {
    */
   filterServers(player_hacking) {
     let filtered = Object.values(this.serverData)
-      .filter((server) => server.requiredHackingSkill <= Math.max(Math.floor(player_hacking/2), 1) &&
+      .filter((server) => server.requiredHackingSkill <= Math.max(Math.floor(player_hacking - 1), 1) &&
                           server.hasAdminRights &&
                           server.moneyMax > 0)
     return filtered
@@ -71,17 +82,21 @@ export async function main(ns) {
   if (! map ) {
     throw new Error("No network map exists, BestHack can't work.")
   }
+  ns.clearLog()
 
   let searcher = new BestHack(map)
-  ns.print(Math.max(Math.floor(fetchPlayer().skills.hacking/2)))
-  ns.print(`[s.name, s.moneyMax, calcScore(s), weakTime(s)/1000, ramRequired ]`)
-  for (let s of searcher.filterServers(fetchPlayer().skills.hacking)) {
-    ns.print([
-      s.name.padEnd(15),
-      s.moneyMax,
-      calcScore(s),
-      weakTime(s)/1000,
-      new HackBuilder(s).calcTotalRamRequired()])
+  let player = fetchPlayer()
+  ns.print(player.skills.hacking)
+  ns.print(`[s.name           , s.moneyMax, calcScore(s), weakTime(s), ramRequired ]`)
+  let top = searcher.findTop(player.skills.hacking)
+  for (let s of top) {
+    ns.print(
+      s.name.padEnd(20),
+      `\$${ns.formatNumber(s.moneyMax,2).padStart(10)}`,
+      ns.formatNumber(calcScore(s),2).padStart(13),
+      formatDuration(weakTime(s)).padStart(15),
+      formatRam((new HackBuilder(s).calcTotalRamRequired())).padStart(11)
+    )
   }
-  ns.tprint( searcher.findBestPerLevel(fetchPlayer().skills.hacking) )
+  ns.tprint( top[0] )
 }

@@ -1,7 +1,7 @@
 
 // how much GB ram should be set aside on the home server for
 // running the controller etc
-export const reservedRam = 20
+export const reservedRam = 30
 
 export const factionServers = {
   "CSEC"         : "CyberSec",

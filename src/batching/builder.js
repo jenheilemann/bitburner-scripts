@@ -5,7 +5,6 @@ import {
   hackTime, weakTime, growTime, 
   calcHackAmount } from '/batching/calculations.js'
 import { reservedRam } from 'constants.js'
-import { fetchServerFree } from 'network.js'
 
 // Game-set constants. Don't change these magic numbers.
 const growsPerWeaken = 12.5
@@ -30,7 +29,7 @@ class BatchTask {
 
 class Builder {
   constructor(target) {
-    this.target = fetchServerFree(target.hostname)
+    this.target = target
     this.tasks = []
   }
 
@@ -40,11 +39,6 @@ class Builder {
    * @returns {obj[obj]} The threads with added chosen servers and # of threads
    **/
   assignServers(serversWithRam) {
-    serversWithRam.map(s => {
-      let reserved = s.hostname == 'home' ? reservedRam : 0
-      s.availableRam = s.maxRam - s.ramUsed - reserved
-    })
-
     this.tasks.forEach(task => {
       let servers = this.matchServers(task, serversWithRam)
       if ( !servers ) return
@@ -141,6 +135,8 @@ export class HackBuilder extends Builder {
    **/
   calcTasks() {
     // zero out the server, assume prepping script goes well
+    let mA = this.target.moneyAvailable
+    let hD = this.target.hackDifficulty
     this.target.moneyAvailable = this.target.moneyMax
     this.target.hackDifficulty = this.target.minDifficulty
     if (this.tasks.length > 0) return this.tasks
@@ -156,6 +152,9 @@ export class HackBuilder extends Builder {
       new BatchTask('grow', growTh,  calcRam('grow', growTh),  growTime(this.target)),
       new BatchTask('weak', weakTh2, calcRam('weak', weakTh2), weakTime(this.target)),
     ].filter(t => t.threads > 0)
+
+    this.target.moneyAvailable = mA
+    this.target.hackDifficulty = hD
     return this.tasks
   }
 

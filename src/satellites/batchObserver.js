@@ -3,7 +3,7 @@ import { disableLogs,
          fetchPlayer
        } from 'helpers.js'
 import { BestHack } from 'bestHack.js'
-import { networkMapFree } from 'network.js'
+import { networkMapFree, networkMap } from 'network.js'
 import { reservedRam } from 'constants.js'
 import { BatchDataQueue } from '/batching/queue.js'
 import { PrepBuilder, HackBuilder } from '/batching/builder.js'
@@ -20,7 +20,7 @@ const fileNames = {
 }
 
 // how many ms between each HWGW file ending
-const batchBufferTime = 5
+const batchBufferTime = 10
 
 /**
  * @param {NS} ns
@@ -38,12 +38,11 @@ export async function main(ns) {
   // serversWithRam = [networkMapFree()['home']]
 
   let target = findBestTarget(ns)
+  // let target = networkMapFree()['joesguns']
   if (!target) {
     ns.print(`No target found, best wait til next time....`)
     return
   }
-  // target = networkMapFree()['n00dles']
-  // target = networkMapFree()['joesguns']
 
   let queue = fetchBatchQueue()
   ns.print(`queue.isEmpty(): ${queue.isEmpty()}`)
@@ -62,6 +61,7 @@ export async function main(ns) {
 
   let batcher = chooseBatcher(ns, target)
   batcher.calcTasks()
+  serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
   let jobs = batcher.assignServers(serversWithRam)
   let hackDecimal = calcHackAmount(target)
 
@@ -71,6 +71,7 @@ export async function main(ns) {
       while(!batcher.isFulfilled() && hackDecimal > 0.01) {
         hackDecimal = hackDecimal*0.95
         batcher.calcTasks()
+        serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
         jobs = batcher.assignServers(serversWithRam)
       }
       if (!batcher.isFulfilled()) {
@@ -104,19 +105,21 @@ function fetchServersWithRam(ns, minRam) {
   return Object.values(networkMapFree()).filter(server =>
       // sometimes pservs are deleted before getting the network map.
       ns.serverExists(server.hostname) &&
-      serverHasEnoughRam(server, minRam) &&
+      serverHasEnoughRam(ns, server, minRam) &&
       server.files.includes('batchWeaken.js') &&
       getLSItem('decommissioned') != server.hostname
   )
 }
 
 /**
+ * @param {NS} ns
  * @param {Server} server
  * @param {num} minRam - the smallest amount of ram we might use at once (for hacking)
  * @returns {boolean} Whether the server's unused ram is enough to run one thread of the smallest file
  **/
-function serverHasEnoughRam(server, minRam) {
+function serverHasEnoughRam(ns, server, minRam) {
   let reserved = server.hostname == 'home' ? reservedRam : 0
+  server.availableRam = server.maxRam - ns.getServerUsedRam(server.hostname)
   let available = server.availableRam - reserved
   return available > minRam
 }
@@ -136,10 +139,18 @@ function withinAnyBatchErrorWindow(hostname, timestamp) {
 }
 
 
+/**
+ * Returns a server object that's probably the best one to send a batch against
+ * right now, maybe?
+ * @param {NS} ns
+ **/
 export function findBestTarget(ns) {
   let map = getLSItem('nmap')
   if (! map || map.length == 0 ) {
     throw new Error("No network map exists, BestHack can't work.")
+  }
+  if (ns.args[0] && map[ns.args[0]]) {
+    return map[ns.args[0]]
   }
   let hackingSkill = fetchPlayer().skills.hacking
   let searcher = new BestHack(map)
@@ -147,11 +158,24 @@ export function findBestTarget(ns) {
   ns.print(`Servers that make some kinda sense to hack`)
   ns.print(servers.map(s => s.hostname))
   let batchData = fetchBatchQueue()
+  let maxTimeInMinutes = ((hacking) => {
+    switch(true) {
+      case hacking > 800:
+        return 20
+      case hacking > 500:
+        return 15
+      case hacking > 200:
+        return 10
+      default:
+        return 5
+    }
+  })(hackingSkill)
 
   for (let server of servers) {
     // weaktime longer than 5 minutes, we only want to prep it;
     // focus on hacking other servers
-    if ( weakTime(server) > 5 * 60 * 1000 ) {
+    let timeCalc
+    if ( weakTime(server) > maxTimeInMinutes * 60 * 1000 ) {
       if ( needsPrep(ns, server, batchData) ){
         return server
       }

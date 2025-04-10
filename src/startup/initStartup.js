@@ -53,6 +53,7 @@ const filesToDownload = [
   'bestHack.js',
   'botnet.js',
   'breadwinner.js',
+  'cleanupStaleScripts.js',
   'constants.js',
   'crime.js',
   'doProcess.js',
