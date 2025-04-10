@@ -237,7 +237,7 @@ async function launch(ns, batcher, target) {
   }
 
   if ( batcher.tasks.some(t => t.pids.some(p => p == 0)) && batcher.type != 'Prepping') {
-    ns.tprint(`ERROR: One or more pids was zero! Canceling other jobs in batch ${jobID}.`)
+    ns.tprint(`ERROR: One or more pids was zero! Canceling other jobs in batch ${batchID}.`)
     for (let job of batcher.tasks) {
       job.pids.forEach(pid => pid == 0 ? null : ns.kill(pid))
     }
