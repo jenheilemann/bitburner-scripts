@@ -27,7 +27,7 @@ Paste the following content:
 
 ```js
 export function autocomplete(data, args) {
-  data.flags(['branch', 'main'])
+  data.flags([['branch', 'main']])
   return ['main', 'start-over']
 }
 
