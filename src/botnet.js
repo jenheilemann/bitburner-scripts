@@ -5,7 +5,7 @@ import {
         } from 'helpers.js'
 // magic number (Ram required to run hack.js)
 const hackingScriptSize = 1.7
-const scripts = ['hack.js', 'grow.js', 'weaken.js', 'breadwinner.js', 'batchGrow.js', 'batchHack.js', 'batchWeaken.js']
+const scripts = ['breadwinner.js', 'batchGrow.js', 'batchHack.js', 'batchWeaken.js']
 
 /**
  * @param {NS} ns
