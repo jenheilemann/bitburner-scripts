@@ -5,6 +5,7 @@ import {
   hackTime, weakTime, growTime, 
   calcHackAmount } from '/batching/calculations.js'
 import { reservedRam } from 'constants.js'
+import { fetchServerFree } from 'network.js'
 
 // Game-set constants. Don't change these magic numbers.
 const growsPerWeaken = 12.5
@@ -29,7 +30,7 @@ class BatchTask {
 
 class Builder {
   constructor(target) {
-    this.target = target;
+    this.target = fetchServerFree(target.hostname)
     this.tasks = []
   }
 
@@ -65,12 +66,12 @@ class Builder {
   isEmpty() {
     return this.tasks.every(b => !b.servers || b.servers.length == 0)
   }
-  
+
   /**
    * @returns {num} GB of ram required to run a full batch
    */
   calcTotalRamRequired() {
-    if (this.tasks.length == 0) 
+    if (this.tasks.length == 0)
       this.calcTasks()
 
     return this.tasks.reduce((a,b) => a + b.ram, 0)

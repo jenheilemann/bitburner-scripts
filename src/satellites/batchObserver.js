@@ -1,10 +1,16 @@
-import { disableLogs, getLSItem, setLSItem, fetchPlayer } from 'helpers.js'
+import { disableLogs,
+         getLSItem, setLSItem,
+         fetchPlayer
+       } from 'helpers.js'
 import { BestHack } from 'bestHack.js'
 import { networkMapFree } from 'network.js'
 import { reservedRam } from 'constants.js'
 import { BatchDataQueue } from '/batching/queue.js'
 import { PrepBuilder, HackBuilder } from '/batching/builder.js'
-import { weakTime, ramSizes, calcHackAmount } from '/batching/calculations.js'
+import { weakTime,
+         ramSizes,
+         calcHackAmount,
+        } from '/batching/calculations.js'
 
 
 const fileNames = {
@@ -138,14 +144,18 @@ export function findBestTarget(ns) {
   let hackingSkill = fetchPlayer().skills.hacking
   let searcher = new BestHack(map)
   let servers = searcher.findTop(hackingSkill)
+  ns.print(`Servers that make some kinda sense to hack`)
+  ns.print(servers.map(s => s.hostname))
   let batchData = fetchBatchQueue()
 
   for (let server of servers) {
     // weaktime longer than 5 minutes, we only want to prep it;
     // focus on hacking other servers
     if ( weakTime(server) > 5 * 60 * 1000 ) {
-      if ( needsPrep(ns, server, batchData) )
+      if ( needsPrep(ns, server, batchData) ){
         return server
+      }
+      ns.print("continuing....")
       continue
     }
     return server

@@ -13,10 +13,12 @@ export async function main(ns) {
  */
 export function hackTime(server) { 
   const player = fetchPlayer()
-  if (typeof server.hackDifficulty !== "number" || 
-    typeof server.requiredHackingSkill !== "number") 
+  const hackDifficulty = server.hackDifficulty
+  const requiredHackingSkill = server.requiredHackingSkill
+  if (typeof hackDifficulty !== "number" ||
+    typeof requiredHackingSkill !== "number")
     return Infinity;
-  const difficultyMult = server.requiredHackingSkill * server.hackDifficulty;
+  const difficultyMult = requiredHackingSkill * hackDifficulty;
 
   const baseDiff = 500;
   const baseSkill = 50;
@@ -39,11 +41,11 @@ export function hackTime(server) {
 const growTimeMultiplier = 3.2 // Relative to hacking time. 16/5 = 3.2
 const weakenTimeMultiplier = 4 // Relative to hacking time
 
-export function growTime(server) { 
-  return hackTime(server) * growTimeMultiplier 
+export function growTime(server) {
+  return hackTime(server) * growTimeMultiplier
 }
-export function weakTime(server) { 
-  return hackTime(server) * weakenTimeMultiplier 
+export function weakTime(server) {
+  return hackTime(server) * weakenTimeMultiplier
 }
 
 export function calculateIntelligenceBonus(intelligence, weight = 1) {
