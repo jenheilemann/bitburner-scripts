@@ -139,6 +139,7 @@ export class HackBuilder extends Builder {
     let hD = this.target.hackDifficulty
     this.target.moneyAvailable = this.target.moneyMax
     this.target.hackDifficulty = this.target.minDifficulty
+
     if (this.tasks.length > 0) return this.tasks
     let hackDecimal = calcHackAmount(this.target)
     let hackTh = calcThreadsToHack(this.target, this.target.moneyAvailable * hackDecimal)
@@ -146,6 +147,9 @@ export class HackBuilder extends Builder {
     this.target.moneyAvailable -= this.target.moneyAvailable*hackDecimal
     let growTh = calcThreadsToGrow(this.target, this.target.moneyMax) + 1
     let weakTh2 = Math.ceil(growTh/growsPerWeaken)
+    // reset to actual especially hackDifficulty before calculating hackTime
+    this.target.moneyAvailable = mA
+    this.target.hackDifficulty = hD
     this.tasks = [
       new BatchTask('hack', hackTh,  calcRam('hack', hackTh),  hackTime(this.target)),
       new BatchTask('weak', weakTh1, calcRam('weak', weakTh1), weakTime(this.target)),
@@ -153,8 +157,6 @@ export class HackBuilder extends Builder {
       new BatchTask('weak', weakTh2, calcRam('weak', weakTh2), weakTime(this.target)),
     ].filter(t => t.threads > 0)
 
-    this.target.moneyAvailable = mA
-    this.target.hackDifficulty = hD
     return this.tasks
   }
 
