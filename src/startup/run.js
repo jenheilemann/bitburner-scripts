@@ -4,6 +4,7 @@ import {
         setLSItem,
         clearLSItem,
       } from 'helpers.js'
+import { myFavTheme } from 'constants.js'
 
 const staleLocalStorageKeys = [
   'nmap',
@@ -24,10 +25,14 @@ const staleLocalStorageKeys = [
  **/
 export async function main(ns) {
   disableLogs(ns, ["sleep"])
-  ns.print("--------------------------------------")
+  ns.tprint("--------------------------------------")
 
   ns.tprint(`Cleaning up localStorage.`)
   staleLocalStorageKeys.map((value) => clearLSItem(value))
+  await ns.sleep(20)
+
+  ns.tprint(`Setting favorite theme`)
+  ns.ui.setTheme(myFavTheme)
   await ns.sleep(20)
 
   ns.tprint(`Fetching reset info`)

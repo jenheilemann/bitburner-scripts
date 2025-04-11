@@ -96,7 +96,7 @@ export async function main(ns) {
   }
 
   for ( let filename of filesToDownload ) {
-    await ns.sleep(50)
+    await ns.sleep(20)
     await download(ns, filename, args.branch)
   }
   await ns.sleep(50)
