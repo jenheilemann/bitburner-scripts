@@ -1,5 +1,6 @@
 import { getLSItem, tryRun, canUseSingularity } from 'helpers.js'
 import { networkMapFree } from 'network.js'
+import { specialServers } from 'constants.js'
 
 /**
  * @param {NS} ns
@@ -9,12 +10,10 @@ export async function main(ns) {
   const player = getLSItem('PLAYER')
 
   // shuffle the array semi-randomly so there are less collisions
-  let server = Object.values(nmap).sort(() => .5 - Math.random()).find(s =>
-    !s.backdoorInstalled &&
-    !s.purchasedByPlayer &&
-    player.skills.hacking >= s.requiredHackingSkill &&
-    s.hasAdminRights
-  )
+  let server = findServer(Object.values(nmap).sort(() => .5 - Math.random()),
+                          player.skills.hacking,
+                          Object.keys(specialServers))
+
   if (!server) {
     ns.print('No server found!')
     return
@@ -35,4 +34,21 @@ export async function main(ns) {
 
 function isBackdoorOf(process, hostname) {
   return process.filename == 'backdoor.js' && process.args.includes(hostname)
+}
+
+function findServer(servers, playerHacking, preferred) {
+  let server = servers.find(s =>
+    preferred.includes(s.hostname) &&
+    serverIsBackdoorable(s, playerHacking)
+  )
+  if (server)
+    return server
+  return servers.find(s => serverIsBackdoorable(s, playerHacking))
+}
+
+function serverIsBackdoorable(server, playerHacking) {
+  return !server.backdoorInstalled &&
+    !server.purchasedByPlayer &&
+    playerHacking >= server.requiredHackingSkill &&
+    server.hasAdminRights
 }
