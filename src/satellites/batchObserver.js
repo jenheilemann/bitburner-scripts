@@ -160,14 +160,16 @@ export function findBestTarget(ns) {
   let batchData = fetchBatchQueue()
   let maxTimeInMinutes = ((hacking) => {
     switch(true) {
-      case hacking > 800:
+      case hacking > 2000:
         return 20
-      case hacking > 500:
+      case hacking > 800:
         return 15
-      case hacking > 200:
+      case hacking > 500:
         return 10
-      default:
+      case hacking > 200:
         return 5
+      default:
+        return 3
     }
   })(hackingSkill)
 
