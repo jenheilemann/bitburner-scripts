@@ -1,23 +1,20 @@
 import { fetchPlayer, getLSItem, formatDuration, formatRam } from 'helpers.js'
 import { HackBuilder } from '/batching/builder.js'
-import { weakTime } from '/batching/calculations.js'
+import { weakTime, calculatePercentMoneyHacked } from '/batching/calculations.js'
 
 
 export function calcScore(server) {
   // Set up the calculation with everything min/maxed
   let hD = server.hackDifficulty
-  let mA = server.moneyAvailable
   server.hackDifficulty = server.minDifficulty
-  server.moneyAvailable = server.moneyMax
 
-  let batcher = new HackBuilder(server)
-  let totalRamRequired = batcher.calcTotalRamRequired()
+  let percentPerHack = calculatePercentMoneyHacked(server)
+  let moneyPerHack = server.moneyMax * percentPerHack
   let maxTime = weakTime(server) / 1000
 
   // reset the server object for anything else using it
   server.hackDifficulty = hD
-  server.moneyAvailable = mA
-  return server.maxMoney/totalRamRequired/maxTime
+  return moneyPerHack/maxTime
 }
 
 export class BestHack {

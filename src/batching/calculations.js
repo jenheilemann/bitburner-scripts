@@ -173,8 +173,9 @@ export function calcThreadsToHack(server, hackAmount) {
 /**
  * Returns the percentage of money that will be stolen from a server if
  * it is successfully hacked (returns the decimal form, not the actual percent value)
+ * @params {Server} server
  */
-function calculatePercentMoneyHacked(server) {
+export function calculatePercentMoneyHacked(server) {
   // Adjust if needed for balancing. This is the divisor for the final calculation
   const balanceFactor = 240;
   const player = fetchPlayer()
