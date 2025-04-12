@@ -176,7 +176,6 @@ export function findBestTarget(ns) {
   for (let server of servers) {
     // weaktime longer than 5 minutes, we only want to prep it;
     // focus on hacking other servers
-    let timeCalc
     if ( weakTime(server) > maxTimeInMinutes * 60 * 1000 ) {
       if ( needsPrep(ns, server, batchData) ){
         return server
@@ -192,7 +191,7 @@ export function findBestTarget(ns) {
 /**
  * @param {NS} ns
  * @param {Server} targetServer
- * @returns {Batcher}
+ * @returns {PrepBuilder|HackBuilder}
  **/
 function chooseBatcher(ns, targetServer) {
   if (needsPrep(ns, targetServer, fetchBatchQueue())) {

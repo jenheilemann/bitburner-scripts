@@ -17,6 +17,12 @@ export async function main(ns) {
 
 
 class BatchTask {
+  /**
+   * @param {string} type
+   * @param {Integer} threads
+   * @param {Float} ram
+   * @param {Float} time
+   */
   constructor(type, threads, ram, time) {
     this.type = type
     this.threads = threads
@@ -27,7 +33,14 @@ class BatchTask {
 }
 
 
+/**
+ * @prop {Server} target
+ * @prop {[BatchTask]} tasks
+ */
 class Builder {
+  /**
+   * @param {Server} target
+   */
   constructor(target) {
     this.target = target
     this.tasks = []
@@ -35,14 +48,13 @@ class Builder {
 
   /**
    * @param {NS} ns
-   * @param {array[Server]} serversWithRam
-   * @returns {obj[obj]} The threads with added chosen servers and # of threads
+   * @param {[Server]} serversWithRam
+   * @returns {[BatchTask]} The tasks with added chosen servers and # of threads
    **/
   assignServers(serversWithRam) {
     this.tasks.forEach(task => {
       let servers = this.matchServers(task, serversWithRam)
-      if ( !servers ) return
-      task.servers = servers.map(s => [s.hostname, s.threads])
+      task.servers = servers
     })
     return this.tasks
   }
@@ -62,7 +74,7 @@ class Builder {
   }
 
   /**
-   * @returns {num} GB of ram required to run a full batch
+   * @returns {Float} GB of ram required to run a full batch
    */
   calcTotalRamRequired() {
     if (this.tasks.length == 0)
@@ -76,10 +88,12 @@ export class PrepBuilder extends Builder {
   type = 'Prepping'
 
   /**
-   * @returns {array[BatchTask]} The ram and threads for grow, weaken until the target is prepped
+   * @returns {[BatchTask]} The ram and threads for weaken, grow, weaken until
+   *                        the target server is prepped
    *    {
-   *      grow:    {type: grow,   threads: y, time: longest + 0},
-   *      weaken2: {type: weaken, threads: y, time: longest + 1}
+   *      weaken1: {type: weaken, threads: y, time: x}
+   *      grow:    {type: grow,   threads: y, time: z},
+   *      weaken2: {type: weaken, threads: y, time: x}
    *    }
    **/
   calcTasks() {
@@ -95,17 +109,17 @@ export class PrepBuilder extends Builder {
   }
 
   /**
-   * @param {obj} task
-   * @param {array[Server]} serversWithRam
-   * @returns {array[Server]} Servers with available ram adjusted and number of threads recorded
+   * @param {BatchTask} task
+   * @param {[Server]} serversWithRam
+   * @returns {[[string, Int]]} Array where each entry is sub-array of Server
+   *                            hostname and number of threads assigned
    **/
   matchServers(task, serversWithRam) {
     serversWithRam.sort((a,b) => a.availableRam - b.availableRam)
     let server = serversWithRam.find(s => s.availableRam >= task.ram)
     if (server) {
-      server.threads = task.threads
       server.availableRam -= task.ram
-      return [server]
+      return [[server.hostname, task.threads]]
     }
     serversWithRam.sort((a,b) => b.availableRam - a.availableRam)
     let neededThreads = task.threads
@@ -117,9 +131,8 @@ export class PrepBuilder extends Builder {
       if (server.availableRam > scriptSize) {
         let useThreads = Math.min(neededThreads, Math.floor(server.availableRam/scriptSize))
         let useRam = useThreads*scriptSize
-        server.threads = useThreads
         server.availableRam -= useRam
-        servers.push(server)
+        servers.push([server.hostname, useThreads])
         neededThreads -= useThreads
       }
     })
@@ -131,7 +144,7 @@ export class HackBuilder extends Builder {
   type = 'Hacking'
 
   /**
-   * @returns {array[BatchTask]} The needed ram and threads for HWGW batch
+   * @returns {[BatchTask]} The needed ram and threads for HWGW batch
    **/
   calcTasks() {
     // zero out the server, assume prepping script goes well
@@ -147,7 +160,7 @@ export class HackBuilder extends Builder {
     this.target.moneyAvailable -= this.target.moneyAvailable*hackDecimal
     let growTh = calcThreadsToGrow(this.target, this.target.moneyMax) + 1
     let weakTh2 = Math.ceil(growTh/growsPerWeaken)
-    // reset to actual especially hackDifficulty before calculating hackTime
+    // reset to actual, especially hackDifficulty before calculating hackTime
     this.target.moneyAvailable = mA
     this.target.hackDifficulty = hD
     this.tasks = [
@@ -161,20 +174,20 @@ export class HackBuilder extends Builder {
   }
 
   /**
-   * @param {obj} task
-   * @param {array[Servers]} serversWithRam
-   * @returns {array[Servers]} Servers with available ram adjusted and number of threads recorded
+   * @param {BatchTask} task
+   * @param {[Server]} serversWithRam
+   * @returns {[[string, Int]]} Array where each entry is sub-array of Server
+   *                            hostname and number of threads assigned
    **/
   matchServers(task, serversWithRam) {
     serversWithRam.sort((a,b) => a.availableRam - b.availableRam)
     let server = serversWithRam.find(s => s.availableRam >= task.ram)
     if (server) {
-      server.threads = task.threads
       server.availableRam -= task.ram
-      return [server]
+      return [[server.hostname, task.threads]]
     }
 
-    if (task.type == "weak ") {
+    if (task.type == "weak") {
       serversWithRam.sort((a,b) => b.availableRam - a.availableRam)
       let neededThreads = task.threads
       let scriptSize = ramSizes[task.type]
@@ -183,9 +196,8 @@ export class HackBuilder extends Builder {
         if (server.availableRam > scriptSize) {
           let useThreads = Math.min(neededThreads, Math.floor(server.availableRam/scriptSize))
           let useRam = useThreads*scriptSize
-          server.threads = useThreads
           server.availableRam -= useRam
-          servers.push(server)
+          servers.push([server.hostname, useThreads])
           neededThreads -= useThreads
           if (neededThreads == 0 ) {
             return
