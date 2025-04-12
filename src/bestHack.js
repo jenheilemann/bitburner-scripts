@@ -3,19 +3,26 @@ import { HackBuilder } from '/batching/builder.js'
 import { weakTime, calculatePercentMoneyHacked } from '/batching/calculations.js'
 
 
-export function calcScore(server) {
+/**
+ * Calculate a score to decide how lucrative it is to hack a server
+ * @param {Server} s
+ */
+export function calcScore(s) {
+  // clone the server so these manipulations don't affect anything else
+  let server = structuredClone(s)
   // Set up the calculation with everything min/maxed
-  let hD = server.hackDifficulty
   server.hackDifficulty = server.minDifficulty
+  server.moneyAvailable = server.moneyMax
 
+  let batcher = new HackBuilder(server)
+  let totalRamRequired = batcher.calcTotalRamRequired()
   let percentPerHack = calculatePercentMoneyHacked(server)
   let moneyPerHack = server.moneyMax * percentPerHack
   let maxTime = weakTime(server) / 1000
 
-  // reset the server object for anything else using it
-  server.hackDifficulty = hD
-  return moneyPerHack/maxTime
+  return moneyPerHack/totalRamRequired/maxTime
 }
+
 
 export class BestHack {
   constructor(serverData) {
@@ -84,15 +91,15 @@ export async function main(ns) {
   let searcher = new BestHack(map)
   let player = fetchPlayer()
   ns.print(player.skills.hacking)
-  ns.print(`[s.name           , s.moneyMax, calcScore(s), weakTime(s), ramRequired ]`)
+  ns.print(`   s.name           , s.moneyMax, calcScore(s), weakTime(s), ramRequired ]`)
   let top = searcher.findTop(player.skills.hacking)
   for (let s of top) {
-    ns.print(
-      s.name.padEnd(20),
+    ns.print(" | ",
+      s.name.padEnd(18),
       `\$${ns.formatNumber(s.moneyMax,2).padStart(10)}`,
-      ns.formatNumber(calcScore(s),2).padStart(13),
-      formatDuration(weakTime(s)).padStart(15),
-      formatRam((new HackBuilder(s).calcTotalRamRequired())).padStart(11)
+      ns.formatNumber(calcScore(s),2).padStart(14),
+      formatDuration(weakTime(s)).padStart(13),
+      formatRam((new HackBuilder(s).calcTotalRamRequired())).padStart(13)
     )
   }
   ns.tprint( top[0] )
