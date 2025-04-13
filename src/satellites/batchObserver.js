@@ -119,9 +119,8 @@ function fetchServersWithRam(ns, minRam) {
  **/
 function serverHasEnoughRam(ns, server, minRam) {
   let reserved = server.hostname == 'home' ? reservedRam : 0
-  server.availableRam = server.maxRam - ns.getServerUsedRam(server.hostname)
-  let available = server.availableRam - reserved
-  return available > minRam
+  server.availableRam = server.maxRam - ns.getServerUsedRam(server.hostname) - reserved
+  return server.availableRam > minRam
 }
 
 /**
