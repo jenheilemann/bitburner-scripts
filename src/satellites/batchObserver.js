@@ -103,11 +103,11 @@ export async function main(ns) {
  **/
 function fetchServersWithRam(ns, minRam) {
   return Object.values(networkMapFree()).filter(server =>
-      // sometimes pservs are deleted before getting the network map.
-      ns.serverExists(server.hostname) &&
-      serverHasEnoughRam(ns, server, minRam) &&
-      server.files.includes('batchWeaken.js') &&
-      getLSItem('decommissioned') != server.hostname
+    // sometimes pservs are deleted before getting the network map.
+    ns.serverExists(server.hostname) &&
+    serverHasEnoughRam(ns, server, minRam) &&
+    server.files.includes('batchWeaken.js') &&
+    getLSItem('decommissioned') != server.hostname
   )
 }
 

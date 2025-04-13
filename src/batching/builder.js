@@ -4,7 +4,6 @@ import {
   calcRam, ramSizes,
   hackTime, weakTime, growTime, 
   calcHackAmount } from '/batching/calculations.js'
-import { reservedRam } from 'constants.js'
 
 // Game-set constants. Don't change these magic numbers.
 const growsPerWeaken = 12.5
