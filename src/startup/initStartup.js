@@ -11,6 +11,7 @@ const filesToDownload = [
   '/contracts/minimumPathSumSolver.js',
   '/contracts/primeFactorSolver.js',
   '/contracts/sanitizeParensSolver.js',
+  '/contracts/shortestPathSolver.js',
   '/contracts/spiralizeMatrixSolver.js',
   '/contracts/squareRootSolver.js',
   '/contracts/stockTraderSolver.js',
