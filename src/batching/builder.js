@@ -3,7 +3,8 @@ import {
   calcThreadsToHack,
   calcRam, ramSizes,
   hackTime, weakTime, growTime, 
-  calcHackAmount } from '/batching/calculations.js'
+  calcHackAmount,
+  calculatePercentMoneyHacked } from '/batching/calculations.js'
 
 // Game-set constants. Don't change these magic numbers.
 const growsPerWeaken = 12.5
@@ -154,9 +155,9 @@ export class HackBuilder extends Builder {
 
     if (this.tasks.length > 0) return this.tasks
     let hackDecimal = calcHackAmount(this.target)
-    let hackTh = calcThreadsToHack(this.target, this.target.moneyAvailable * hackDecimal)
+    let hackTh = Math.max(calcThreadsToHack(this.target, this.target.moneyAvailable * hackDecimal), 1)
     let weakTh1 = Math.ceil(hackTh/hacksPerWeaken)
-    this.target.moneyAvailable -= this.target.moneyAvailable*hackDecimal
+    this.target.moneyAvailable -= this.target.moneyAvailable*calculatePercentMoneyHacked(this.target)*hackTh
     let growTh = calcThreadsToGrow(this.target, this.target.moneyMax) + 1
     let weakTh2 = Math.ceil(growTh/growsPerWeaken)
     // reset to actual, especially hackDifficulty before calculating hackTime

@@ -172,7 +172,8 @@ export function calcThreadsToHack(server, hackAmount) {
 
 /**
  * Returns the percentage of money that will be stolen from a server if
- * it is successfully hacked (returns the decimal form, not the actual percent value)
+ * it is successfully hacked with one thread. (returns the decimal form, not
+ * the actual percent value)
  * @params {Server} server
  */
 export function calculatePercentMoneyHacked(server) {
