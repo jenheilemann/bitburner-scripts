@@ -43,6 +43,9 @@ function findServer(servers, playerHacking, preferred) {
   )
   if (server)
     return server
+  if (!canUseSingularity())
+    return
+
   return servers.find(s => serverIsBackdoorable(s, playerHacking))
 }
 
