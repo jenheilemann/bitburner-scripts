@@ -38,7 +38,7 @@ export async function main(ns) {
   // serversWithRam = [networkMapFree()['home']]
 
   let target = findBestTarget(ns)
-  // let target = networkMapFree()['joesguns']
+  // target = networkMapFree()['n00dles']
   if (!target) {
     ns.print(`No target found, best wait til next time....`)
     return
@@ -59,22 +59,23 @@ export async function main(ns) {
   ns.print(`needsPrep? ${needsPrep(ns, target, fetchBatchQueue())}`)
 
 
-  let batcher = chooseBatcher(ns, target)
-  batcher.calcTasks()
+  let builder = chooseBuilder(ns, target)
+  builder.calcTasks()
   serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
-  let jobs = batcher.assignServers(serversWithRam)
-  let hackDecimal = calcHackAmount(target)
+  let jobs = builder.assignServers(serversWithRam)
 
-  if (!batcher.isFulfilled() && batcher.type == 'Hacking') {
+  if (!builder.isFulfilled() && builder.type == 'Hacking') {
     if (queue.isEmpty()) {
       ns.print("Not enough ram for a full batch, recalculating....")
-      while(!batcher.isFulfilled() && hackDecimal > 0.01) {
+      let hackDecimal = calcHackAmount(target)
+
+      while(!builder.isFulfilled() && hackDecimal > 0.005) {
         hackDecimal = hackDecimal*0.95
-        batcher.calcTasks()
+        builder.calcTasks(hackDecimal)
         serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
-        jobs = batcher.assignServers(serversWithRam)
+        jobs = builder.assignServers(serversWithRam)
       }
-      if (!batcher.isFulfilled()) {
+      if (!builder.isFulfilled()) {
         ns.print(`Some ram found... at ${hackDecimal*100}% hacking.`)
         ns.print(jobs)
       } else {
@@ -88,13 +89,13 @@ export async function main(ns) {
     }
   }
 
-  if (batcher.isEmpty()) {
+  if (builder.isEmpty()) {
     ns.print("Found zero ram to fulfill tasks, try again later....")
     return
   }
 
   ns.print(`Ready for launch! Target: ${target.hostname}`)
-  await launch(ns,batcher,target.hostname)
+  await launch(ns,builder,target.hostname)
 }
 
 /**
@@ -192,7 +193,7 @@ export function findBestTarget(ns) {
  * @param {Server} targetServer
  * @returns {PrepBuilder|HackBuilder}
  **/
-function chooseBatcher(ns, targetServer) {
+function chooseBuilder(ns, targetServer) {
   if (needsPrep(ns, targetServer, fetchBatchQueue())) {
     return new PrepBuilder(targetServer)
   }

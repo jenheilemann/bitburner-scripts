@@ -110,8 +110,8 @@ export class PrepBuilder extends Builder {
 
   /**
    * @param {BatchTask} task
-   * @param {[Server]} serversWithRam
-   * @returns {[[string, Int]]} Array where each entry is sub-array of Server
+   * @param {Server[]} serversWithRam
+   * @returns {[string, Int][]} Array where each entry is sub-array of Server
    *                            hostname and number of threads assigned
    **/
   matchServers(task, serversWithRam) {
@@ -144,17 +144,17 @@ export class HackBuilder extends Builder {
   type = 'Hacking'
 
   /**
+   * @params {float|undefined} decimal
    * @returns {[BatchTask]} The needed ram and threads for HWGW batch
    **/
-  calcTasks() {
+  calcTasks(decimal) {
     // zero out the server, assume prepping script goes well
     let mA = this.target.moneyAvailable
     let hD = this.target.hackDifficulty
     this.target.moneyAvailable = this.target.moneyMax
     this.target.hackDifficulty = this.target.minDifficulty
 
-    if (this.tasks.length > 0) return this.tasks
-    let hackDecimal = calcHackAmount(this.target)
+    let hackDecimal = decimal ?? calcHackAmount(this.target)
     let hackTh = Math.max(calcThreadsToHack(this.target, this.target.moneyAvailable * hackDecimal), 1)
     let weakTh1 = Math.ceil(hackTh/hacksPerWeaken)
     this.target.moneyAvailable -= this.target.moneyAvailable*calculatePercentMoneyHacked(this.target)*hackTh
