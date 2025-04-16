@@ -3,13 +3,14 @@ import { disableLogs,
          fetchPlayer
        } from 'helpers.js'
 import { BestHack } from 'bestHack.js'
-import { networkMapFree, networkMap } from 'network.js'
+import { networkMapFree } from 'network.js'
 import { reservedRam } from 'constants.js'
 import { BatchDataQueue } from '/batching/queue.js'
-import { PrepBuilder, HackBuilder } from '/batching/builder.js'
+import { PrepBuilder, HackBuilder, growsPerWeaken } from '/batching/builder.js'
 import { weakTime,
          ramSizes,
          calcHackAmount,
+         calcThreadsToGrow
         } from '/batching/calculations.js'
 
 
@@ -46,6 +47,7 @@ export async function main(ns) {
 
   let queue = fetchBatchQueue()
   ns.print(`queue.isEmpty(): ${queue.isEmpty()}`)
+  ns.print(`queue.isEmpty(${target.hostname}): ${queue.isEmpty(target.hostname)}`)
   ns.print(`queue.anyInsideErrorWindow('${target.hostname}'): ${queue.anyInsideErrorWindow(target.hostname)}`)
 
 
@@ -54,7 +56,7 @@ export async function main(ns) {
     await ns.sleep(batchBufferTime*2)
   }
 
-  ns.print(`queue.hasPreppingScript(${target.hostname}): ${queue.hasPreppingScript(target.hostname)}`)
+  ns.print(`queue.hasPreppingBatch(${target.hostname}): ${queue.hasPreppingBatch(target.hostname)}`)
   ns.print(`isHealthy? ${isHealthy(ns, target)}`)
   ns.print(`needsPrep? ${needsPrep(ns, target, fetchBatchQueue())}`)
 
@@ -65,27 +67,21 @@ export async function main(ns) {
   let jobs = builder.assignServers(serversWithRam)
 
   if (!builder.isFulfilled() && builder.type == 'Hacking') {
-    if (queue.isEmpty()) {
-      ns.print("Not enough ram for a full batch, recalculating....")
-      let hackDecimal = calcHackAmount(target)
+    ns.print("Not enough ram for a full batch, recalculating....")
+    let hackDecimal = calcHackAmount(target)
 
-      while(!builder.isFulfilled() && hackDecimal > 0.005) {
-        hackDecimal = hackDecimal*0.95
-        builder.calcTasks(hackDecimal)
-        serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
-        jobs = builder.assignServers(serversWithRam)
-      }
-      if (!builder.isFulfilled()) {
-        ns.print(`Some ram found... at ${hackDecimal*100}% hacking.`)
-        ns.print(jobs)
-      } else {
-        ns.print(`Ram found! at ${hackDecimal*100}% hacking.`)
-        ns.print(jobs)
-      }
-    } else {
+    while(!builder.isFulfilled() && hackDecimal > 0.005) {
+      hackDecimal = hackDecimal*0.95
+      builder.calcTasks(hackDecimal)
+      serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
+      jobs = builder.assignServers(serversWithRam)
+    }
+    if (!builder.isFulfilled()) {
+      ns.print(`Some ram found... at ${hackDecimal*100}% hacking.`)
       ns.print(jobs)
-      ns.print("Couldn't find servers to fulfill batch, try later.")
-      return
+    } else {
+      ns.print(`Ram found! at ${hackDecimal*100}% hacking.`)
+      ns.print(jobs)
     }
   }
 
@@ -158,21 +154,38 @@ export function findBestTarget(ns) {
   ns.print(`Servers that make some kinda sense to hack`)
   ns.print(servers.map(s => s.hostname))
   let batchData = fetchBatchQueue()
+
+  let prepped = servers.find(server => isHealthy(ns, server))
+  let top = servers[0]
+  if ( prepped ) {
+    if ( prepped == top )
+      return prepped
+    if ( batchData.hasHackingBatch(prepped.hostname ) &&
+         !batchData.hasPreppingBatch(top.hostname ))
+      return top
+    return prepped
+  }
+
+  if (batchData.isEmpty()) {
+    function estThreads(server) {
+      let weakTh1 = Math.ceil(((server.hackDifficulty - server.minDifficulty) / 0.05))
+      let growTh  = calcThreadsToGrow(server, server.moneyMax) + 1
+      let weakTh2 = Math.ceil((growTh/growsPerWeaken))
+      return weakTh1 + growTh + weakTh2
+    }
+    return servers.sort((a, b) => estThreads(a) - estThreads(b) )[0]
+  }
+
   let maxTimeInMinutes = ((hacking) => {
     switch(true) {
       case hacking > 2000:
-        return 20
-      case hacking > 800:
-        return 15
-      case hacking > 500:
-        return 10
+        return 8
       case hacking > 200:
         return 5
       default:
         return 3
     }
   })(hackingSkill)
-
   for (let server of servers) {
     // weaktime longer than 5 minutes, we only want to prep it;
     // focus on hacking other servers
@@ -229,7 +242,7 @@ function recordBatch(start, end, id, longestTime, type, target) {
  * @returns {boolean} Whether the server is grown to max and weakened enough
  **/
 function needsPrep(ns, server, batchDataQueue) {
-  return !isHealthy(ns, server) && !batchDataQueue.hasPreppingScript(server.hostname)
+  return !isHealthy(ns, server) && !batchDataQueue.hasPreppingBatch(server.hostname)
 }
 
 /**
@@ -238,7 +251,7 @@ function needsPrep(ns, server, batchDataQueue) {
  * @returns {boolean} Whether the server is grown to max and weakened enough
  **/
 function isHealthy(ns, server) {
-  return ns.getServerMoneyAvailable(server.hostname) >= (server.moneyMax - 0.01) && server.hackDifficulty < (server.minDifficulty + 0.0001)
+  return ns.getServerMoneyAvailable(server.hostname) >= (server.moneyMax*0.99) && server.hackDifficulty < (server.minDifficulty*1.005)
 }
 
 

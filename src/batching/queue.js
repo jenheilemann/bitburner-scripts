@@ -34,10 +34,17 @@ export class BatchJob {
   }
 
   /**
-   * @returns {boolean} is this batch prepping the server for batches?
+   * @returns {boolean} is this batch prepping a server for batching?
    */
   isPrepping() {
     return this.type == JOB_TYPES.PREPPING
+  }
+
+  /**
+   * @returns {boolean} is this batch hacking a server?
+   */
+  isHacking() {
+    return this.type == JOB_TYPES.HACKING
   }
 
   toObj() {
@@ -68,10 +75,13 @@ export class BatchDataQueue {
   }
 
   /**
+   * @param {string|undefined} target
    * @returns {boolean} are there any batches running right now?
    */
-  isEmpty() {
+  isEmpty(target) {
     if (this.batchList.length  == 0 ) { return true }
+    if ( target )
+      return !this.batchList.some(job => job.target == target)
     return false
   }
 
@@ -99,10 +109,19 @@ export class BatchDataQueue {
   }
 
   /**
-   * @returns {string}
+   * @param {string} hostname
+   * @returns {string} Is there a batch prepping this server?
    */
-  hasPreppingScript(hostname) {
+  hasPreppingBatch(hostname) {
     return this.batchList.some(job => job.isPrepping() && job.target == hostname)
+  }
+
+  /**
+   * @param {string} hostname
+   * @returns {string} Is there a batch hacking this server?
+   */
+  hasHackingBatch(hostname) {
+    return this.batchList.some(job => job.isHacking() && job.target == hostname)
   }
 
   /**

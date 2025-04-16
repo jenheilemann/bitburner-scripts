@@ -19,8 +19,9 @@ export async function main(ns) {
   ns.print("Cost: $" + ns.formatNumber(cost, 3))
   var player = fetchPlayer()
   ns.print("Player money: $" + ns.formatNumber(player.money, 3))
+  let res = ram < 32 ? 0 : reserve(ns)
 
-  if ((player.money - reserve(ns)) < cost) {
+  if ((player.money - res) < cost) {
     ns.print("Too expensive to justify, maybe later.")
     return
   }

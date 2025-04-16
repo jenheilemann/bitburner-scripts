@@ -7,8 +7,8 @@ import {
   calculatePercentMoneyHacked } from '/batching/calculations.js'
 
 // Game-set constants. Don't change these magic numbers.
-const growsPerWeaken = 12.5
-const hacksPerWeaken = 25
+export const growsPerWeaken = 12.5
+export const hacksPerWeaken = 25
 
 /** @param {NS} ns */
 export async function main(ns) {

@@ -31,9 +31,14 @@ export async function main(ns) {
     return
   }
 
+  if (nmap['home'].maxRam < 16) {
+    ns.print("Not enough ram on home to handle the pServBuyer script.")
+    return
+  }
+
   const cost = ns.getPurchasedServerCost(2**nextRam)
   if ( !haveEnoughMoney(ns, cost) ){
-    ns.print(`Not enough money to afford the server + reserve: ${cost} (${reserve(ns)})`)
+    ns.tprint(`Not enough money to afford the server + reserve: ${cost} (${reserve(ns)})`)
     return
   }
 
@@ -41,7 +46,7 @@ export async function main(ns) {
   announce(ns, msg)
   // ns.tprint(msg)
   // ns.tprint(` ns.spawn('pServBuyer.js', 1, '--size', ${nextRam})`)
-  ns.spawn('pServBuyer.js', 1, '--size', nextRam)
+  ns.spawn('pServBuyer.js', {spawnDelay: 0}, '--size', nextRam)
 }
 
 
