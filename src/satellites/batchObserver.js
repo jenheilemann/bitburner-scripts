@@ -270,8 +270,14 @@ async function launch(ns, batcher, target) {
     if (job.threads == 0) continue
     job.pids = []
     job.servers.forEach(server => {
-      job.pids.push(ns.exec(fileNames[job.type], server[0], server[1], JSON.stringify(args)))
+      if ( server[1] == 0 ) return
+      job.pids.push(ns.exec(fileNames[job.type], server[0], {threads: server[1]}, JSON.stringify(args)))
     })
+  }
+
+  if (batcher.tasks.some(job => job.servers.some(s => s[1] == 0))) {
+    ns.tprint(`ERROR: Something went wrong with Batch ${batchID} targeting "${target}"`)
+    ns.tprint(batcher.tasks)
   }
 
   if ( batcher.tasks.some(t => t.pids.some(p => p == 0)) && batcher.type != 'Prepping') {

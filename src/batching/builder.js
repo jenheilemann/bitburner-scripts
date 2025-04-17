@@ -192,18 +192,18 @@ export class HackBuilder extends Builder {
       let neededThreads = task.threads
       let scriptSize = ramSizes[task.type]
       let servers = []
-      serversWithRam.forEach(server => {
-        if (server.availableRam > scriptSize) {
-          let useThreads = Math.min(neededThreads, Math.floor(server.availableRam/scriptSize))
-          let useRam = useThreads*scriptSize
-          server.availableRam -= useRam
-          servers.push([server.hostname, useThreads])
-          neededThreads -= useThreads
-          if (neededThreads == 0 ) {
-            return
-          }
-        }
-      })
+      let useThreads, useRam
+      for (let server of serversWithRam) {
+        if (server.availableRam < scriptSize)
+          continue
+        useThreads = Math.min(neededThreads, Math.floor(server.availableRam/scriptSize))
+        useRam = useThreads*scriptSize
+        server.availableRam -= useRam
+        servers.push([server.hostname, useThreads])
+        neededThreads -= useThreads
+        if (neededThreads < 1 )
+          return servers
+      }
       return servers
     }
     return []
