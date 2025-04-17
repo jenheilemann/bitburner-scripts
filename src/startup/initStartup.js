@@ -43,6 +43,7 @@ const filesToDownload = [
   '/satellites/playerObserver.js',
   '/satellites/programObserver.js',
   '/satellites/pservObserver.js',
+  '/satellites/stanekObserver.js',
   '/sleeves/manager.js',
   '/sleeves/metaObserver.js',
   '/startup/run.js',
