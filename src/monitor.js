@@ -65,7 +65,7 @@ function findServer(ns, batches) {
   if (ns.args[0])
     return fetchServerFree(ns.args[0])
 
-  if ( batches.length > 0)
+  if ( batches?.length > 0)
     return fetchServerFree(batches[batches.length-1].target)
 
   return findBestTarget(ns)
