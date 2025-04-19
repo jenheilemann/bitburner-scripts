@@ -155,25 +155,33 @@ export function findBestTarget(ns) {
   ns.print(servers.map(s => s.hostname))
   let batchData = fetchBatchQueue()
 
-  let prepped = servers.find(server => isHealthy(ns, server))
-  let top = servers[0]
-  if ( prepped ) {
-    if ( prepped == top )
-      return prepped
-    if ( batchData.hasHackingBatch(prepped.hostname ) &&
-         !batchData.hasPreppingBatch(top.hostname ))
-      return top
-    return prepped
-  }
 
-  if (batchData.isEmpty()) {
-    function estThreads(server) {
-      let weakTh1 = Math.ceil(((server.hackDifficulty - server.minDifficulty) / 0.05))
-      let growTh  = calcThreadsToGrow(server, server.moneyMax) + 1
-      let weakTh2 = Math.ceil((growTh/growsPerWeaken))
-      return weakTh1 + growTh + weakTh2
+  let top = servers[0]
+  for (let i = 0; i < servers.length; i++) {
+    let server = servers[i]
+    ns.print(`Evaluating ${server.hostname}`)
+    if (isHealthy(ns, server)) {
+      ns.print(`${server.hostname} Is Healthy`)
+      if ( !batchData.hasHackingBatch(server.hostname) ) {
+        ns.print("Doesn't have a hacking batch, returning")
+        return server
+      }
+      ns.print("Has at least one hacking batch.")
+      if ( needsPrep(ns, top, batchData ) ) {
+        ns.print(`Top server needs prep: ${top.hostname}`)
+        return top
+      }
+      ns.print(`Top server does not need prep: ${top.hostname}`)
+      let next = servers[i+1]
+      if ( next && needsPrep(ns, next, batchData) ){
+        ns.print(`Next server needs prep: ${next.hostname}`)
+        return next
+      }
+      ns.print(`Next server does not need prep: ${next.hostname}`)
+      ns.print(`Returning ${server.hostname}`)
+      return server
     }
-    return servers.sort((a, b) => estThreads(a) - estThreads(b) )[0]
+    ns.print(`${server.hostname} not healthy, continuing....`)
   }
 
   let maxTimeInMinutes = ((hacking) => {

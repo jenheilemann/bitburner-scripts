@@ -81,6 +81,16 @@ export function findBestTarget() {
   return searcher.findBestPerLevel(fetchPlayer().skills.hacking)
 }
 
+export function findTop() {
+  let map = getLSItem('nmap')
+  if (! map || map.length == 0 ) {
+    throw new Error("No network map exists, BestHack can't work.")
+  }
+
+  let searcher = new BestHack(map)
+  return searcher.findTop(fetchPlayer().skills.hacking)
+}
+
 export async function main(ns) {
   let map = getLSItem('nmap')
   if (! map ) {
