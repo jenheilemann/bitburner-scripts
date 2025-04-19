@@ -19,9 +19,15 @@ export async function main(ns) {
     ns.print(runSpinner())
 
     let batches = getLSItem('batches')
+    if (ns.args[0]) {
+      printServer(ns, fetchServerFree(ns.args[0]), batches)
+      continue
+    }
     let top = findTop()
     for (let server of top) {
-      printServer(ns, server, batches)
+      let numBatches = batches ? batches.filter(b=>b.target == server.hostname).length : 0
+      if ( numBatches > 0 )
+        printServer(ns, server, batches)
       if ( !batches )
         break
       batches = batches.filter(b => b.target !== server.hostname)
@@ -32,15 +38,13 @@ export async function main(ns) {
 }
 
 function printServer(ns, server, batches) {
-  let numBatches = batches ? batches.filter(b=>b.target == server.hostname).length : 0
-  if (numBatches == 0) return
-
   ns.print(` ----------- ${server.hostname}`)
   let percent = Math.round((server.moneyAvailable / server.moneyMax) * 100)
   ns.print(`*** Money    : \$${ns.formatNumber(server.moneyAvailable,0)} / \$${ns.formatNumber(server.moneyMax,0)} (${(percent)}%)`)
   let weakTime = ns.getWeakenTime(server.hostname)
   ns.print(`*** Growth   : ${server.serverGrowth.toString().padStart(3)} | ` +
             `Security : ${ns.formatNumber(server.hackDifficulty, 1)}/${ns.formatNumber(server.minDifficulty, 0)}`)
+  let numBatches = batches ? batches.filter(b=>b.target == server.hostname).length : 0
   ns.print(`*** Batches  : ${numBatches.toString().padStart(3)} | ` +
             `Time : ${formatTime(weakTime)}`)
 

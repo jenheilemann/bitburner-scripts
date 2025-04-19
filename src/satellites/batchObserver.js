@@ -177,21 +177,22 @@ export function findBestTarget(ns) {
         ns.print(`Next server needs prep: ${next.hostname}`)
         return next
       }
-      ns.print(`Next server does not need prep: ${next.hostname}`)
+      if (next) ns.print(`Next server does not need prep: ${next.hostname}`)
       ns.print(`Returning ${server.hostname}`)
       return server
     }
     ns.print(`${server.hostname} not healthy, continuing....`)
   }
+  return map['n00dles']
 
   let maxTimeInMinutes = ((hacking) => {
     switch(true) {
       case hacking > 2000:
-        return 8
-      case hacking > 200:
         return 5
-      default:
+      case hacking > 400:
         return 3
+      default:
+        return 2
     }
   })(hackingSkill)
   for (let server of servers) {
