@@ -6,11 +6,10 @@ import { BestHack } from 'bestHack.js'
 import { networkMapFree } from 'network.js'
 import { reservedRam } from 'constants.js'
 import { BatchDataQueue } from '/batching/queue.js'
-import { PrepBuilder, HackBuilder, growsPerWeaken } from '/batching/builder.js'
+import { PrepBuilder, HackBuilder } from '/batching/builder.js'
 import { weakTime,
          ramSizes,
          calcHackAmount,
-         calcThreadsToGrow
         } from '/batching/calculations.js'
 
 
@@ -28,6 +27,16 @@ const batchBufferTime = 10
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep', 'getServerUsedRam', 'getServerMoneyAvailable'])
+  let home = networkMapFree()['home']
+  while(true) {
+    await runBatch(ns)
+    if (home.maxRam < 16)
+      return
+    await ns.sleep(1)
+  }
+}
+
+async function runBatch(ns) {
   ns.clearLog();
   ns.print('Running batchObserver')
 
@@ -70,15 +79,16 @@ export async function main(ns) {
     ns.print("Not enough ram for a full batch, recalculating....")
     let hackDecimal = calcHackAmount(target)
 
-    while(!builder.isFulfilled() && hackDecimal > 0.005) {
+    while(!builder.isFulfilled() && hackDecimal > 0.001) {
       hackDecimal = hackDecimal*0.95
       builder.calcTasks(hackDecimal)
       serversWithRam = fetchServersWithRam(ns, ramSizes['weak'])
       jobs = builder.assignServers(serversWithRam)
     }
     if (!builder.isFulfilled()) {
-      ns.print(`Some ram found... at ${hackDecimal*100}% hacking.`)
+      ns.print(`Some ram found... at ${hackDecimal*100}% hacking. Cancelling.`)
       ns.print(jobs)
+      return
     } else {
       ns.print(`Ram found! at ${hackDecimal*100}% hacking.`)
       ns.print(jobs)
@@ -224,6 +234,15 @@ function fetchBatchQueue() {
 function recordBatch(start, end, id, longestTime, type, target) {
   let queue = fetchBatchQueue()
   queue.addNewJob(start, end, id, longestTime, type, target)
+  saveQueue(queue)
+}
+
+
+/**
+ * Records the queue, overwriting it
+ * @returns {null}
+ */
+function saveQueue(queue) {
   setLSItem('batches', queue.toObj())
 }
 

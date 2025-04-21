@@ -10,28 +10,28 @@ const reportRefreshRate = min
  **/
 const timers = [
   // these are sorted by frequency, except playerObserver which must run first
-  { file: '/satellites/playerObserver.js',    freq: 61,     last: 0 },
+  { file: 'satellites/playerObserver.js',    freq: 43,     last: 0 },
 
-  { file: '/satellites/networkObserver.js',   freq: 43,     last: 0 },
-  { file: '/satellites/batchObserver.js',     freq: 73,   last: 0 },
+  { file: 'satellites/networkObserver.js',   freq: 23,     last: 0 },
+  // { file: 'satellites/batchObserver.js',     freq: 29,   last: 0 },
   // { file: 'stats.js',                         freq: 1 * sec,   last: 0 },
-  // { file: '/satellites/gangClashObserver.js', freq: 1.3*sec,   last: 0 },
-  // { file: '/gang/equipment.js',               freq: 5.2*sec,   last: 0 },
-  // { file: '/gang/recruitment.js',             freq: 5.3*sec,   last: 0 },
-  // { file: '/satellites/gangMetaObserver.js',  freq: 5.4*sec,   last: 0 },
+  // { file: 'satellites/gangClashObserver.js', freq: 1.3*sec,   last: 0 },
+  // { file: 'gang/equipment.js',               freq: 5.2*sec,   last: 0 },
+  // { file: 'gang/recruitment.js',             freq: 5.3*sec,   last: 0 },
+  // { file: 'satellites/gangMetaObserver.js',  freq: 5.4*sec,   last: 0 },
   { file: 'nuker.js',                         freq: 7001,   last: 0 },
   { file: 'botnet.js',                        freq: 8009,   last: 0 },
-  // { file: '/gang/ascend.js',                  freq: 8.1*sec,   last: 0 },
-  // { file: '/gang/augments.js',                freq: 12 *sec,   last: 0 },
-  { file: '/satellites/backdoorObserver.js',  freq: 20347,  last: 0 },
-  // { file: '/gang/tasks.js',                   freq: 30 *sec,   last: 0 },
-  // { file: '/sleeves/metaObserver.js',         freq: 31 * sec,  last: Date.now() },
-  // { file: '/sleeves/manager.js',              freq: 31.1*sec,  last: Date.now() },
-  { file: '/satellites/programObserver.js',   freq: 33751,  last: 0 },
-  // { file: '/satellites/activityObserver.js',  freq: min,       last: Date.now() },
-  { file: '/satellites/homeRamObserver.js',   freq: 63577,  last: performance.now() },
-  { file: '/satellites/pservObserver.js',     freq: 63901,  last: performance.now() },
-  { file: '/satellites/contractsObserver.js', freq: 119993, last: performance.now() },
+  // { file: 'gang/ascend.js',                  freq: 8.1*sec,   last: 0 },
+  // { file: 'gang/augments.js',                freq: 12 *sec,   last: 0 },
+  { file: 'satellites/backdoorObserver.js',  freq: 20347,  last: 0 },
+  // { file: 'gang/tasks.js',                   freq: 30 *sec,   last: 0 },
+  // { file: 'sleeves/metaObserver.js',         freq: 31 * sec,  last: Date.now() },
+  // { file: 'sleeves/manager.js',              freq: 31.1*sec,  last: Date.now() },
+  { file: 'satellites/programObserver.js',   freq: 33751,  last: 0 },
+  // { file: 'satellites/activityObserver.js',  freq: min,       last: Date.now() },
+  { file: 'satellites/homeRamObserver.js',   freq: 63577,  last: performance.now() },
+  { file: 'satellites/pservObserver.js',     freq: 63901,  last: performance.now() },
+  { file: 'satellites/contractsObserver.js', freq: 119993, last: performance.now() },
 
 ]
 
@@ -48,8 +48,7 @@ export async function main(ns) {
   while(true) {
     ns.clearLog()
     for ( const timer of timers) {
-
-      proc = ns.ps('home').find(p => p.filename == timer.file)
+      proc = ns.ps('home').some(p => p.filename == timer.file)
       if (!proc && performance.now() > timer.last + timer.freq ) {
         let res = ns.run(timer.file, 1)
         if (res > 0 ) {
