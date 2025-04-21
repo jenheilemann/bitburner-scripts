@@ -159,10 +159,11 @@ export function findBestTarget(ns) {
   let top = servers[0]
   for (let i = 0; i < servers.length; i++) {
     let server = servers[i]
-    ns.print(`Evaluating ${server.hostname}`)
+    let name = server.hostname
+    ns.print(`Evaluating ${name}`)
     if (isHealthy(ns, server)) {
-      ns.print(`${server.hostname} Is Healthy`)
-      if ( !batchData.hasHackingBatch(server.hostname) ) {
+      ns.print(`${name} Is Healthy`)
+      if ( !batchData.hasHackingBatch(name) ) {
         ns.print("Doesn't have a hacking batch, returning")
         return server
       }
@@ -173,41 +174,24 @@ export function findBestTarget(ns) {
       }
       ns.print(`Top server does not need prep: ${top.hostname}`)
       let next = servers[i+1]
-      if ( next && needsPrep(ns, next, batchData) ){
+      if ( name != 'n00dles' && next && needsPrep(ns, next, batchData) ){
         ns.print(`Next server needs prep: ${next.hostname}`)
         return next
       }
       if (next) ns.print(`Next server does not need prep: ${next.hostname}`)
-      ns.print(`Returning ${server.hostname}`)
+      if ( withinAnyBatchErrorWindow(name, performance.now()) ||
+            withinAnyBatchErrorWindow(name, performance.now() + weakTime(server))) {
+        ns.print(`Within error window for ${name}, skipping for now.`)
+        continue
+      }
+      ns.print(`Returning ${name}`)
       return server
     }
+    if (server.hostname == 'n00dles')
+      return server
     ns.print(`${server.hostname} not healthy, continuing....`)
   }
   return map['n00dles']
-
-  let maxTimeInMinutes = ((hacking) => {
-    switch(true) {
-      case hacking > 2000:
-        return 5
-      case hacking > 400:
-        return 3
-      default:
-        return 2
-    }
-  })(hackingSkill)
-  for (let server of servers) {
-    // weaktime longer than 5 minutes, we only want to prep it;
-    // focus on hacking other servers
-    if ( weakTime(server) > maxTimeInMinutes * 60 * 1000 ) {
-      if ( needsPrep(ns, server, batchData) ){
-        return server
-      }
-      ns.print("continuing....")
-      continue
-    }
-    return server
-  }
-  return false
 }
 
 /**
