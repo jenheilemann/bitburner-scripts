@@ -46,6 +46,7 @@ const filesToDownload = [
   '/satellites/stanekObserver.js',
   '/sleeves/manager.js',
   '/sleeves/metaObserver.js',
+  '/startup/cleanup.js',
   '/startup/run.js',
   'augPurchaser.js',
   'backdoor.js',
