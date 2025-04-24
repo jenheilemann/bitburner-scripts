@@ -40,6 +40,10 @@ export async function main(ns) {
   setLSItem('reset', reset)
   await ns.sleep(100)
 
+  ns.tprint(`Setting hackPercent to 1 (about 5% baseline)`)
+  setLSItem('hackPercent', 1)
+  await ns.sleep(100)
+
   var bn;
   if (reset.currentNode == 5 || reset.ownedSF.get(5)) {
     ns.tprint(`Fetching bitnode multipliers`)

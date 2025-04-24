@@ -1,4 +1,5 @@
 import { fetchPlayer, getLSItem } from 'helpers.js'
+import { reservedRam } from 'constants.js'
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -11,7 +12,7 @@ export async function main(ns) {
  * @param {Server} server - Server being grown
  * @returns {num} Time to hack, in ms
  */
-export function hackTime(server) { 
+export function hackTime(server) {
   const player = fetchPlayer()
   const hackDifficulty = server.hackDifficulty
   const requiredHackingSkill = server.requiredHackingSkill
@@ -201,5 +202,61 @@ export function calculatePercentMoneyHacked(server) {
  * @param {Server} server
  */
 export function calcHackAmount(server) {
-  return Math.sqrt(Math.sqrt(server.serverGrowth))/50
+  // ~ 5% depending on the serverGrowth
+  let base = Math.sqrt(Math.sqrt(server.serverGrowth))/50
+  // multiply by the dynamic value of hackPercent
+  // and cap at a maximum (can't hack more than 100%)
+  return Math.min(0.99, base * getLSItem('hackPercent'))
 }
+
+/**
+ * Returns the percentage (as a decimal) that all available ram is being used
+ * Does not include amounts of ram smaller than the smallest file.
+ * @param {Server} server
+ */
+export function getPercentUsedRam(nmap) {
+  nmap = Object.values(nmap)
+  let totRamServers = fetchServersWithUsableRam(nmap, ramSizes['hack'])
+  let ramServers = fetchServersWithUnusedRam(totRamServers, ramSizes['hack'])
+  let totRam = totRamServers.reduce((a, b) => { return a + b.maxRam }, 0)
+  let availableRam = ramServers.reduce((a, b) => { return a + b.availableRam }, 0)
+  return (totRam - availableRam)/totRam
+}
+
+/**
+ * @param {Server[]} servers
+ * @param {num} minRam - the smallest amount of ram we might use at once (for hacking)
+ * @returns {Server[]} - All servers with usable ram, possibly being used
+ **/
+function fetchServersWithUsableRam(servers, minRam) {
+  return servers.filter(server =>
+    server.maxRam > minRam &&
+    server.files.includes('batchWeaken.js') &&
+    getLSItem('decommissioned') != server.hostname
+  )
+}
+
+/**
+ * @param {Server[]} servers
+ * @param {num} minRam - the smallest amount of ram we might use at once (for hacking)
+ * @returns {Server[]} - All servers with unused ram
+ **/
+function fetchServersWithUnusedRam(servers, minRam) {
+  return servers.filter(server =>
+    serverHasAvailableRam(server, minRam) &&
+    server.files.includes('batchWeaken.js') &&
+    getLSItem('decommissioned') != server.hostname
+  )
+}
+
+/**
+ * @param {Server} server
+ * @param {num} minRam - the smallest amount of ram we might use at once (for hacking)
+ * @returns {boolean} Whether the server's unused ram is enough to run one thread of the smallest file
+ **/
+function serverHasAvailableRam(server, minRam) {
+  if (server.hostname == 'home')
+    server.availableRam = server.availableRam - reservedRam
+  return server.availableRam > minRam
+}
+

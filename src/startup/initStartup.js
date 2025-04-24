@@ -32,6 +32,7 @@ const filesToDownload = [
   '/hacknet/startup.js',
   '/satellites/activityObserver.js',
   '/satellites/backdoorObserver.js',
+  '/satellites/batchMetaObserver.js',
   '/satellites/batchObserver.js',
   '/satellites/contractsObserver.js',
   '/satellites/controller.js',

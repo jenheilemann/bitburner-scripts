@@ -1,7 +1,9 @@
-import { fetchServerFree } from 'network.js'
+import { fetchServerFree, networkMapFree } from 'network.js'
 import { disableLogs, getLSItem } from 'helpers.js'
 import { findTop } from 'bestHack.js'
-import { calcThreadsToHack, calcHackAmount } from '/batching/calculations.js'
+import { calcThreadsToHack,
+          calcHackAmount,
+          getPercentUsedRam, } from '/batching/calculations.js'
 
 export function autocomplete(data, args) {
   return data.servers
@@ -16,20 +18,20 @@ export async function main(ns) {
   while (true) {
     await ns.sleep(100)
     ns.clearLog();
-    ns.print(runSpinner())
+    let batches = getLSItem('batches') || []
+    let nBatches = batches.length
+    ns.print(`Batches: ${nBatches} --- ` +
+      `Ram used: ${ns.formatPercent(getPercentUsedRam(networkMapFree()))}% `)
 
-    let batches = getLSItem('batches')
     if (ns.args[0]) {
       printServer(ns, fetchServerFree(ns.args[0]), batches)
       continue
     }
     let top = findTop()
     for (let server of top) {
-      let numBatches = batches ? batches.filter(b=>b.target == server.hostname).length : 0
+      let numBatches = batches.filter(b=>b.target == server.hostname).length
       if ( numBatches > 0 )
         printServer(ns, server, batches)
-      if ( !batches )
-        break
       batches = batches.filter(b => b.target !== server.hostname)
       if (batches?.length == 0)
         break
@@ -44,7 +46,7 @@ function printServer(ns, server, batches) {
   let weakTime = ns.getWeakenTime(server.hostname)
   ns.print(`*** Growth   : ${server.serverGrowth.toString().padStart(3)} | ` +
             `Security : ${ns.formatNumber(server.hackDifficulty, 1)}/${ns.formatNumber(server.minDifficulty, 0)}`)
-  let numBatches = batches ? batches.filter(b=>b.target == server.hostname).length : 0
+  let numBatches = batches.filter(b=>b.target == server.hostname).length
   ns.print(`*** Batches  : ${numBatches.toString().padStart(3)} | ` +
             `Time : ${formatTime(weakTime)}`)
 
@@ -69,10 +71,11 @@ function printServer(ns, server, batches) {
   ns.print(`* Grow       : ${growThreads.toString().padStart(3," ")} (${growThForHack})`)
   server.hackDifficulty = difficulty
 
-  weakThreads = Math.ceil((server.hackDifficulty - server.minDifficulty)/0.05)
+  weakThreads = Math.ceil(growThreads/12.5)
   weakThForHack = Math.ceil(growThForHack/12.5)
   ns.print(`* Weaken2    : ${weakThreads.toString().padStart(3," ")} (${weakThForHack})`)
 }
+
 
 /**
  * @returns {string} Time string, formatted nicely
