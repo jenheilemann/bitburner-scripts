@@ -1,4 +1,4 @@
-import { networkMapFree } from 'network.js'
+import { networkMapFree } from 'utils/network.js'
 import { clearLSItem } from 'utils/helpers.js'
 
 const hangableFiles = [

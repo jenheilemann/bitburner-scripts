@@ -3,7 +3,7 @@ import { disableLogs,
          fetchPlayer
        } from 'utils/helpers.js'
 import { BestHack } from 'bestHack.js'
-import { networkMapFree } from 'network.js'
+import { networkMapFree } from 'utils/network.js'
 import { reservedRam } from 'constants.js'
 import { BatchDataQueue } from '/batching/queue.js'
 import { PrepBuilder, HackBuilder } from '/batching/builder.js'

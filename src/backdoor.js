@@ -1,4 +1,4 @@
-import { findPath } from 'network.js'
+import { findPath } from 'utils/network.js'
 import { announce } from 'utils/helpers.js'
 
 /** @param {NS} ns **/

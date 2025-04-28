@@ -1,4 +1,4 @@
-import { fetchServerFree, networkMapFree } from 'network.js'
+import { fetchServerFree, networkMapFree } from 'utils/network.js'
 import { disableLogs, getLSItem } from 'utils/helpers.js'
 import { findTop } from 'bestHack.js'
 import { calcThreadsToHack,

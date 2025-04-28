@@ -1,4 +1,4 @@
-import { networkMapFree } from 'network.js'
+import { networkMapFree } from 'utils/network.js'
 import { getLSItem, setLSItem } from 'utils/helpers.js'
 import { getPercentUsedRam, calcHackAmount } from '/batching/calculations.js'
 

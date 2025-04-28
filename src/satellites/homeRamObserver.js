@@ -5,7 +5,7 @@ import {
   getLSItem,
   canUseSingularity
 } from 'utils/helpers.js'
-import { fetchServerFree } from 'network.js'
+import { fetchServerFree } from 'utils/network.js'
 
 
 /** @param {NS} ns **/

@@ -1,5 +1,5 @@
 import { fetchPlayer, toolsCount } from 'utils/helpers.js'
-import { fetchServerFree } from 'network.js'
+import { fetchServerFree } from 'utils/network.js'
 
 export function autocomplete(data, args) {
   return data.servers
