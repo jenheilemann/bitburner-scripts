@@ -5,7 +5,7 @@ import {
   reserve,
   getLSItem,
 } from 'utils/helpers.js'
-import { gangEquipment } from 'constants.js'
+import { gangEquipment } from 'utils/constants.js'
 
 const hackerEquipment = ['rootkits', 'vehicles']
 const combatEquipment = [ 'weapons', 'armor', 'vehicles']

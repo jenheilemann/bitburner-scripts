@@ -1,5 +1,5 @@
 import { fetchPlayer } from 'utils/helpers.js'
-import { factionServers } from 'constants.js'
+import { factionServers } from 'utils/constants.js'
 const autoAccept = Object.values(factionServers)
 
 /** @param {NS} ns **/

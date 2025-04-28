@@ -1,4 +1,4 @@
-import { rootFiles, purchaseables,lsKeys } from "constants.js"
+import { rootFiles, purchaseables,lsKeys } from "utils/constants.js"
 
 /**
  * @param {integer} milliseconds to sleep
@@ -446,7 +446,7 @@ export function runCommand_Custom(ns, fnRun, command, fileName, verbose, ...args
     `runCommandAndWait,runCommand_Custom,waitForProcessToComplete,waitForProcessToComplete_Custom,` +
     `getNsDataThroughFile,getNsDataThroughFile_Custom,checkNsInstance } from 'utils/helpers.js';\n` +
     `import {networkMap, networkMapFree, fetchServer, fetchServerFree } from 'utils/network.js';\n` +
-    `import * as constants from 'constants.js';\n` +
+    `import * as constants from 'utils/constants.js';\n` +
     `export async function main(ns) {
       try
         { ` + (verbose ? `let output = ${command}; ns.tprint(output)` : command) + `; }

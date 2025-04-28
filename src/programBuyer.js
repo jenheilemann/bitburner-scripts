@@ -3,7 +3,7 @@ import {
         runCommand,
         fetchPlayer,
         } from 'utils/helpers.js'
-import { purchaseables } from 'constants.js'
+import { purchaseables } from 'utils/constants.js'
 
 /**
  * @param {NS} ns

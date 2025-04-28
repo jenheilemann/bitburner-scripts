@@ -1,6 +1,6 @@
 import { getLSItem, tryRun, canUseSingularity } from 'utils/helpers.js'
 import { networkMapFree } from 'utils/network.js'
-import { specialServers } from 'constants.js'
+import { specialServers } from 'utils/constants.js'
 
 /**
  * @param {NS} ns

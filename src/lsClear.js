@@ -1,4 +1,4 @@
-import { lsKeys } from 'constants.js'
+import { lsKeys } from 'utils/constants.js'
 import { clearLSItem,getLSItem } from 'utils/helpers.js'
 
 export function autocomplete() {

@@ -4,7 +4,7 @@ import { disableLogs,
        } from 'utils/helpers.js'
 import { BestHack } from 'bestHack.js'
 import { networkMapFree } from 'utils/network.js'
-import { reservedRam } from 'constants.js'
+import { reservedRam } from 'utils/constants.js'
 import { BatchDataQueue } from '/batching/queue.js'
 import { PrepBuilder, HackBuilder } from '/batching/builder.js'
 import { weakTime,

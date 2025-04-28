@@ -1,5 +1,5 @@
 import { fetchPlayer, getLSItem } from 'utils/helpers.js'
-import { reservedRam } from 'constants.js'
+import { reservedRam } from 'utils/constants.js'
 
 /** @param {NS} ns */
 export async function main(ns) {

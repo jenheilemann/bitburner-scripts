@@ -4,7 +4,7 @@ import {
         setLSItem,
         clearLSItem,
       } from 'utils/helpers.js'
-import { myFavTheme } from 'constants.js'
+import { myFavTheme } from 'utils/constants.js'
 
 const staleLocalStorageKeys = [
   'nmap',
