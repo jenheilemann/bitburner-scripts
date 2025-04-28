@@ -4,7 +4,7 @@ import {
   getLSItem,
   setLSItem,
   disableLogs
-} from 'helpers.js'
+} from 'utils/helpers.js'
 
 /** @param {NS} ns **/
 export async function main(ns) {

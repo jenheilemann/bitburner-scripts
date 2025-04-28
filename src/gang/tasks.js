@@ -1,7 +1,7 @@
 import {
   getNsDataThroughFile as fetch,
   getLSItem,
-} from 'helpers.js'
+} from 'utils/helpers.js'
 
 Object.defineProperty(Array.prototype, 'shuffle', {
   enumerable: false, configurable: true,

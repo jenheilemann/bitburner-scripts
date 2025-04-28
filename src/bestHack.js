@@ -1,4 +1,4 @@
-import { fetchPlayer, getLSItem, formatDuration, formatRam } from 'helpers.js'
+import { fetchPlayer, getLSItem, formatDuration, formatRam } from 'utils/helpers.js'
 import { HackBuilder } from '/batching/builder.js'
 import { weakTime, calculatePercentMoneyHacked } from '/batching/calculations.js'
 

@@ -1,4 +1,4 @@
-import { canUseSingularity, runCommand, getLSItem } from 'helpers.js'
+import { canUseSingularity, runCommand, getLSItem } from 'utils/helpers.js'
 import { factionServers as targets } from 'constants.js'
 
 export function autocomplete(data, args) {

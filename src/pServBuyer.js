@@ -1,11 +1,9 @@
-import { haveEnoughMoney,
-         clearLSItem,
-         setLSItem,
+import { myMoney,
          getNsDataThroughFile as fetch,
          disableLogs,
          announce,
          formatRam,
-        } from 'helpers.js'
+        } from 'utils/helpers.js'
 const argsSchema = [
   ['size', 7],
 ]
@@ -73,7 +71,7 @@ async function buyNewOrReplaceServer(ns, hostname, cost, ram) {
  * @param {number} ram
  */
 async function purchaseNewServer(ns, hostname, cost, ram) {
-  if ( !haveEnoughMoney(ns, cost) ){
+  if ( myMoney() < cost ){
     return 0
   }
   let result = await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`,
@@ -92,7 +90,7 @@ async function purchaseNewServer(ns, hostname, cost, ram) {
  * @param {number} ram
  */
 async function upgradeServer(ns, server, cost, ram) {
-  if ( !haveEnoughMoney(ns, cost) ){
+  if ( myMoney() < cost ){
     return 0
   }
   ns.print("Upgrading server: " + server.hostname)

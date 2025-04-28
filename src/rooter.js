@@ -1,4 +1,4 @@
-import { fetchPlayer, toolsCount } from 'helpers.js'
+import { fetchPlayer, toolsCount } from 'utils/helpers.js'
 import { fetchServerFree } from 'network.js'
 
 export function autocomplete(data, args) {

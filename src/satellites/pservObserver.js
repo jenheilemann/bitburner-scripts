@@ -2,7 +2,7 @@ import {
   getLSItem,
   announce,
   haveEnoughMoney, reserve
-} from 'helpers.js'
+} from 'utils/helpers.js'
 
 // payoff within the hour
 const min = 60, hour = min * 60

@@ -1,4 +1,4 @@
-import { fetchPlayer } from 'helpers.js'
+import { fetchPlayer } from 'utils/helpers.js'
 import { factionServers } from 'constants.js'
 const autoAccept = Object.values(factionServers)
 

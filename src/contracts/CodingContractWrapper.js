@@ -16,7 +16,7 @@ function solve(data) {
 import {
   getNsDataThroughFile as fetch,
   announce,
-} from 'helpers.js'
+} from 'utils/helpers.js'
 
 export class CodingContractWrapper {
   /** @param {NS} ns **/

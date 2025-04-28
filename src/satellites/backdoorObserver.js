@@ -1,4 +1,4 @@
-import { getLSItem, tryRun, canUseSingularity } from 'helpers.js'
+import { getLSItem, tryRun, canUseSingularity } from 'utils/helpers.js'
 import { networkMapFree } from 'network.js'
 import { specialServers } from 'constants.js'
 

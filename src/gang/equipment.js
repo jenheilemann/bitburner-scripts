@@ -4,7 +4,7 @@ import {
   myMoney,
   reserve,
   getLSItem,
-} from 'helpers.js'
+} from 'utils/helpers.js'
 import { gangEquipment } from 'constants.js'
 
 const hackerEquipment = ['rootkits', 'vehicles']

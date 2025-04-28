@@ -1,5 +1,5 @@
 import { lsKeys } from 'constants.js'
-import { clearLSItem,getLSItem } from 'helpers.js'
+import { clearLSItem,getLSItem } from 'utils/helpers.js'
 
 export function autocomplete() {
   return Object.keys(lsKeys)

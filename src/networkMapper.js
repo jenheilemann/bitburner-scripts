@@ -1,4 +1,4 @@
-import { disableLogs, setLSItem } from 'helpers.js'
+import { disableLogs, setLSItem } from 'utils/helpers.js'
 
 /**
  * @param {NS} ns

@@ -1,4 +1,4 @@
-import { fetchPlayer, getLSItem } from 'helpers.js'
+import { fetchPlayer, getLSItem } from 'utils/helpers.js'
 import { reservedRam } from 'constants.js'
 
 /** @param {NS} ns */

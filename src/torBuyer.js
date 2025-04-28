@@ -1,4 +1,4 @@
-import { getLSItem, clearLSItem, canUseSingularity } from 'helpers.js'
+import { getLSItem, clearLSItem, canUseSingularity } from 'utils/helpers.js'
 
 /**
  * @param {NS} ns

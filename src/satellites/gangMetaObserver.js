@@ -4,7 +4,7 @@ import {
   setLSItem,
   getLSItem,
   announce,
-} from 'helpers.js'
+} from 'utils/helpers.js'
 let gangInfo;
 
 /** @param {NS} ns **/

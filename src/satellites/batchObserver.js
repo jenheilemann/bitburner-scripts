@@ -1,7 +1,7 @@
 import { disableLogs,
          getLSItem, setLSItem,
          fetchPlayer
-       } from 'helpers.js'
+       } from 'utils/helpers.js'
 import { BestHack } from 'bestHack.js'
 import { networkMapFree } from 'network.js'
 import { reservedRam } from 'constants.js'

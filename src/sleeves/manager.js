@@ -4,7 +4,7 @@ import {
   haveSourceFile,
   fetchPlayer,
   formatNumberShort,
-} from 'helpers.js'
+} from 'utils/helpers.js'
 
 /** @param {NS} ns **/
 export async function main(ns) {

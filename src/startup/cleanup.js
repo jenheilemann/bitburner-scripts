@@ -1,5 +1,5 @@
 import { networkMapFree } from 'network.js'
-import { clearLSItem } from 'helpers.js'
+import { clearLSItem } from 'utils/helpers.js'
 
 const hangableFiles = [
   'batchGrow.js', 

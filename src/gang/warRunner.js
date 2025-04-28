@@ -2,7 +2,7 @@ import {
   getLSItem,
   announce,
   disableLogs,
-} from 'helpers.js'
+} from 'utils/helpers.js'
 const buffer = 100 //ms
 
 /** @param {NS} ns **/

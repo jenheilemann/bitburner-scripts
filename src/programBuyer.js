@@ -2,7 +2,7 @@ import {
         getNsDataThroughFile as fetch,
         runCommand,
         fetchPlayer,
-        } from 'helpers.js'
+        } from 'utils/helpers.js'
 import { purchaseables } from 'constants.js'
 
 /**

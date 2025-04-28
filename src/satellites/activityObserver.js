@@ -3,7 +3,7 @@ import { toolsCount,
   getLSItem,
   fetchPlayer,
   getNsDataThroughFile as fetch,
-  } from 'helpers.js'
+  } from 'utils/helpers.js'
 import { earnFactionInvite } from 'workForFactions.js'
 const sec = 1000, min = 60*sec, hour = 60*min
 

@@ -1,5 +1,5 @@
 import { lsKeys } from 'constants.js'
-import { getLSItem, formatMoney, formatNumberShort } from 'helpers.js'
+import { getLSItem, formatMoney, formatNumberShort } from 'utils/helpers.js'
 
 export function autocomplete(data) {
   return Object.keys(lsKeys).concat(data.servers)

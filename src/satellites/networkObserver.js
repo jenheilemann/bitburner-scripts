@@ -1,5 +1,5 @@
 import { mapNetwork } from 'networkMapper.js'
-import { setLSItem } from 'helpers.js'
+import { setLSItem } from 'utils/helpers.js'
 
 
 /**

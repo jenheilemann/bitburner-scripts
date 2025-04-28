@@ -6,7 +6,7 @@ import {
   formatDuration,
   formatMoney,
   formatNumber,
-} from 'helpers.js'
+} from 'utils/helpers.js'
 
 async function fetch(ns, cmd, filename) {
   return await getNsDataThroughFile(ns, cmd, filename)

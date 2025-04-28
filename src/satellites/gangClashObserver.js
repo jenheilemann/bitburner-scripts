@@ -5,7 +5,7 @@ import {
   disableLogs,
   formatDuration,
   tryRun
-} from 'helpers.js'
+} from 'utils/helpers.js'
 const sec = 1000
 
 /** @param {NS} ns **/

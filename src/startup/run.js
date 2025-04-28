@@ -3,7 +3,7 @@ import {
         getNsDataThroughFile as fetch,
         setLSItem,
         clearLSItem,
-      } from 'helpers.js'
+      } from 'utils/helpers.js'
 import { myFavTheme } from 'constants.js'
 
 const staleLocalStorageKeys = [

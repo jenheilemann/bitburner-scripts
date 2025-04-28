@@ -1,4 +1,4 @@
-import { getLSItem, setLSItem } from 'helpers.js'
+import { getLSItem, setLSItem } from 'utils/helpers.js'
 import { purchaseables } from 'constants.js'
 
 /**

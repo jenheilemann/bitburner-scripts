@@ -2,7 +2,7 @@ import {
           disableLogs,
           getLSItem,
           announce,
-        } from 'helpers.js'
+        } from 'utils/helpers.js'
 // magic number (Ram required to run hack.js)
 const hackingScriptSize = 1.7
 const scripts = ['breadwinner.js', 'batchGrow.js', 'batchHack.js', 'batchWeaken.js']

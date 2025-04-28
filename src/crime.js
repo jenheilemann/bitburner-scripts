@@ -2,7 +2,7 @@ import {
           getNsDataThroughFile as fetch,
           fetchPlayer,
           disableLogs,
-        } from 'helpers.js'
+        } from 'utils/helpers.js'
 
 const crimes = [
   "shoplift",

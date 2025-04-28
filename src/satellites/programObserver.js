@@ -1,4 +1,4 @@
-import { fetchPlayer, tryRun, canUseSingularity } from 'helpers.js'
+import { fetchPlayer, tryRun, canUseSingularity } from 'utils/helpers.js'
 import { purchaseables } from 'constants.js'
 
 /**

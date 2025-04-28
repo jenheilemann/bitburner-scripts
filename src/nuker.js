@@ -3,7 +3,7 @@ import {
           toolsCount,
           clearLSItem,
           getLSItem
-        } from 'helpers.js'
+        } from 'utils/helpers.js'
 import { root } from 'rooter.js'
 
 /**

@@ -444,7 +444,7 @@ export function runCommand_Custom(ns, fnRun, command, fileName, verbose, ...args
     `formatNumberShort,formatNumber,formatRam,formatDuration,hashCode,getFnRunViaNsRun,` +
     `getFnRunViaNsExec,getFnIsAliveViaNsIsRunning,getFnIsAliveViaNsPs,runCommand,` +
     `runCommandAndWait,runCommand_Custom,waitForProcessToComplete,waitForProcessToComplete_Custom,` +
-    `getNsDataThroughFile,getNsDataThroughFile_Custom,checkNsInstance } from 'helpers.js';\n` +
+    `getNsDataThroughFile,getNsDataThroughFile_Custom,checkNsInstance } from 'utils/helpers.js';\n` +
     `import {networkMap, networkMapFree, fetchServer, fetchServerFree } from 'network.js';\n` +
     `import * as constants from 'constants.js';\n` +
     `export async function main(ns) {

@@ -1,4 +1,4 @@
-import { disableLogs, formatDuration } from 'helpers.js'
+import { disableLogs, formatDuration } from 'utils/helpers.js'
 
 const sec = 1000
 const min = 60 * sec

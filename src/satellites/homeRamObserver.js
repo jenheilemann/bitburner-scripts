@@ -4,7 +4,7 @@ import {
   announce,
   getLSItem,
   canUseSingularity
-} from 'helpers.js'
+} from 'utils/helpers.js'
 import { fetchServerFree } from 'network.js'
 
 

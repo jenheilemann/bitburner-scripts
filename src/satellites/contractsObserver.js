@@ -2,7 +2,7 @@ import { networkMapFree } from 'network.js'
 import {
         disableLogs,
         getNsDataThroughFile as fetch,
-      } from 'helpers.js'
+      } from 'utils/helpers.js'
 
 import * as primeFactorSolver from "/contracts/primeFactorSolver.js"
 import * as subarrayMaximumSolver from "/contracts/subarrayMaximumSolver.js"

@@ -1,4 +1,4 @@
-import { announce } from 'helpers.js'
+import { announce } from 'utils/helpers.js'
 
 /** @param {NS} ns */
 export async function main(ns) {
