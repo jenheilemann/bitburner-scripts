@@ -51,6 +51,7 @@ const filesToDownload = [
   '/startup/run.js',
   '/usr/find.js',
   '/utils/constants.js',
+  '/utils/formulas.js',
   '/utils/helpers.js',
   '/utils/network.js',
   'augPurchaser.js',
