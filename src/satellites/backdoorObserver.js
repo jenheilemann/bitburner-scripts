@@ -28,7 +28,7 @@ export async function main(ns) {
     await tryRun(() => { ns.spawn('backdoor.js', {spawnDelay:0}, server.hostname) })
   } else {
     ns.tprint('Backdoor of ' + server.hostname + " available, finding path.")
-    await tryRun(() => { ns.spawn('find.js', {spawnDelay:0}, server.hostname, true) })
+    await tryRun(() => { ns.spawn('usr/find.js', {spawnDelay:0}, server.hostname, true) })
   }
 }
 
