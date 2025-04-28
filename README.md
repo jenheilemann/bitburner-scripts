@@ -79,6 +79,11 @@ alias done="run lsClear.js working"
 // set a reserve amount manually, above reseved money for buying programs
 alias reserve="run lsSet.js reserve"
 
-// copy-paste-able line
-alias start="run start.js";alias do="run doProcess.js";alias find="run find.js";alias best="run bestHack.js";alias get="run lsGet.js";alias set="run lsSet.js";alias working="run lsSet.js working";alias done="run lsClear.js working";alias reserve="run lsSet.js reserve";alias monitor="run monitor.js"; alias hoem="home"; alias bqueue="run lsGet.js BATCHES"
+// copy-paste-able lines
+alias start="run start.js";alias do="run doProcess.js";alias find="run find.js";
+alias best="run bestHack.js --tail";alias get="run lsGet.js";
+alias set="run lsSet.js";alias working="run lsSet.js working";
+alias done="run lsClear.js working";alias reserve="run lsSet.js reserve";
+alias monitor="run monitor.js"; alias hoem="home";
+alias bqueue="run lsGet.js BATCHES"
 ```
