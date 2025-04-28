@@ -68,7 +68,6 @@ const filesToDownload = [
   'lsGet.js',
   'lsSet.js',
   'monitor.js',
-  'networkMapper.js',
   'nuker.js',
   'pServBuyer.js',
   'programBuyer.js',

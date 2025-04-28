@@ -1,12 +1,15 @@
 import { getLSItem, setLSItem } from 'utils/helpers.js'
-import { mapNetwork } from 'networkMapper.js'
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  let map = networkMap(ns)
-  setLSItem('nmap', map)
+  ns.tprint("ERROR: network.js not meant to be run independently. \nUsage: " +
+    "import { networkMap } from 'utils/network.js'\n" +
+    "\tlet map = networkMap(ns)\n" +
+    "// OR \n"
+    "\tlet map = networkMapFree(ns)\n" +
+    )
 }
 
 /**
@@ -14,7 +17,9 @@ export async function main(ns) {
  * @cost 2.4 GB
  **/
 export function networkMap(ns) {
-  return mapNetwork(ns)
+  disableLogs(ns, ['scan'])
+  let map = walkServers(ns)
+  return map
 }
 
 /**
@@ -72,4 +77,42 @@ export function findPath(goal) {
     }
   }
 }
+
+
+/**
+ * @param {NS} ns
+ **/
+function walkServers(ns) {
+  let serverData = {};
+  let serverList = ['home'];
+  serverData['home'] = updateData(ns, 'home', '');
+  for (var i = 0; i < serverList.length; i++) {
+    ns.scan(serverList[i]).forEach(function (host) {
+      if (!serverList.includes(host)) {
+        serverData[host] = updateData(ns, host, serverList[i]);
+        serverList.push(host);
+      }
+    });
+  }
+  return serverData;
+}
+
+export function updateData(ns, server_name, parent) {
+  let server
+  try {
+    server = ns.getServer(server_name)
+    server.name = server_name
+    server.portsRequired = server.numOpenPortsRequired
+    server.hackingLvl = server.requiredHackingSkill
+    server.maxMoney = server.moneyMax
+    server.minSecurity = server.minDifficulty
+    server.growth = server.serverGrowth
+    server.parent = parent
+    server.files = ns.ls(server.name)
+    server.security = server.hackDifficulty
+    server.availableRam = server.maxRam - server.ramUsed
+  } catch(e) { ns.print(e.message) }
+  return server
+}
+
 

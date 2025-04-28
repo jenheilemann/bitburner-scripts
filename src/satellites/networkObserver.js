@@ -1,11 +1,10 @@
-import { mapNetwork } from 'networkMapper.js'
-import { setLSItem } from 'utils/helpers.js'
-
+import { disableLogs, setLSItem } from 'utils/helpers.js'
+import { networkMap } from 'utils/network.js'
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  let map = mapNetwork(ns)
+  let map = networkMap(ns)
   setLSItem('nmap', map)
 }

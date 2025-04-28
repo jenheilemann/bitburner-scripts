@@ -84,7 +84,7 @@ export async function main(ns) {
   await ns.sleep(10)
 
   ns.tprint(`Initializing the Network Map`)
-  ns.run('networkMapper.js')
+  ns.run('satellites/networkObserver.js')
   await ns.sleep(100)
 
   ns.tprint(`Starting controller.js`)
