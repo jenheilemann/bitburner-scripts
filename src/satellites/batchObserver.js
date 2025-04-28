@@ -22,6 +22,11 @@ const fileNames = {
 // how many ms between each HWGW file ending
 const batchBufferTime = 10
 
+
+export function autocomplete(data, args) {
+  return data.servers
+}
+
 /**
  * @param {NS} ns
  **/
