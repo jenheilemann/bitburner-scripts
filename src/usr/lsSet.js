@@ -16,7 +16,7 @@ export async function main(ns) {
 
   if ( args._.length !== 2 ) {
     ns.tprint(`This script needs a recognized key and value!`)
-    ns.tprint('like: `run lsSet.js reserve 100`')
+    ns.tprint('like: `run usr/lsSet.js reserve 100`')
     return
   }
 

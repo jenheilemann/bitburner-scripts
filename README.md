@@ -69,21 +69,21 @@ alias monitor="run monitor.js"
 alias best="run bestHack.js"
 
 // manipulate localStorage
-alias get="run lsGet.js"
-alias set="run lsSet.js"
+alias get="run usr/lsGet.js"
+alias set="run usr/lsSet.js"
 
 // force crime.js/workForFactions.js to stop, so you can play in-game
-alias working="run lsSet.js working"
-alias done="run lsClear.js working"
+alias working="run usr/lsSet.js working"
+alias done="run usr/lsClear.js working"
 
 // set a reserve amount manually, above reseved money for buying programs
-alias reserve="run lsSet.js reserve"
+alias reserve="run usr/lsSet.js reserve"
 
 // copy-paste-able lines
 alias start="run start.js";alias do="run doProcess.js";alias find="run usr/find.js";
-alias best="run bestHack.js --tail";alias get="run lsGet.js";
-alias set="run lsSet.js";alias working="run lsSet.js working";
-alias done="run lsClear.js working";alias reserve="run lsSet.js reserve";
+alias best="run bestHack.js --tail";alias get="run usr/lsGet.js";
+alias set="run usr/lsSet.js";alias working="run usr/lsSet.js working";
+alias done="run usr/lsClear.js working";alias reserve="run usr/lsSet.js reserve";
 alias monitor="run monitor.js"; alias hoem="home";
-alias bqueue="run lsGet.js BATCHES"
+alias bqueue="run usr/lsGet.js BATCHES"
 ```

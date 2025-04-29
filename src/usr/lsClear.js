@@ -13,7 +13,7 @@ export async function main(ns) {
 
   if ( !key ) {
     ns.tprint(`This script needs a recognized key!`)
-    ns.tprint('like: `run lsClear.js player`')
+    ns.tprint('like: `run usr/lsClear.js player`')
     return
   }
 

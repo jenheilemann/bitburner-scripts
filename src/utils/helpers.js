@@ -76,7 +76,7 @@ export function haveEnoughMoney(ns, cost) {
 /**
  * Reserve a certain amount for big purchases
  * You can manually reserve an amount by setting a number in localStorage.
- *     run lsSet.js reserve 4.5e9
+ *     run usr/lsSet.js reserve 4.5e9
  *
  * @param {NS} ns
  * @cost 0.1 GB
