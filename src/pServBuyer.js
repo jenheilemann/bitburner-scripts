@@ -71,9 +71,6 @@ async function buyNewOrReplaceServer(ns, hostname, cost, ram) {
  * @param {number} ram
  */
 async function purchaseNewServer(ns, hostname, cost, ram) {
-  if ( myMoney() < cost ){
-    return 0
-  }
   let result = await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`,
     `/Temp/purchaseServer.txt`)
   if (result) {
@@ -90,9 +87,6 @@ async function purchaseNewServer(ns, hostname, cost, ram) {
  * @param {number} ram
  */
 async function upgradeServer(ns, server, cost, ram) {
-  if ( myMoney() < cost ){
-    return 0
-  }
   ns.print("Upgrading server: " + server.hostname)
   const result = ns.upgradePurchasedServer(server.hostname, ram)
 
