@@ -7,8 +7,8 @@ export async function main(ns) {
   ns.tprint("ERROR: network.js not meant to be run independently. \nUsage: " +
     "import { networkMap } from 'utils/network.js'\n" +
     "\tlet map = networkMap(ns)\n" +
-    "// OR \n"
-    "\tlet map = networkMapFree(ns)\n" +
+    "// OR \n" +
+    "\tlet map = networkMapFree(ns)\n"
     )
 }
 
