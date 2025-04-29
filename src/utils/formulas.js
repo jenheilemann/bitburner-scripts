@@ -1242,7 +1242,7 @@ class Extra {
    * @property {Person} person - the person/player to use for stats
    * @property {number} threadConstant - the constant part of the linear constraint, see below
    * @property {?number} threadMultiplier - the multiplier part of the linear constaint, defaults to 0
-   * @property {?number} weaken - security decrease to apply between h and g, defaults to 0
+   * @property {?number} weak - security decrease to apply between h and g, defaults to 0
    * @property {?number} cores - number of cores used in grow, defaults to 1
    * @property {?number} relError - accuracy termination condition, defaults to 1e-4
    * @property {?number} guess - initial guess, defaults to "something reasonable"
@@ -1300,7 +1300,7 @@ class Extra {
     const person = helpers.person(options.person);
     const threadConstant = helpers.number("threadConstant", options.threadConstant);
     const threadMultiplier = helpers.number("threadMultiplier", options.threadMultiplier ?? 0);
-    const weaken = helpers.number("weaken", options.weaken ?? 0);
+    const weaken = helpers.number("weaken", options.weak ?? 0);
     const cores = helpers.number("cores", options.cores ?? 1);
     const relError = helpers.number("relError", options.relError ?? 1e-4);
     const guess = helpers.number("guess", options.guess ?? 0);
