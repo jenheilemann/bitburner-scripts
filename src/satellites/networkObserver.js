@@ -1,4 +1,4 @@
-import { disableLogs, setLSItem } from 'utils/helpers.js'
+import { setLSItem } from 'utils/helpers.js'
 import { networkMap } from 'utils/network.js'
 
 /**

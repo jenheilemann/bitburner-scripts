@@ -32,7 +32,7 @@ export function autocomplete(data, args) {
  **/
 export async function main(ns) {
   disableLogs(ns, ['sleep', 'getServerUsedRam', 'getServerMoneyAvailable'])
-  let home = networkMapFree()['home']
+  const home = networkMapFree()['home']
   while(true) {
     await runBatch(ns)
     if (home.maxRam < 16)
