@@ -173,10 +173,13 @@ export function findBestTarget(ns) {
 
   let top = servers[0]
   let second = servers[1]
+  let pastCutoff = false
   for (let i = 0; i < servers.length; i++) {
     let server = servers[i]
     let name = server.hostname
     ns.print(`Evaluating ${name}`)
+    if (server.hostname == 'foodnstuff')
+      pastCutoff = true
     if (isHealthy(ns, server)) {
       ns.print(`${name} Is Healthy`)
       if ( !batchData.hasHackingBatch(name) ) {
@@ -194,7 +197,7 @@ export function findBestTarget(ns) {
       }
       ns.print(`Top & second server do not need prep: ${top.hostname}, ${second.hostname}`)
       let next = servers[i+1]
-      if ( name != 'foodnstuff' && next && needsPrep(ns, next, batchData) ){
+      if ( !pastCutoff && next && needsPrep(ns, next, batchData) ){
         ns.print(`Next server needs prep: ${next.hostname}`)
         return next
       }
@@ -207,11 +210,9 @@ export function findBestTarget(ns) {
       ns.print(`Returning ${name}`)
       return server
     }
-    if (server.hostname == 'foodnstuff')
-      return server
     ns.print(`${server.hostname} not healthy, continuing....`)
   }
-  return map['foodnstuff']
+  return map['n00dles']
 }
 
 /**
