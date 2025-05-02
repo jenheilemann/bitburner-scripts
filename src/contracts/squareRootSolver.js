@@ -61,7 +61,7 @@ function findSquareRootRecursive(bigint, high, low, iter =0) {
   if ( high - low == 1n) {
     let highDiff = (high * high) - bigint
     let lowDiff = bigint - (low * low)
-    if ( highDiff < lowDiff)
+    if ( highDiff <= lowDiff)
       return high
     if (lowDiff < highDiff)
       return low
