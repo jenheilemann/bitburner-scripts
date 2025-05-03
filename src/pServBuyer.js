@@ -1,5 +1,4 @@
-import { myMoney,
-         getNsDataThroughFile as fetch,
+import { getNsDataThroughFile as fetch,
          disableLogs,
          announce,
          formatRam,
@@ -50,7 +49,7 @@ async function buyNewOrReplaceServer(ns, hostname, cost, ram) {
   if (!ns.serverExists(hostname)) {
     ns.print(`Buying a new server ${hostname} with ${ram} GB ram for ` +
       `${ns.formatNumber(cost)}`)
-    return purchaseNewServer(ns, hostname, cost, ram)
+    return purchaseNewServer(ns, hostname, ram)
   }
   let host = await fetch(ns, `ns.getServer('${hostname}')`)
 
@@ -61,16 +60,15 @@ async function buyNewOrReplaceServer(ns, hostname, cost, ram) {
 
   ns.print(`Upgrading ${hostname} with ${host.maxRam} -> ${ram} GB ram` +
     ` for \$${ns.formatNumber(cost)}`)
-  return await upgradeServer(ns, host, cost, ram)
+  return await upgradeServer(ns, host, ram)
 }
 
 /**
  * @param {NS} ns
  * @param {string} hostname
- * @param {number} cost
  * @param {number} ram
  */
-async function purchaseNewServer(ns, hostname, cost, ram) {
+async function purchaseNewServer(ns, hostname, ram) {
   let result = await fetch(ns, `ns.purchaseServer('${hostname}', ${ram})`,
     `/Temp/purchaseServer.txt`)
   if (result) {
@@ -83,10 +81,9 @@ async function purchaseNewServer(ns, hostname, cost, ram) {
 /**
  * @param {NS} ns
  * @param {Server} server
- * @param {number} cost
  * @param {number} ram
  */
-async function upgradeServer(ns, server, cost, ram) {
+async function upgradeServer(ns, server, ram) {
   ns.print("Upgrading server: " + server.hostname)
   const result = ns.upgradePurchasedServer(server.hostname, ram)
 
