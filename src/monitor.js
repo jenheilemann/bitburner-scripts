@@ -13,7 +13,6 @@ export function autocomplete(data, args) {
 export async function main(ns) {
   disableLogs(ns, ['sleep', 'getServerMoneyAvailable'])
   ns.ui.openTail()
-  ns.ui.resizeTail(500, 225)
 
   while (true) {
     await ns.sleep(100)
