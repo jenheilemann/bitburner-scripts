@@ -1,11 +1,8 @@
 import {
   getLSItem,
   announce,
-  haveEnoughMoney, reserve
+  myMoney
 } from 'utils/helpers.js'
-
-// payoff within the hour
-const min = 60, hour = min * 60
 
 /**
  * @param {NS} ns
@@ -23,22 +20,24 @@ export async function main(ns) {
     ns.print("NMAP not available, waiting until it comes back.")
     return
   }
-  const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.purchasedByPlayer)
-  const currRam = smallestCurrentServerSize(pservs)
-  const nextRam = nextRamSize(ns, currRam)
-
-  if (nextRam == 0) {
-    return
-  }
 
   if (nmap['home'].maxRam < 16) {
     ns.print("Not enough ram on home to handle the pServBuyer script.")
     return
   }
 
+  const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.purchasedByPlayer)
+  const currRam = smallestCurrentServerSize(pservs)
+  const nextRam = nextRamSize(ns, currRam)
+  ns.print(`Current: ${currRam}  Next: ${nextRam}`)
+
+  if (nextRam == 0) {
+    return
+  }
+
   const cost = ns.getPurchasedServerCost(2**nextRam)
-  if ( !haveEnoughMoney(ns, cost) ){
-    ns.tprint(`Not enough money to afford the server + reserve: ${cost} (${reserve(ns)})`)
+  if ( myMoney() < cost * 10 ){
+    ns.tprint(`Not enough money to afford the server * 10: ${cost} (${myMoney()})`)
     return
   }
 
@@ -67,12 +66,8 @@ function smallestCurrentServerSize(pservs) {
  **/
 function nextRamSize(ns, currRam) {
   const limit = ns.getPurchasedServerLimit()
-  const totIncomePerSecond = Math.max(ns.getTotalScriptIncome()[1], 3200) // 3200 makes this script to return 32GB min
   const maxServerSize = ns.getPurchasedServerMaxRam()
-  const incomePerPayoffTime = totIncomePerSecond * 1*hour
-  ns.print(`Total income: ${ns.formatNumber(totIncomePerSecond)}/s`)
-  ns.print(`Income per payoff time: ${ns.formatNumber(incomePerPayoffTime, 12)}`)
-  if (incomePerPayoffTime == 0) return 0
+  const money = myMoney()
 
   let cost, totalCost
   for (var i = 20; 2**i > currRam; i--) {
@@ -83,8 +78,8 @@ function nextRamSize(ns, currRam) {
     totalCost = cost * limit
 
     ns.print(`Total cost for ${2**i}GB ram: ${ns.formatNumber(totalCost, 12)}`)
-    if ( totalCost < incomePerPayoffTime ) {
-      ns.print(`(${2**i}) totalCost < incomePerPayoffTime`)
+    if ( totalCost*2 < myMoney ) {
+      ns.print(`(${2**i}) totalCost*2 < myMoney`)
       ns.print(`Returning ${i}`)
       return i
     }
