@@ -21,33 +21,7 @@ Good luck, and have fun out there.
 
 ## Installation
 
-Create a new script called `start.js` by issuing the following command: `nano start.js`. Make sure you are on your home server; if you are not you can quickly go home by running `home` in the console.
-
-Paste the following content:
-
-```js
-export function autocomplete(data, args) {
-  data.flags([['branch', 'main']])
-  return ['main', 'start-over']
-}
-
-export async function main(ns) {
-  if (ns.getHostname() !== "home") {
-    throw new Exception("Run the script from home");
-  }
-
-  let args = ns.flags([['branch', 'main']])
-
-  await ns.wget(
-    `https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/${args.branch}/src/startup/initStartup.js?ts=${new Date().getTime()}`,
-    "/startup/initStartup.js"
-  );
-  ns.tprint('Spawing a new startup process.')
-  ns.spawn("startup/initStartup.js", {spawnDelay: 500}, '--branch', args.branch);
-}
-```
-
-Save and exit nano and write in console: `run start.js` then press enter. Alternatively, to set a specific branch you can `run start.js --branch BRANCH`.
+Paste `wget https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/start-over/src/startup/initStartup.js startup/initStartup.js; run startup/initStartup.js --branch start-over`
 
 ## My aliases
 

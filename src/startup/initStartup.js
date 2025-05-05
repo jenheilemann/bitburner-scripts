@@ -74,7 +74,6 @@ const filesToDownload = [
   'programBuyer.js',
   'rooter.js',
   'share.js',
-  'start.js',
   'stats.js',
   'torBuyer.js',
   'upgradeHomeRam.js',
