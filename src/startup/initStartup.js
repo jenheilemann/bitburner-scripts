@@ -73,6 +73,7 @@ const filesToDownload = [
   'pServBuyer.js',
   'programBuyer.js',
   'rooter.js',
+  'share.js',
   'start.js',
   'stats.js',
   'torBuyer.js',
