@@ -27,7 +27,7 @@ export async function main(ns) {
   }
 
   const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.purchasedByPlayer)
-  const currRam = smallestCurrentServerSize(pservs)
+  const currRam = smallestCurrentServerSize(ns, pservs)
   const nextRam = nextRamSize(ns, currRam)
   ns.print(`Current: ${currRam}  Next: ${nextRam}`)
 
@@ -55,10 +55,12 @@ export async function main(ns) {
 
 
 /**
+ * @param {NS} ns
  * @param {array} pservs
  **/
-function smallestCurrentServerSize(pservs) {
-  if (pservs.length == 0)
+function smallestCurrentServerSize(ns, pservs) {
+  const limit = ns.getPurchasedServerLimit()
+  if (pservs.length < limit)
     return 0
 
   return pservs.reduce(((prev, cur) => prev.maxRam < cur.maxRam ? prev : cur)).maxRam
