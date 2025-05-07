@@ -19,6 +19,7 @@ import * as sanitizeParensSolver from "/contracts/sanitizeParensSolver.js"
 import * as findValidExpressionsSolver from "/contracts/findValidExpressionsSolver.js"
 import * as squareRootSolver from "/contracts/squareRootSolver.js"
 import * as shortestPathSolver from "/contracts/shortestPathSolver.js"
+import * as hammingCodesBinToInt from "/contracts/hammingCodesBinToIntSolver.js"
 
 const solvers = {
   "Find Largest Prime Factor"           : primeFactorSolver,
@@ -39,6 +40,7 @@ const solvers = {
   "Find All Valid Math Expressions"     : findValidExpressionsSolver,
   "Square Root"                         : squareRootSolver,
   "Shortest Path in a Grid"             : shortestPathSolver,
+  "HammingCodes: Encoded Binary to Integer" : hammingCodesBinToInt,
 }
 
 /**
