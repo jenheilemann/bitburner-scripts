@@ -12,6 +12,7 @@ export async function main(ns) {
   // if there's already a buyer running, let it finish before starting another
   const homePS = ns.ps('home')
   if ( homePS.some(proc => proc.filename === 'pServBuyer.js') ) {
+    ns.print("pServBuyer.js running currently, try again later.")
     return
   }
 
@@ -29,13 +30,13 @@ export async function main(ns) {
   const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.purchasedByPlayer)
   const currRam = smallestCurrentServerSize(ns, pservs)
   const nextRam = nextRamSize(ns, currRam)
-  ns.print(`Current: ${currRam}  Next: ${nextRam}`)
+  ns.print(`Current: ${currRam}  Next: ${2**nextRam} (2^${nextRam})`)
 
   if (nextRam == 0 ) {
     ns.print("INFO: NextRam is 0, cancelling.")
     return
   }
-  if (nextRam == currRam) {
+  if (2**nextRam == currRam) {
     ns.print("INFO: NextRam is currRam, cancelling.")
     return
   }
