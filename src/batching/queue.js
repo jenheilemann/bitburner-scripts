@@ -22,11 +22,11 @@ export class BatchJob {
    * @returns {boolean} has this batch fully completed?
    */
   isExpired() {
-    return this.end < performance.now()
+    return this.end < Date.now()
   }
 
   /**
-   * @returns {boolean} are we currently within the error window while 
+   * @returns {boolean} are we currently within the error window while
    *                    this batch is completing?
    */
   isInsideErrorWindow(timestamp) {
@@ -104,7 +104,7 @@ export class BatchDataQueue {
    * @param {number} timestamp
    * @returns {string}
    */
-  anyInsideErrorWindow(target, timestamp = performance.now()) {
+  anyInsideErrorWindow(target, timestamp = Date.now()) {
     return this.batchList.some(job => job.target == target && job.isInsideErrorWindow(timestamp))
   }
 

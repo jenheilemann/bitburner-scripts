@@ -2,28 +2,16 @@
  * @param {NS} ns 
  **/
 export async function main(ns) {
-  // ns.ui.openTail()
+  const portHandle = ns.getPortHandle(ns.pid)
   const job = JSON.parse(ns.args[0])
   ns.print(`Weaken job opened, batch ${job.id}`)
-  let endTime
-  if (ns.peek(ns.pid) > 0) {
-    ns.print(`Endtime already sent, continuing....`)
-    endTime = ns.readPort(ns.pid)
-  } else {
-    ns.print('Waiting for port write.')
-    await ns.nextPortWrite(ns.pid)
-    endTime = ns.readPort(ns.pid)
-  }
-  ns.print(`(${ns.pid}) Port read received, endtime is ${endTime}`)
-  let timeNow = performance.now()
-  let delay = endTime - job.time - timeNow
-  if (delay < 0) {
-    ns.tprint(`WARN: Batch ${job.id} weaken was ${-delay}ms too late. (${endTime})\n`);
-    delay = 0;
-  }
-  await ns.weaken(job.target, { additionalMsec: delay })
+
+  const promise = ns.weaken(job.target, { additionalMsec: job.delay })
+  portHandle.write('started')
+  await promise
+
   const end = Date.now()
   ns.atExit(() => {
-    ns.print(`Batch ${job.id}: Weaken finished at ${end.toString().slice(-6)}/${Math.round(endTime).toString().slice(-6)}\n`)
+    ns.print(`Batch ${job.id}: Weaken finished at ${end.toString()}`)
   });
 }

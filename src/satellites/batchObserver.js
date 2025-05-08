@@ -12,6 +12,8 @@ import { weakTime,
          calcHackAmount,
         } from '/batching/calculations.js'
 
+// time added to batch error window to cushion against overlap
+const batchBufferTime = 30
 
 const fileNames = {
   'hack' : 'batchHack.js',
@@ -19,11 +21,12 @@ const fileNames = {
   'grow' : 'batchGrow.js',
 }
 
-// how many ms between each HWGW file ending
-const batchBufferTime = 10
-
+const argsSchema = [
+  ['runOnce', false]
+]
 
 export function autocomplete(data, args) {
+  data.flags(argsSchema)
   return data.servers
 }
 
@@ -33,9 +36,11 @@ export function autocomplete(data, args) {
 export async function main(ns) {
   disableLogs(ns, ['sleep', 'getServerUsedRam', 'getServerMoneyAvailable'])
   const home = networkMapFree()['home']
+  const args = ns.flags(argsSchema)
+
   while(true) {
     await runBatch(ns)
-    if (home.maxRam < 16)
+    if (home.maxRam < 16 || args.runOnce)
       return
     await ns.sleep(1)
   }
@@ -65,9 +70,9 @@ async function runBatch(ns) {
   ns.print(`queue.anyInsideErrorWindow('${target.hostname}'): ${queue.anyInsideErrorWindow(target.hostname)}`)
 
 
-  while ( withinAnyBatchErrorWindow(target.hostname, performance.now()) ) {
+  while ( withinAnyBatchErrorWindow(target.hostname, Date.now()) ) {
     ns.print("Within batch error window, waiting....")
-    await ns.sleep(batchBufferTime*2)
+    await ns.sleep(10)
   }
 
   ns.print(`queue.hasPreppingBatch(${target.hostname}): ${queue.hasPreppingBatch(target.hostname)}`)
@@ -202,8 +207,8 @@ export function findBestTarget(ns) {
         return next
       }
       if (next) ns.print(`Next server does not need prep: ${next.hostname}`)
-      if ( withinAnyBatchErrorWindow(name, performance.now()) ||
-            withinAnyBatchErrorWindow(name, performance.now() + weakTime(server))) {
+      if ( withinAnyBatchErrorWindow(name, Date.now()) ||
+            withinAnyBatchErrorWindow(name, Date.now() + weakTime(server))) {
         ns.print(`Within error window for ${name}, skipping for now.`)
         continue
       }
@@ -286,16 +291,29 @@ function isHealthy(ns, server) {
  */
 async function launch(ns, batcher, target) {
   let batchID = fetchNextBatchID()
+  let longestTime = Math.max(...batcher.tasks.map(t => t.time))
   ns.print(`batch id: ${batchID}`)
+
+  while ( withinAnyBatchErrorWindow(target.hostname) ||
+    withinAnyBatchErrorWindow(target.hostname, Date.now() + longestTime) ) {
+    ns.print("Within batch error window, waiting to launch....")
+    await ns.sleep(2)
+  }
+
+  let errorWindowStartTime = Date.now() + longestTime
   for (let job of batcher.tasks) {
     ns.print(job)
-    let args = { id: batchID, time: job.time, target: target }
+    let args = { id: batchID, delay: longestTime - job.time, target: target }
     if (job.threads == 0) continue
     job.pids = []
-    job.servers.forEach(server => {
-      if ( server[1] == 0 ) return
-      job.pids.push(ns.exec(fileNames[job.type], server[0], {threads: server[1]}, JSON.stringify(args)))
-    })
+    for (let server of job.servers) {
+      if ( server[1] == 0 ) continue
+      const pid = ns.exec(fileNames[job.type], server[0], {threads: server[1]}, JSON.stringify(args))
+      const jobPort = ns.getPortHandle(pid)
+      await jobPort.nextWrite()
+      ns.print(`Process ${pid} started, expected end time is ${Date.now() + longestTime}`)
+      job.pids.push(pid)
+    }
   }
 
   if (batcher.tasks.some(job => job.servers.some(s => s[1] == 0))) {
@@ -311,40 +329,24 @@ async function launch(ns, batcher, target) {
     return
   }
 
-  ns.print(batcher.tasks.map(t => t.pids))
-  await ns.sleep(2)
-  let longestTime = Math.max(...batcher.tasks.map(t => t.time)) + batchBufferTime
-
-  while ( withinAnyBatchErrorWindow(target.hostname, performance.now() + longestTime) ) {
-    ns.print("Within batch error window, waiting to launch....")
-    await ns.sleep(2)
-  }
-
-  let errorWindowStartTime = performance.now() + longestTime
-  for (let job of batcher.tasks) {
-    for (let pid of job.pids) {
-      ns.print(`Prompting PID ${pid}....`)
-      while(! ns.getScriptLogs(pid).some(l => l.includes("Waiting for port write")) ) {
-        ns.print(`_____ Waiting for PID ${pid} to be ready.`)
-        await ns.sleep(1)
-      }
-      ns.print(`ns.writePort(${pid}, ${performance.now() + longestTime})`)
-      ns.writePort(pid, performance.now() + longestTime)
-    }
-    longestTime += batchBufferTime
-  }
+  const errorWindowEndTime = Date.now() + longestTime + batchBufferTime
   ns.print(`recordBatch(start, end, id, longestTime, type, target)`)
-  ns.print(`recordBatch(${errorWindowStartTime}, ${performance.now() + longestTime}, ${batchID}, ${longestTime}, ${batcher.type}, ${target})`)
-  recordBatch(errorWindowStartTime, performance.now() + longestTime, batchID, longestTime, batcher.type, target)
+  ns.print(`recordBatch(${errorWindowStartTime}, ${errorWindowEndTime}, ${batchID}, ${longestTime}, ${batcher.type}, ${target})`)
+  recordBatch(errorWindowStartTime,
+              errorWindowEndTime,
+              batchID,
+              longestTime,
+              batcher.type,
+              target)
 }
 
 /**
  * @returns {num} Next batch ID number, probably unique
  */
 function fetchNextBatchID() {
-  let lastID = parseInt( (getLSItem('batchJobId') ?? 0), 16 )
+  let lastID = parseInt( (getLSItem('batchJobId') ?? 0), 36 )
   let nextID = lastID + 1
   if ( nextID > 9_999_999_999_999 ) { nextID = 1 }
-  setLSItem('batchJobId', nextID.toString(16))
+  setLSItem('batchJobId', nextID.toString(36))
   return nextID.toString(16)
 }
