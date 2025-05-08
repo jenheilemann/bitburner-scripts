@@ -4,7 +4,6 @@ const filesToDownload = [
   'batching/queue.js',
   'contracts/arrayJumpingSolver.js',
   'contracts/CodingContractWrapper.js',
-  'contracts/failSolver.js',
   'contracts/findValidExpressionsSolver.js',
   'contracts/generateIpAddsSolver.js',
   'contracts/hammingCodesBinToIntSolver.js',
@@ -109,6 +108,7 @@ export async function main(ns) {
     ns.rm(filename)
   }
 
+  ns.tprint(`INFO: Attempting to download files from ${baseUrl}:`)
   for ( let filename of filesToDownload ) {
     await ns.sleep(20)
     await download(ns, filename, args.branch)
@@ -125,6 +125,7 @@ export async function main(ns) {
 
 export async function download(ns, filename, branch) {
   const path = baseUrl + branch + '/src/' + filename
-  ns.tprint(`Trying to download ${path}`)
-  await ns.wget(path + '?ts=' + new Date().getTime(), filename)
+  ns.tprint(` -- Downloading ${branch + '/src/' + filename}`)
+  const res = await ns.wget(path + '?ts=' + new Date().getTime(), filename)
+  if (!res) ns.tprint(`ERROR: Download failed: ${path}`)
 }
