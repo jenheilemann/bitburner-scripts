@@ -54,7 +54,7 @@ alias done="run usr/lsClear.js working"
 alias reserve="run usr/lsSet.js reserve"
 
 // copy-paste-able lines
-alias start="run startup/initStartup.js";
+alias start="run startup/run.js";
 alias init="wget https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/main/src/startup/initStartup.js startup/initStartup.js; run startup/initStartup.js";
 alias do="run doProcess.js";alias find="run usr/find.js";
 alias best="run bestHack.js --tail";alias get="run usr/lsGet.js";
