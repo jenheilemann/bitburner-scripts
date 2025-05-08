@@ -14,8 +14,6 @@ export const factionServers = {
 
 export const orgServers = {
   "fulcrumassets"      : "Fulcrum Secret Technologies",
-  "w0r1d_d43m0n"       : "World Daemon",
-  "darkweb"            : "Dark Web",
   "rothman-uni"        : "Rothman University",
   "summit-uni"         : "Summit University",
   "powerhouse-fitness" : "Powerhouse Gym",
