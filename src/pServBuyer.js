@@ -36,7 +36,6 @@ export async function main(ns) {
   let msg = `PServBuyer.js is finished, purchased ${count} size ${args.size} servers.`
   announce(ns, msg, 'success')
   ns.tprint("SUCCESS: " + msg)
-  ns.tprint("I've bought all the servers I can. It's up to you now.")
 }
 
 /**
