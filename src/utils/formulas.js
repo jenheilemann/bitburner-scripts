@@ -1,82 +1,27 @@
 // Drop-in replacement class for ns.formulas.
 // source: https://github.com/d0sboots/bitburner/blob/main/lib/formulas.js
 // Useful if you're poor/early-game.
-// There are a few extra utilities relating to BN multipliers at the top-level. (getBitnodeMultipliers(),
-// defaultBitnodeMultipliers, etc.) There are also extra functions in Formulas.extra, these mostly duplicate
-// functionality found elsewhere (like top-level ns functions) that can be directly calculated without
-// needing `ns` or RAM.
+// There are a few extra utilities relating to BN multipliers at the top-level.
+// (getBitnodeMultipliers(), defaultBitnodeMultipliers, etc.) There are also
+// extra functions in Formulas.extra, these mostly duplicate functionality found
+// elsewhere (like top-level ns functions) that can be directly calculated
+// without needing `ns` or RAM.
 //
-// Generally you create the class with `createCurrentFormulas(ns)`, but there is also
-// `new Formulas(bnMultipliers)` for customizing the BN multipliers if you want.
+// Generally you create the class with `createCurrentFormulas()`, but there is
+// also `new Formulas(bnMultipliers)` for customizing the BN multipliers.
 //
-// Implementations are directly copied from the source. Current as of 935ac61 (2024-08-02)
+// Implementations are directly copied from the source.
+// Current as of 935ac61 (2024-08-02)
+
+import { getLSItem } from 'utils/helpers.js'
 
 /**
- * @param {NS} ns
  * @return {Formulas}
- *
- * The primary way to create the class.
- * RAM cost: 1.1GB
- * (ns.getResetInfo() + ns.getServerRequiredHackingLevel()).
  */
-export function createCurrentFormulas(ns) {
-  ns.getResetInfo;
-  ns.getServerRequiredHackingLevel;
-  return createCurrentFormulasNoRam(ns);
+export function createCurrentFormulas() {
+  const reset = getLSItem('reset');
+  return new Formulas(getBitnodeMultipliers(reset));
 }
-
-/**
- * @param {NS} ns
- * @return {Formulas}
- *
- * The same as createCurrentFormulas, but without the static RAM cost, for RAM dodging.
- * RAM cost: 1.0GB + 0.1GB in BN12
- * (ns.getResetInfo() + ns.getServerRequiredHackingLevel()).
- */
-export function createCurrentFormulasNoRam(ns) {
-  const currentBn = ns["getResetInfo"]().currentNode;
-  const currentSf = currentBn === 12 ? getBn12SfLevelNoRam(ns) : 0;
-  return new Formulas(getBitnodeMultipliers(currentBn, currentSf));
-}
-
-/**
- * @param {NS} ns
- * @return {number} The sourcefile of the current node, which must be BN12
- *
- * Measures the current level of BN12 by checking the w0r1d_d43m0n difficulty.
- * RAM cost: 0.1GB (ns.getServerRequiredHackingLevel())
- */
-export function getBn12SfLevel(ns) {
-  ns.getServerRequiredHackingLevel;
-  return getBn12SfLevelNoRam(ns);
-}
-
-/**
- * @param {NS} ns
- * @return {number} The sourcefile of the current node, which must be BN12
- *
- * The same as getBn12SfLevel, but without the static RAM cost, for RAM dodging.
- * RAM cost: 0.1GB (ns.getServerRequiredHackingLevel())
- */
-export function getBn12SfLevelNoRam(ns) {
-  const difficulty = ns["getServerRequiredHackingLevel"]("w0r1d_d43m0n");
-  // The constant is the fully precise value of log(1.02). (For technical
-  // numerical reasons, JS itself can't give us the correct value, since there
-  // are numerous "correct" values).
-  const levels = Math.log(difficulty) / 0.019802627296179712;
-  const rounded = Math.round(levels);
-  if (rounded < 1 || Math.abs(levels - rounded) > 0.00000000001) {
-    ns.tprintf("WARNING: Called getBn12SfLevel while not in BN12!");
-    return -1;
-  }
-  // BN12 adds 1 to the value, we have to subtract to get the actual SF level.
-  // I.e. BN12.1 has an SF level of 0, but starts with 1 level of modifier.
-  return rounded - 1;
-}
-
-//
-// From here on, no functions take `ns` as an argument, and thus nothing costs RAM.
-//
 
 /**
  * Bitnode multipliers influence the difficulty of different aspects of the game.
@@ -259,13 +204,14 @@ export const defaultBitnodeMultipliers = new BitNodeMultipliers();
 Object.freeze(defaultBitnodeMultipliers);
 
 /**
- * @param {number} bn
- * @param {number} sf Only matters for BN12, this is the *current* SF level (starts at 0)
+ * @param {ResetInfo} reset
  * @return {BitNodeMultipliers} The BN mults for the given BN and SF level
  *
  * These are copied directly from the game.
  */
-export function getBitnodeMultipliers(bn, sf) {
+export function getBitnodeMultipliers(reset) {
+  const bn = reset.currentNode
+  let sf = getSourceFileLevel(reset)
   sf++; // Adjust for source-file offset that happens elsewhere in the game code
   switch (bn) {
     case 1: {
@@ -772,6 +718,18 @@ export function getBitnodeMultipliers(bn, sf) {
       throw new Error(`Invalid bn: ${bn}`);
     }
   }
+}
+
+/**
+ * @param {ResetInfo} reset
+ * Figures out which source file level we're currently in
+ **/
+function getSourceFileLevel(reset) {
+  const bitNodeN = reset.currentNode
+  if ( reset.bitNodeOptions.sourceFileOverrides.has(bitNodeN)) {
+    return reset.bitNodeOptions.sourceFileOverrides.get(bitNodeN) ?? 0;
+  }
+  return reset.ownedSF.get(bitNodeN) ?? 0
 }
 
 /**
