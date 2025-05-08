@@ -81,19 +81,27 @@ const filesToDownload = [
   'upgradeHomeRam.js',
   'workForFactions.js',
 ]
-const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/'
 
+const argsSchema = [
+  ['branch', 'main']
+];
+
+export function autocomplete(data, args) {
+  data.flags(argsSchema)
+  return ['main'] // add any additional branches here if you are working on them
+}
+
+const baseUrl = 'https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/'
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
   ns.disableLog("sleep")
-  const args = ns.flags([['branch', 'main']])
+  const args = ns.flags(argsSchema)
 
   for ( let filename of ns.ls('home', '.js')) {
     if (filename == 'startup/initStartup.js') continue;
-    if (filename == 'start.js') continue;
     ns.scriptKill(filename, 'home')
     ns.rm(filename)
   }

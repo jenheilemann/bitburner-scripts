@@ -21,7 +21,7 @@ Good luck, and have fun out there.
 
 ## Installation
 
-Paste `wget https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/start-over/src/startup/initStartup.js startup/initStartup.js; run startup/initStartup.js --branch start-over`
+Paste `wget https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/main/src/startup/initStartup.js startup/initStartup.js; run startup/initStartup.js`
 
 ## My aliases
 
