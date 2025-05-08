@@ -48,8 +48,8 @@ class Builder {
 
   /**
    * @param {NS} ns
-   * @param {[Server]} serversWithRam
-   * @returns {[BatchTask]} The tasks with added chosen servers and # of threads
+   * @param {Server[]]} serversWithRam
+   * @returns {BatchTask[]} The tasks with added chosen servers and # of threads
    **/
   assignServers(serversWithRam) {
     this.tasks.forEach(task => {
@@ -74,7 +74,7 @@ class Builder {
   }
 
   /**
-   * @returns {Float} GB of ram required to run a full batch
+   * @returns {float} GB of ram required to run a full batch
    */
   calcTotalRamRequired() {
     if (this.tasks.length == 0)
@@ -88,13 +88,13 @@ export class PrepBuilder extends Builder {
   type = 'Prepping'
 
   /**
-   * @returns {[BatchTask]} The ram and threads for weaken, grow, weaken until
+   * @returns {BatchTask[]} The ram and threads for weaken, grow, weaken until
    *                        the target server is prepped
-   *    {
+   *    [
    *      weaken1: {type: weaken, threads: y, time: x}
    *      grow:    {type: grow,   threads: y, time: z},
    *      weaken2: {type: weaken, threads: y, time: x}
-   *    }
+   *    ]
    **/
   calcTasks() {
     let weakTh1 = Math.ceil(((this.target.hackDifficulty - this.target.minDifficulty) / 0.05))
@@ -145,7 +145,7 @@ export class HackBuilder extends Builder {
 
   /**
    * @params {float|undefined} decimal
-   * @returns {[BatchTask]} The needed ram and threads for HWGW batch
+   * @returns {BatchTask[]} The needed ram and threads for HWGW batch
    **/
   calcTasks(decimal) {
     // zero out the server, assume prepping script goes well
@@ -175,8 +175,8 @@ export class HackBuilder extends Builder {
 
   /**
    * @param {BatchTask} task
-   * @param {[Server]} serversWithRam
-   * @returns {[[string, Int]]} Array where each entry is sub-array of Server
+   * @param {Server[]} serversWithRam
+   * @returns {[string, Int][]} Array where each entry is sub-array of Server
    *                            hostname and number of threads assigned
    **/
   matchServers(task, serversWithRam) {
