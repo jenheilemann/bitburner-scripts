@@ -3,6 +3,7 @@ import {
   announce,
   myMoney
 } from 'utils/helpers.js'
+import { getPercentUsedRam } from '/batching/calculations.js'
 
 /**
  * @param {NS} ns
@@ -27,10 +28,16 @@ export async function main(ns) {
     return
   }
 
+  if (getPercentUsedRam(nmap) < 0.25) {
+    ns.print("Enough ram to run batches, spend money elsewhere.")
+    return
+  }
+
   const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.purchasedByPlayer)
   const currRam = smallestCurrentServerSize(ns, pservs)
   const nextRam = nextRamSize(ns, currRam)
   ns.print(`Current: ${currRam}  Next: ${2**nextRam} (2^${nextRam})`)
+
 
   if (nextRam == 0 ) {
     ns.print("INFO: NextRam is 0, cancelling.")
@@ -38,6 +45,10 @@ export async function main(ns) {
   }
   if (2**nextRam == currRam) {
     ns.print("INFO: NextRam is currRam, cancelling.")
+    return
+  }
+  if (nextRam >= 4 && nmap['home'].maxRam < 32) {
+    ns.print("Pausing to allow upgrading home.")
     return
   }
 
