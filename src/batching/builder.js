@@ -155,10 +155,16 @@ export class HackBuilder extends Builder {
     this.target.hackDifficulty = this.target.minDifficulty
 
     let hackDecimal = decimal ?? calcHackAmount(this.target)
-    let hackTh = Math.max(calcThreadsToHack(this.target, this.target.moneyAvailable * hackDecimal), 1)
+    let moneyToHack = this.target.moneyAvailable * hackDecimal
+    let hackTh = calcThreadsToHack(this.target, moneyToHack)
+        hackTh = Math.max(hackTh, 1)
     let weakTh1 = Math.ceil(hackTh/hacksPerWeaken)
-    this.target.moneyAvailable -= this.target.moneyAvailable*calculatePercentMoneyHacked(this.target)*hackTh
-    let growTh = calcThreadsToGrow(this.target, this.target.moneyMax) + 1
+    this.target.moneyAvailable -= this.target.moneyAvailable *
+                                  calculatePercentMoneyHacked(this.target) *
+                                  hackTh
+    let growTh = calcThreadsToGrow(this.target, this.target.moneyMax)
+        // to offset the loss during levelups or desyncs
+        growTh += Math.ceil(growTh * 0.05)
     let weakTh2 = Math.ceil(growTh/growsPerWeaken)
     // reset to actual, especially hackDifficulty before calculating hackTime
     this.target.moneyAvailable = mA
