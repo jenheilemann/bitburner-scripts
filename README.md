@@ -53,6 +53,9 @@ alias done="run usr/lsClear.js working"
 // set a reserve amount manually, above reseved money for buying programs
 alias reserve="run usr/lsSet.js reserve"
 
+// prints out the hours since your last BN reset (or since start of game)
+alias time="do formatDuration(Date.now()-ns.getResetInfo().lastNodeReset)"
+
 // copy-paste-able lines
 alias start="run startup/run.js";
 alias init="wget https://raw.githubusercontent.com/jenheilemann/bitburner-scripts/main/src/startup/initStartup.js startup/initStartup.js; run startup/initStartup.js";
@@ -61,5 +64,6 @@ alias best="run bestHack.js --tail";alias get="run usr/lsGet.js";
 alias set="run usr/lsSet.js";alias working="run usr/lsSet.js working";
 alias done="run usr/lsClear.js working";alias reserve="run usr/lsSet.js reserve";
 alias monitor="run monitor.js"; alias hoem="home";
-alias bqueue="run usr/lsGet.js BATCHES"
+alias bqueue="run usr/lsGet.js BATCHES";
+alias time="do formatDuration(Date.now()-ns.getResetInfo().lastNodeReset)";
 ```
