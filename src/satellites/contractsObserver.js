@@ -20,6 +20,7 @@ import * as findValidExpressionsSolver from "/contracts/findValidExpressionsSolv
 import * as squareRootSolver from "/contracts/squareRootSolver.js"
 import * as shortestPathSolver from "/contracts/shortestPathSolver.js"
 import * as hammingCodesBinToInt from "/contracts/hammingCodesBinToIntSolver.js"
+import * as compression1RLE from "/contracts/compression1RLE.js"
 
 const solvers = {
   "Find Largest Prime Factor"           : primeFactorSolver,
@@ -41,20 +42,21 @@ const solvers = {
   "Square Root"                         : squareRootSolver,
   "Shortest Path in a Grid"             : shortestPathSolver,
   "HammingCodes: Encoded Binary to Integer" : hammingCodesBinToInt,
+  "Compression I: RLE Compression"          : compression1RLE,
 }
 
 /**
  * @param {NS} ns
  **/
 export async function main(ns) {
-  disableLogs(ns, ['sleep'])
-  let map = await networkMapFree()
+  // disableLogs(ns, ['sleep'])
+  let map = networkMapFree()
   if (map['home'].maxRam < 32){
     ns.print('Not enough ram to read contracts, try later.')
     return
   }
-  ns.clearLog()
 
+  ns.print("Running contracts...")
   await runContracts(ns, map)
 }
 
@@ -67,23 +69,16 @@ async function runContracts(ns, map) {
   let contracts = servers.map(
     s => s.files.filter(f => f.includes('.cct')).map(f =>
     { return {name: f, server: s.hostname, type: '', }})).flat()
+  let solver
   for (let file of contracts ) {
     let cmd = `ns.codingcontract.getContractType('${file.name}','${file.server}')`
     file.type = await fetch(ns, cmd, "/Temp/codingContract.getContractType.txt")
-  }
-  // ns.print(contracts)
-  // let contract = contracts[0]
-
-  let solver
-  for ( const contract of contracts ) {
-    // Contract needs to be in the format
-    // { file: 'name', type: 'type', server: 'server'}
-    ns.print(`${contract.server} : ${contract.name} (${contract.type})`)
-    solver = solvers[contract.type] ?? "fail"
-    if (typeof solver == "string") {
+    ns.print(`${file.server} : ${file.name} (${file.type})`)
+    solver = solvers[file.type] ?? "fail"
+    if ( typeof solver == 'string') {
       continue
     }
-    await solver.main(ns, contract.name, contract.type, contract.server)
+    await solver.main(ns, file.name, file.type, file.server)
     return
   }
 }

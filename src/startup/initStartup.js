@@ -4,6 +4,7 @@ const filesToDownload = [
   'batching/queue.js',
   'contracts/arrayJumpingSolver.js',
   'contracts/CodingContractWrapper.js',
+  'contracts/compression1RLE.js',
   'contracts/findValidExpressionsSolver.js',
   'contracts/generateIpAddsSolver.js',
   'contracts/hammingCodesBinToIntSolver.js',
