@@ -348,5 +348,5 @@ function fetchNextBatchID() {
   let nextID = lastID + 1
   if ( nextID > 9_999_999_999_999 ) { nextID = 1 }
   setLSItem('batchJobId', nextID.toString(36))
-  return nextID.toString(16)
+  return nextID.toString(36)
 }
