@@ -6,6 +6,7 @@ const filesToDownload = [
   'contracts/CodingContractWrapper.js',
   'contracts/compression1RLE.js',
   'contracts/encryption1CaesarCipher.js',
+  'contracts/encryption2VigenereCipher.js',
   'contracts/findValidExpressionsSolver.js',
   'contracts/generateIpAddsSolver.js',
   'contracts/hammingCodesBinToIntSolver.js',

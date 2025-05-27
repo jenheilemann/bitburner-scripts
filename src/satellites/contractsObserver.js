@@ -22,6 +22,7 @@ import * as shortestPathSolver from "/contracts/shortestPathSolver.js"
 import * as hammingCodesBinToInt from "/contracts/hammingCodesBinToIntSolver.js"
 import * as compression1RLE from "/contracts/compression1RLE.js"
 import * as encryption1CC from "/contracts/encryption1CaesarCipher.js"
+import * as encryption1VC from "/contracts/encryption2VigenereCipher.js"
 
 const solvers = {
   "Find Largest Prime Factor"           : primeFactorSolver,
@@ -45,6 +46,7 @@ const solvers = {
   "HammingCodes: Encoded Binary to Integer" : hammingCodesBinToInt,
   "Compression I: RLE Compression"          : compression1RLE,
   "Encryption I: Caesar Cipher"             : encryption1CC,
+  "Encryption II: Vigenère Cipher"          : encryption1VC,
 }
 
 /**
