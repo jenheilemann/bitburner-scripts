@@ -4,6 +4,7 @@ import { findTop } from 'bestHack.js'
 import { calcThreadsToHack,
           calcHackAmount,
           getPercentUsedRam, } from '/batching/calculations.js'
+import { BatchDataQueue } from '/batching/queue.js'
 
 export function autocomplete(data, args) {
   return data.servers
@@ -20,7 +21,7 @@ export async function main(ns) {
     let batches = getLSItem('batches') || []
     let nBatches = batches.length
     ns.print(`Batches: ${nBatches} --- ` +
-      `Ram used: ${ns.formatPercent(getPercentUsedRam(networkMapFree()))}% `)
+      `Ram used: ${ns.formatPercent(getPercentUsedRam(networkMapFree()))} `)
 
     if (ns.args[0]) {
       printServer(ns, fetchServerFree(ns.args[0]), batches)
@@ -90,12 +91,11 @@ function formatTime(timeInMs) {
 }
 
 /**
- * @returns {string} A spinner that cycles through an animation
+ * @returns {BatchDataQueue} For working with upcoming batches
  */
-function runSpinner() {
-  let spinnerText = "|/-\\"
-  let rotation = spinnerText.length
-  let curSec = Math.round(performance.now() /1000)
-
-  return spinnerText[curSec % (rotation)].padStart(Math.round((curSec%75)/rotation), '.')
+function fetchBatchQueue() {
+  let rawData = getLSItem('batches') ?? []
+  let batchDataQueue = new BatchDataQueue(rawData)
+  batchDataQueue.discardExpiredBatchData()
+  return batchDataQueue
 }
