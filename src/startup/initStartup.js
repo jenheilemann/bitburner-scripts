@@ -2,6 +2,8 @@ const filesToDownload = [
   'batching/builder.js',
   'batching/calculations.js',
   'batching/queue.js',
+  'batching/shotgunBatcher.js',
+  'batching/shotgunBuilder.js',
   'contracts/arrayJumpingSolver.js',
   'contracts/CodingContractWrapper.js',
   'contracts/compression1RLE.js',
