@@ -1,7 +1,8 @@
 import {
   getLSItem,
   announce,
-  myMoney
+  myMoney,
+  getReserve
 } from 'utils/helpers.js'
 import { getPercentUsedRam } from '/batching/calculations.js'
 
@@ -35,7 +36,9 @@ export async function main(ns) {
 
   const pservs = Object.values(nmap).filter(s => s.name != 'home' && s.purchasedByPlayer)
   const currRam = smallestCurrentServerSize(ns, pservs)
-  const nextRam = nextRamSize(ns, currRam)
+  const reserve = getReserve()
+  const moneyAvailable = myMoney() - reserve
+  const nextRam = nextRamSize(ns, currRam, moneyAvailable)
   ns.print(`Current: ${currRam}  Next: ${2**nextRam} (2^${nextRam})`)
 
 
@@ -53,8 +56,8 @@ export async function main(ns) {
   }
 
   const cost = ns.getPurchasedServerCost(2**nextRam)
-  if ( myMoney() < cost * 2 ){
-    ns.print(`INFO: Not enough money to afford the server * 2: \$${ns.formatNumber(cost)} (\$${ns.formatNumber(myMoney())})`)
+  if ( moneyAvailable < cost * 2 ){
+    ns.print(`INFO: Not enough money to afford the server * 2 + reserve: \$${ns.formatNumber(cost)} * 2 + \$${ns.formatNumber(reserve)} (\$${ns.formatNumber(cost*2 + reserve)})`)
     return
   }
 
@@ -80,13 +83,13 @@ function smallestCurrentServerSize(ns, pservs) {
 
 /**
  * @param {NS} ns
- * @param {integer} curRam
+ * @param {number} curRam
+ * @param {number} money
  * @param {array} pservs
  **/
-function nextRamSize(ns, currRam) {
+function nextRamSize(ns, currRam, money) {
   const limit = ns.getPurchasedServerLimit()
   const maxServerSize = ns.getPurchasedServerMaxRam()
-  const money = myMoney()
   ns.print(`My money: \$${ns.formatNumber(money)}`)
 
   let cost, totalCost, i
