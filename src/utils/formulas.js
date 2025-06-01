@@ -1258,7 +1258,7 @@ class Extra {
     const person = helpers.person(options.person);
     const threadConstant = helpers.number("threadConstant", options.threadConstant);
     const threadMultiplier = helpers.number("threadMultiplier", options.threadMultiplier ?? 0);
-    const weaken = helpers.number("weaken", options.weak ?? 0);
+    const weak = helpers.number("weaken", options.weak ?? 0);
     const cores = helpers.number("cores", options.cores ?? 1);
     const relError = helpers.number("relError", options.relError ?? 1e-4);
     const guess = helpers.number("guess", options.guess ?? 0);
@@ -1316,7 +1316,7 @@ class Extra {
       const t_mult = this.calculatePercentMoneyHacked(server, person) - threadMultiplier / server.moneyMax;
       const c = threadConstant / server.moneyMax;
       const k1 = 15; // ServerBaseGrowthIncr / ServerFortifyAmount
-      const k2 = 500 * (server.minDifficulty - weaken);
+      const k2 = 500 * (server.minDifficulty - weak);
       const k3 = k1 + k2;
       const c_grow = -this.calculateGrowthConstant(server, person, cores);
       let t = guess;
@@ -1344,7 +1344,7 @@ class Extra {
       const requiredHackingSkill = server.requiredHackingSkill ?? 1e9;
       const skillMult = (person.skills.hacking - (requiredHackingSkill - 1)) / person.skills.hacking;
       const c_pmh = (skillMult * person.mults.hacking_money * this.bnMults.ScriptHackMoney) / 6000000;
-      const k1 = 25000 - 250 * (server.minDifficulty - weaken);
+      const k1 = 25000 - 250 * (server.minDifficulty - weak);
       const invmon = 1 / server.moneyMax;
       let t = guess;
       let diff, thresh;
