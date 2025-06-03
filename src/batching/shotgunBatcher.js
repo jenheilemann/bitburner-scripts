@@ -1,6 +1,5 @@
 import { disableLogs,
          getLSItem, setLSItem,
-         fetchPlayer
        } from 'utils/helpers.js'
 import { networkMapFree } from 'utils/network.js'
 import { reservedRam } from 'utils/constants.js'
@@ -8,7 +7,6 @@ import { BatchDataQueue } from '/batching/queue.js'
 import { PrepBuilder, HackBuilder } from '/batching/shotgunBuilder.js'
 import { weakTime, growTime, hackTime,
          ramSizes,
-         calcHackAmount,
         } from '/batching/calculations.js'
 
 const argsSchema = [
@@ -38,22 +36,23 @@ export async function main(ns) {
 
   const target = networkMapFree()[flags.target]
   fetchTargetData(ns, target)
-  prepTarget(ns, target, serversWithRam)
+  const queue = fetchBatchQueue()
+  prepTarget(ns, target, serversWithRam, queue)
 
   const builder = new HackBuilder(target)
   builder.calcTasks()
   for (let i = 0; i < 500; ++i) {
-    hackTarget(ns, target, builder, serversWithRam)
+    hackTarget(ns, target, builder, serversWithRam, queue)
     builder.clearServerAssignments()
   }
-  prepTarget(ns, target, serversWithRam, true)
+  saveBatches(queue)
 }
 
 /**
  * @param {NS} ns
  * @param {number} minRam - the smallest amount of ram we might use at once
  **/
-function fetchServersWithRam(ns, minRam) {
+export function fetchServersWithRam(ns, minRam) {
   return Object.values(networkMapFree()).filter(server =>
     serverHasEnoughRam(ns, server, minRam) &&
     server.files.includes('batchWeaken.js')
@@ -90,17 +89,12 @@ function fetchTargetData(ns, target) {
  * @param {NS} ns
  * @param {Server} target
  * @param {Server[]} serversWithRam
- * @param {boolean} corrective
+ * @param {BatchDataQueue} queue
  */
-function prepTarget(ns, target, serversWithRam, corrective = false) {
-  const batchDataQueue = fetchBatchQueue()
-  if (!corrective && isHealthy(ns, target) && batchDataQueue.hasPreppingBatch(target.hostname)) {
+function prepTarget(ns, target, serversWithRam, queue) {
+  if (isHealthy(ns, target) && queue.hasPreppingBatch(target.hostname)) {
     ns.print("No prep needed, continuing with hacking...")
     return
-  }
-  if ( corrective ) {
-    target.hackDifficulty = target.hackDifficulty * 1.5
-    target.moneyAvailable = target.moneyAvailable * 0.5
   }
 
   const builder = new PrepBuilder(target)
@@ -108,10 +102,11 @@ function prepTarget(ns, target, serversWithRam, corrective = false) {
   builder.assignServers(serversWithRam)
   if (builder.isEmpty()) {
     ns.print("Found zero ram to fulfill prepping, try again later....")
+    saveBatches(queue)
     ns.exit()
   }
-  ns.print(`Ready for launch!`)
-  launch(ns,builder)
+  ns.print(`Launching prepping batch!`)
+  launch(ns,builder,queue)
 }
 
 /**
@@ -129,20 +124,20 @@ function isHealthy(ns, server) {
  * @param {Server} target
  * @param {Builder} builder
  * @param {Server[]} serversWithRam
+ * @param {BatchDataQueue} queue
  */
-function hackTarget(ns, target, builder, serversWithRam) {
+function hackTarget(ns, target, builder, serversWithRam, queue) {
   builder.assignServers(serversWithRam)
 
   if (builder.isEmpty() || !builder.isFulfilled() ) {
     ns.print("Not enough ram to fulfill hacking batch, try again later....")
+    saveBatches(queue)
     ns.exit()
   }
 
-  ns.print(`Ready for launch! Target: ${target.hostname}`)
-  launch(ns,builder,target.hostname)
+  ns.print(`Launching hacking batch, Target: ${target.hostname}`)
+  launch(ns,builder, queue)
 }
-
-
 
 const fileNames = {
   'hack' : 'batchHack.js',
@@ -153,9 +148,10 @@ const fileNames = {
 /**
  * @param {NS} ns
  * @param {PrepBuilder|HackBuilder} batcher
- * Launches the batch  
+ * @param {BatchDataQueue} queue
+ * Launches the batch
  */
-function launch(ns, batcher) {
+function launch(ns, batcher, queue) {
   const target = batcher.target.hostname
   const batchID = fetchNextBatchID()
   const longestTime = Math.max(...batcher.tasks.map(t => t.time))
@@ -171,6 +167,7 @@ function launch(ns, batcher) {
     for (const server of job.servers) {
       const pid = ns.exec(fileNames[job.type],server[0],{threads: server[1]}, args)
       job.pids.push(pid)
+      server.push(pid)
     }
   }
 
@@ -179,18 +176,22 @@ function launch(ns, batcher) {
     for (let job of batcher.tasks) {
       job.pids.forEach(pid => pid == 0 ? null : ns.kill(pid))
     }
-    return
+    saveBatches(queue)
+    ns.exit();
   }
 
   const errorWindowEndTime = Date.now() + longestTime
-  ns.print(`recordBatch(start, end, id, longestTime, type, target)`)
-  ns.print(`recordBatch(${errorWindowStartTime}, ${errorWindowEndTime}, ${batchID}, ${longestTime}, ${batcher.type}, ${target})`)
-  recordBatch(errorWindowStartTime,
+  const pidsWithThreads = []
+  batcher.tasks.forEach((j) => { pidsWithThreads.push([j.type, ...j.servers]) })
+  ns.print(`recordBatch(start, end, id, longestTime, type, target, pids)`)
+  ns.print(`recordBatch(${errorWindowStartTime}, ${errorWindowEndTime}, ${batchID}, ${longestTime}, ${batcher.type}, ${target}, ${pidsWithThreads})})`)
+  queue.addNewJob(errorWindowStartTime,
               errorWindowEndTime,
               batchID,
               longestTime,
               batcher.type,
-              target)
+              target,
+              pidsWithThreads)
 }
 
 /**
@@ -216,10 +217,9 @@ function fetchBatchQueue() {
 
 /**
  * Saves the batch to the list
+ * @param {BatchDataQueue} queue
  * @returns {null}
  */
-function recordBatch(start, end, id, longestTime, type, target) {
-  let queue = fetchBatchQueue()
-  queue.addNewJob(start, end, id, longestTime, type, target)
+function saveBatches(queue) {
   setLSItem('batches', queue.toObj())
 }

@@ -1,13 +1,19 @@
 import { fetchPlayer } from 'utils/helpers.js'
 import { networkMapFree } from 'utils/network.js'
 import { BestHack } from 'bestHack.js'
+import { getPercentUsedRam } from '/batching/calculations.js'
 
 /** @param {NS} ns */
 export async function main(ns) {
   const nmap = networkMapFree()
+
+  if ( getPercentUsedRam(nmap) > 0.97 ) {
+    ns.print("Enough ram used, seems good.")
+    return
+  }
+
   const hackingLvl = fetchPlayer().skills.hacking
   let target = findBestTarget(ns, nmap, hackingLvl)
-
 
   ns.spawn("batching/shotgunBatcher.js", {spawnDelay: 0, threads: 1}, "--target", target )
 }

@@ -16,6 +16,7 @@ export class BatchJob {
     this.target = data.target
     this.start = data.start
     this.end = data.end
+    this.pids = data.pids
   }
 
   /**
@@ -55,6 +56,7 @@ export class BatchJob {
               target: this.target,
               start: this.start,
               end: this.end,
+              pids: this.pids,
             }
   }
 }
@@ -126,9 +128,9 @@ export class BatchDataQueue {
 
   /**
    * Add a new batchJob to the list
-   * @returns {null} 
+   * @returns {null}
    */
-  addNewJob(start, end, id, time, type, target) {
-    this.batchList.push(new BatchJob({start: start, end: end, id: id, time: time, type: type, target: target}))
+  addNewJob(start, end, id, time, type, target, pidsWithThreads) {
+    this.batchList.push(new BatchJob({start: start, end: end, id: id, time: time, type: type, target: target, pids: pidsWithThreads}))
   }
 }

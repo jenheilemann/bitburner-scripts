@@ -1,9 +1,11 @@
 import { fetchServerFree, networkMapFree } from 'utils/network.js'
-import { disableLogs, getLSItem } from 'utils/helpers.js'
+import { disableLogs, getLSItem, formatDuration } from 'utils/helpers.js'
 import { findTop } from 'bestHack.js'
 import { calcThreadsToHack,
           calcHackAmount,
-          getPercentUsedRam, } from '/batching/calculations.js'
+          calcThreadsToGrow,
+          getPercentUsedRam,
+          calculatePercentMoneyHacked, } from '/batching/calculations.js'
 import { BatchDataQueue } from '/batching/queue.js'
 
 export function autocomplete(data, args) {
@@ -18,7 +20,7 @@ export async function main(ns) {
   while (true) {
     await ns.sleep(100)
     ns.clearLog();
-    let batches = getLSItem('batches') || []
+    let batches = fetchBatchQueue().batchList
     let nBatches = batches.length
     ns.print(`Batches: ${nBatches} --- ` +
       `Ram used: ${ns.formatPercent(getPercentUsedRam(networkMapFree()))} `)
@@ -39,6 +41,11 @@ export async function main(ns) {
   }
 }
 
+/**
+ * @param {NS} ns
+ * @param {Server} server
+ * @param {BatchJob[]} batches
+ **/
 function printServer(ns, server, batches) {
   ns.print(` ----------- ${server.hostname}`)
   let percent = Math.round((server.moneyAvailable / server.moneyMax) * 100)
@@ -48,7 +55,7 @@ function printServer(ns, server, batches) {
             `Security : ${ns.formatNumber(server.hackDifficulty, 1)}/${ns.formatNumber(server.minDifficulty, 0)}`)
   let numBatches = batches.filter(b=>b.target == server.hostname).length
   ns.print(`*** Batches  : ${numBatches.toString().padStart(3)} | ` +
-            `Time : ${formatTime(weakTime)}`)
+            `Time : ${formatDuration(weakTime)}`)
 
   let available = server.moneyAvailable
   server.moneyAvailable = server.moneyMax
@@ -67,27 +74,19 @@ function printServer(ns, server, batches) {
   let multiplier = server.moneyMax / Math.max(server.moneyAvailable, 1)
   let growThreads = Math.ceil(ns.growthAnalyze(server.hostname, multiplier))
   multiplier = server.moneyMax / (Math.max(server.moneyMax, 1) * (1 - calcHackAmount(server)))
-  let growThForHack = Math.ceil(ns.growthAnalyze(server.hostname, multiplier))
+
+  server.moneyAvailable = server.moneyMax
+  server.moneyAvailable -= server.moneyAvailable *
+                           calculatePercentMoneyHacked(server) *
+                           hackThreads
+  let growThForHack = calcThreadsToGrow(server, server.moneyMax)
   ns.print(`* Grow       : ${growThreads.toString().padStart(3," ")} (${growThForHack})`)
   server.hackDifficulty = difficulty
+  server.moneyAvailable = available
 
   weakThreads = Math.ceil(growThreads/12.5)
   weakThForHack = Math.ceil(growThForHack/12.5)
   ns.print(`* Weaken2    : ${weakThreads.toString().padStart(3," ")} (${weakThForHack})`)
-}
-
-
-/**
- * @returns {string} Time string, formatted nicely
- */
-function formatTime(timeInMs) {
-  if (timeInMs > 1000 * 60 * 60 )
-    return new Date(timeInMs).toISOString().slice(11, 23)
-  if (timeInMs > 1000 * 60 )
-    return new Date(timeInMs).toISOString().slice(14, 23)
-  if (timeInMs > 1000 )
-    return new Date(timeInMs).toISOString().slice(17, 23)
-  return new Date(timeInMs).toISOString().slice(18, 23)
 }
 
 /**

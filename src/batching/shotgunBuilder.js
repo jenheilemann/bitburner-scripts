@@ -2,7 +2,6 @@ import {
   calcThreadsToGrow, 
   calcThreadsToHack,
   calcRam, ramSizes,
-  hackTime, weakTime, growTime, 
   calcHackAmount,
   calculatePercentMoneyHacked } from '/batching/calculations.js'
 import { createCurrentFormulas } from 'utils/formulas.js'
@@ -83,6 +82,13 @@ class Builder {
       this.calcTasks()
 
     return this.tasks.reduce((a,b) => a + b.ram, 0)
+  }
+
+  /**
+   * Empties the task servers array so new servers can be assigned
+   */
+  clearServerAssignments() {
+    this.tasks.map(task => task.servers = [])
   }
 }
 
@@ -165,7 +171,7 @@ export class HackBuilder extends Builder {
                                   hackTh
     let growTh = calcThreadsToGrow(this.target, this.target.moneyMax)
         // to offset the loss during levelups or desyncs
-        growTh += Math.ceil(growTh * 0.05)
+        // growTh += Math.ceil(growTh * 0.02)
     let weakTh2 = Math.ceil(growTh/growsPerWeaken)
     // reset to actual
     this.target.moneyAvailable = mA
@@ -214,10 +220,6 @@ export class HackBuilder extends Builder {
       return servers
     }
     return []
-  }
-
-  clearServerAssignments() {
-    this.tasks.map(task => task.servers = [])
   }
 }
 
