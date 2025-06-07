@@ -45,6 +45,7 @@ export async function main(ns) {
     hackTarget(ns, target, builder, serversWithRam, queue)
     builder.clearServerAssignments()
   }
+  prepTarget(ns, target, serversWithRam, queue, true)
   saveBatches(queue)
 }
 
@@ -90,11 +91,19 @@ function fetchTargetData(ns, target) {
  * @param {Server} target
  * @param {Server[]} serversWithRam
  * @param {BatchDataQueue} queue
+ * @param {boolean} corrective
  */
-function prepTarget(ns, target, serversWithRam, queue) {
-  if (isHealthy(ns, target) && queue.hasPreppingBatch(target.hostname)) {
+function prepTarget(ns, target, serversWithRam, queue, corrective = false) {
+  if (!corrective
+      && isHealthy(ns, target)
+      && queue.hasPreppingBatch(target.hostname)) {
     ns.print("No prep needed, continuing with hacking...")
     return
+  }
+
+  if ( corrective ) {
+    target.hackDifficulty = target.hackDifficulty * 1.2
+    target.moneyAvailable  = target.moneyAvailable  * 0.5
   }
 
   const builder = new PrepBuilder(target)
