@@ -1,8 +1,9 @@
 import { fetchPlayer, getLSItem } from 'utils/helpers.js'
 import { networkMapFree } from 'utils/network.js'
 import { BestHack } from 'bestHack.js'
-import { getPercentUsedRam } from '/batching/calculations.js'
+import { getPercentUsedRam, weakTime } from '/batching/calculations.js'
 import { BatchDataQueue } from '/batching/queue.js'
+import { createCurrentFormulas } from '/utils/formulas.js'
 
 /** @param {NS} ns */
 export async function main(ns) {
@@ -18,8 +19,7 @@ export async function main(ns) {
     return
   }
 
-  const hackingLvl = fetchPlayer().skills.hacking
-  let target = findBestTarget(ns, nmap, hackingLvl)
+  let target = findBestTarget(ns, nmap)
 
   ns.spawn("batching/shotgunBatcher.js", {spawnDelay: 0, threads: 1}, "--target", target )
 }
@@ -29,9 +29,13 @@ export async function main(ns) {
  * right now, maybe?
  * @param {NS} ns
  * @param {Server[]} nmap
- * @param {number} hackingLvl
  **/
-function findBestTarget(ns, nmap, hackingLvl) {
+function findBestTarget(ns, nmap) {
+  const player = fetchPlayer()
+  const fs = createCurrentFormulas()
+  const hackingLvl = player.skills.hacking
+  const fiveMin = 5 * 60 * 1000
+
   if ( hackingLvl > 3500 ) {
     const searcher = new BestHack(nmap)
     const servers = searcher.findTop(hackingLvl)
@@ -40,19 +44,33 @@ function findBestTarget(ns, nmap, hackingLvl) {
     return servers[0].hostname
   }
 
-  if ( hackingLvl > 1200 && nmap['rho-construction'].hasAdminRights ){
+  if ( hackingLvl > 1200 && isServerWorthIt(nmap['rho-construction'], player, fs, fiveMin) ){
     return 'rho-construction'
   }
 
-  if ( hackingLvl > 500 && nmap['phantasy'].hasAdminRights ){
+  if ( hackingLvl > 500 && isServerWorthIt(nmap['phantasy'], player, fs, fiveMin) ){
     return 'phantasy'
   }
 
   const home = nmap['home']
-  if ( hackingLvl > 20 && home.maxRam >= 64 && nmap['joesguns'].hasAdminRights ){
+  if ( hackingLvl > 20 && home.maxRam >= 64 && isServerWorthIt(nmap['joesguns'], player, fs, fiveMin) ){
     return 'joesguns'
   }
   return 'n00dles'
+}
+
+/**
+ * @param {Server} server
+ * @param {Player} player
+ * @param {Formulas} fs
+ * @param {number} maxTime - max time we're willing to wait for weakes to run
+ */
+function isServerWorthIt(server, player, fs, maxTime) {
+  const oldSecurity = server.security
+  server.security = server.minSecurity
+  const hChance = fs.hacking.hackChance(server, player)
+  server.security = oldSecurity
+  return server.hasAdminRights && weakTime(server) < maxTime && hChance > 0.9
 }
 
 /**

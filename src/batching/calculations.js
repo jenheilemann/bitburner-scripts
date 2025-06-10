@@ -9,8 +9,8 @@ export async function main(ns) {
 
 /**
  * Returns time it takes to complete a hack on a server, in ms.
- * @param {Server} server - Server being grown
- * @returns {num} Time to hack, in ms
+ * @param {Server} server - Server being hacked
+ * @returns {number} Time to hack, in ms
  */
 export function hackTime(server) {
   const player = fetchPlayer()
@@ -42,9 +42,20 @@ export function hackTime(server) {
 const growTimeMultiplier = 3.2 // Relative to hacking time. 16/5 = 3.2
 const weakenTimeMultiplier = 4 // Relative to hacking time
 
+/**
+ * Returns time it takes to complete a grow on a server, in ms.
+ * @param {Server} server - Server being grown
+ * @returns {number} Time to grow, in ms
+ */
 export function growTime(server) {
   return hackTime(server) * growTimeMultiplier
 }
+
+/**
+ * Returns time it takes to complete a weaken on a server, in ms.
+ * @param {Server} server - Server being weakened
+ * @returns {number} Time to weaken, in ms
+ */
 export function weakTime(server) {
   return hackTime(server) * weakenTimeMultiplier
 }
