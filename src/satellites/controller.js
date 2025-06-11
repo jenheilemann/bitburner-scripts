@@ -13,7 +13,7 @@ const timers = [
   { file: 'satellites/playerObserver.js',    freq: 83,     last: 0 },
 
   { file: 'satellites/networkObserver.js',   freq: 73,     last: 0 },
-  { file: 'satellites/batchObserver.js',     freq: 499,    last: 0 },
+  { file: 'satellites/batchObserver.js',     freq: 499,    last: Date.now() },
   { file: 'stats.js',                        freq: 1003,   last: 0 },
   // { file: 'satellites/gangClashObserver.js', freq: 1.3*sec,   last: 0 },
   // { file: 'gang/equipment.js',               freq: 5.2*sec,   last: 0 },
@@ -29,9 +29,9 @@ const timers = [
   // { file: 'sleeves/manager.js',              freq: 31.1*sec,  last: Date.now() },
   { file: 'satellites/programObserver.js',   freq: 33751,  last: 0 },
   // { file: 'satellites/activityObserver.js',  freq: min,       last: Date.now() },
-  { file: 'satellites/homeRamObserver.js',   freq: 63577,  last: performance.now() },
-  { file: 'satellites/pservObserver.js',     freq: 63901,  last: performance.now() },
-  { file: 'satellites/contractsObserver.js', freq: 119993, last: performance.now() },
+  { file: 'satellites/homeRamObserver.js',   freq: 63577,  last: Date.now() },
+  { file: 'satellites/pservObserver.js',     freq: 63901,  last: Date.now() },
+  { file: 'satellites/contractsObserver.js', freq: 119993, last: Date.now() },
 
 ]
 
@@ -49,10 +49,10 @@ export async function main(ns) {
     ns.clearLog()
     for ( const timer of timers) {
       proc = ns.ps('home').some(p => p.filename == timer.file)
-      if (!proc && performance.now() > timer.last + timer.freq ) {
+      if (!proc && Date.now() > timer.last + timer.freq ) {
         let res = ns.run(timer.file, 1)
         if (res > 0 ) {
-          timer.last = performance.now()
+          timer.last = Date.now()
           report.success(timer)
         } else {
           report.failure(timer)
@@ -72,12 +72,12 @@ class Report {
   success(satellite) {
     if (!(satellite.file in this.happenings))
       this.happenings[satellite.file] = { success: [], failure: []}
-    this.happenings[satellite.file].success.push(performance.now())
+    this.happenings[satellite.file].success.push(Date.now())
   }
   failure(satellite) {
     if (!(satellite.file in this.happenings))
       this.happenings[satellite.file] = { success: [], failure: []}
-    this.happenings[satellite.file].failure.push(performance.now())
+    this.happenings[satellite.file].failure.push(Date.now())
   }
   print(ns) {
     ns.print(`Rolling report of files run in the last ${formatDuration(reportRefreshRate)}`)
@@ -91,7 +91,7 @@ class Report {
     ns.print('**************************************************************')
   }
   refresh() {
-    let currentTime = performance.now()
+    let currentTime = Date.now()
     let cutOffTime = currentTime - reportRefreshRate
     for (let file in this.happenings) {
       let rep = this.happenings[file]
